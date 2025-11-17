@@ -29,7 +29,6 @@
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [API Documentation](#api-documentation)
-- [Deployment](#deployment)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
@@ -895,43 +894,6 @@ POST /translate
 POST /validate-sign
 GET  /supported-signs
 GET  /model-info
-```
-
----
-
-## 🌐 Deployment
-
-### Railway Deployment
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete Railway deployment guide.
-
-Quick steps:
-
-```bash
-# 1. Push to GitHub
-git push origin main
-
-# 2. Connect to Railway
-# - Sign up at railway.app
-# - Connect GitHub repository
-# - Add environment variables
-# - Deploy automatically
-
-# 3. Add MongoDB
-# - Add MongoDB plugin in Railway
-# - Copy connection string to env vars
-
-# 4. Deploy Python services
-# - Create separate service for ML APIs
-# - Set root directory to sign_recognition
-# - Add start command
-```
-
-### Docker Deployment
-
-```dockerfile
-# Dockerfile provided
-docker-compose up -d
 ```
 
 ---
