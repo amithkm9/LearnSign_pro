@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+sign_recognition/.venv/
+sign_recognition/env/
+sign_recognition/__pycache__/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Training data (optional - comment out if you want to include it)
+# sign_recognition/training_data/
+
+# Models (large files - optional)
+# sign_recognition/models/*.h5
+# sign_recognition/models/*.keras
+
+# Backup files
+backup/
+
+# Test files
+test-*.js
+check-*.js
+
+# MongoDB dumps
+data/
+

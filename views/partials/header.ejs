@@ -1,0 +1,72 @@
+<header class="site-header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <a href="/" id="logo-link">
+                    <img src="/assets/imgs/image.png" alt="LearnSign Logo" class="logo-image" style="height: 50px; width: auto;">
+                    <span class="logo-text">LearnSign</span>
+                </a>
+            </div>
+
+            <nav class="main-nav" id="main-navigation">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="/" class="nav-link" id="nav-home">Home</a></li>
+                    <li class="nav-item"><a href="/courses" class="nav-link" id="nav-courses">Courses</a></li>
+                    <li class="nav-item"><a href="/packages" class="nav-link" id="nav-packages">Packages</a></li>
+                    <li class="nav-item"><a href="/translate" class="nav-link" id="nav-translator">Translator</a></li>
+                    <li class="nav-item"><a href="/about" class="nav-link" id="nav-about">About</a></li>
+                    <li class="nav-item"><a href="/community" class="nav-link" id="nav-community">Community</a></li>
+                    <li class="nav-item dashboard-nav" id="dashboard-nav-item" style="display: none;">
+                        <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
+                    </li>
+                </ul>
+            </nav>
+
+
+            <div class="user-menu" id="user-menu">
+                <!-- Login Button (shown when not logged in) -->
+                <a href="/login" class="btn login-btn" id="login-btn" style="color: rgb(112, 157, 215); font-size: 19px;">Sign In</a>
+                
+                <!-- User Dropdown Menu (shown when logged in) -->
+                <div class="user-dropdown" id="user-dropdown" style="display: none;">
+                    <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                        <div class="user-avatar" id="user-avatar">
+                            <span id="user-initials">U</span>
+                        </div>
+                        <span class="user-name" id="user-name">User Name</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="user-dropdown-menu" id="user-dropdown-menu">
+                        <div class="dropdown-header">
+                            <div class="user-info">
+                                <span class="user-full-name" id="user-full-name">User Name</span>
+                                <span class="user-email" id="user-email">user@example.com</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="/dashboard" class="dropdown-item">
+                            <span class="dropdown-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="/profile" class="dropdown-item">
+                            <span class="dropdown-icon">👤</span>
+                            Profile Settings
+                        </a>
+                        <a href="/achievements" class="dropdown-item">
+                            <span class="dropdown-icon">🏆</span>
+                            Achievements
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout-btn" onclick="window.handleLogout()">
+                            <span class="dropdown-icon">🚪</span>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Simple Authentication Script -->
+<script src="/js/auth-simple.js"></script>

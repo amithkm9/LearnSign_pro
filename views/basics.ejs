@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/video-player.css">
+        <link rel="stylesheet" href="/css/style2.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+        <main class="video-learning-container">
+                <% if(locals.videos){ %>
+                <!-- Enhanced Video Player Section -->
+        <section class="video-player-section">
+            <!-- Course Header -->
+            <div class="course-header-full">
+                <div class="course-title-section">
+                    <h1 class="course-title"><%= videos.title %></h1>
+                    <div class="course-meta">
+                        <span class="course-category">
+                            <% if(videos.category === 'basics') { %>🎯 Basics<% } %>
+                            <% if(videos.category === 'numbers') { %>🔢 Numbers<% } %>
+                            <% if(videos.category === 'letters') { %>🔤 Letters<% } %>
+                            <% if(videos.category === 'family') { %>👨‍👩‍👧‍👦 Family<% } %>
+                        </span>
+                        <span class="course-level">
+                            <% if(videos.difficulty === 'Beginner') { %>⭐ Beginner<% } %>
+                            <% if(videos.difficulty === 'Intermediate') { %>⭐⭐ Intermediate<% } %>
+                            <% if(videos.difficulty === 'Advanced') { %>⭐⭐⭐ Advanced<% } %>
+                        </span>
+                        <span class="course-duration">⏱️ <%= videos.duration || '5 min' %></span>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <button class="action-btn primary-action" onclick="markAsCompleted()">
+                        <span class="btn-icon">✓</span>
+                        <span class="btn-text">Mark Complete</span>
+                    </button>
+                    <button class="action-btn secondary-action" onclick="addToFavorites()">
+                        <span class="btn-icon">♡</span>
+                        <span class="btn-text">Save</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video and Progress Side by Side -->
+            <div class="video-progress-container">
+                <!-- Video Container -->
+                <div class="video-container">
+                    <div class="video-wrapper">
+                        <video id="mainVideo" class="main-video" controls poster="">
+                            <source src="<%= videos.video %>" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay">
+                            <div class="video-info-badge">
+                                <span class="video-duration" id="videoDuration">Loading...</span>
+                                <span class="video-quality">HD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Controls Enhancement -->
+                    <div class="custom-controls">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-filled" id="progressFilled"></div>
+                            </div>
+                        </div>
+                        <div class="controls-row">
+                            <div class="controls-left">
+                                <button class="control-btn play-pause-btn" id="playPauseBtn">
+                                    <span class="play-icon">▶</span>
+                                    <span class="pause-icon" style="display: none;">⏸</span>
+                                </button>
+                                <span class="time-display">
+                                    <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                                </span>
+                            </div>
+                            <div class="controls-right">
+                                <button class="control-btn speed-btn" id="speedBtn">1x</button>
+                                <button class="control-btn fullscreen-btn" id="fullscreenBtn">⛶</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                <!-- Progress Panel (Right Side) -->
+                <div class="progress-panel">
+                    <!-- Progress Tracking -->
+                    <div class="progress-tracking">
+                        <div class="progress-header">
+                            <h3>📊 Your Progress</h3>
+                            <span class="progress-percentage" id="courseProgress">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-track">
+                                <div class="progress-fill" id="courseProgressFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <span class="stat-icon">⏱️</span>
+                                <span class="stat-text">Time Watched: <span id="timeWatched">0 min</span></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">🎯</span>
+                                <span class="stat-text">Completion: <span id="completionStatus">In Progress</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Objectives -->
+                    <div class="learning-objectives">
+                        <h3>🎯 What You'll Learn</h3>
+                        <ul class="objectives-list">
+                            <% if(videos.learningObjectives && videos.learningObjectives.length > 0) { %>
+                                <% videos.learningObjectives.forEach(objective => { %>
+                                    <li class="objective-item">
+                                        <span class="objective-icon">✨</span>
+                                        <span class="objective-text"><%= objective %></span>
+                                    </li>
+                                <% }) %>
+                            <% } else { %>
+                                <li class="objective-item">
+                                    <span class="objective-icon">✨</span>
+                                    <span class="objective-text">Master fundamental sign language techniques</span>
+                                </li>
+                                <li class="objective-item">
+                                    <span class="objective-icon">✨</span>
+                                    <span class="objective-text">Build confidence in sign communication</span>
+                            </li>
+                                <li class="objective-item">
+                                    <span class="objective-icon">✨</span>
+                                    <span class="objective-text">Practice with real-world examples</span>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section Below Video -->
+            <div class="quiz-section-below">
+                <h2>🧠 Ready to Test Your Knowledge?</h2>
+                <div class="quiz-actions">
+                    <a href="/quiz?category=<%= videos.category %>" class="quiz-action-card main-quiz">
+                        <div class="quiz-icon">🧠</div>
+                        <div class="quiz-content">
+                            <div class="quiz-title">Take Interactive Quiz</div>
+                            <div class="quiz-desc">Test your understanding with hands-on sign recognition</div>
+                        </div>
+                        <div class="quiz-arrow">→</div>
+                    </a>
+                    
+                    <a href="/courses/<%= videos.ageGroup %>" class="quiz-action-card continue-learning">
+                        <div class="quiz-icon">📚</div>
+                        <div class="quiz-content">
+                            <div class="quiz-title">Continue Learning</div>
+                            <div class="quiz-desc">Explore more courses in this category</div>
+                        </div>
+                        <div class="quiz-arrow">→</div>
+                    </a>
+                    
+                    <a href="/translate" class="quiz-action-card practice-mode">
+                        <div class="quiz-icon">🤟</div>
+                        <div class="quiz-content">
+                            <div class="quiz-title">Practice Mode</div>
+                            <div class="quiz-desc">Try real-time sign recognition</div>
+                        </div>
+                        <div class="quiz-arrow">→</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <% } else { %>
+        <div class="no-video-message">
+            <div class="message-icon">🎬</div>
+            <h2>Video Not Found</h2>
+            <p>The requested video could not be loaded. Please try again later.</p>
+            <a href="/courses" class="back-btn">← Back to Courses</a>
+        </div>
+        <% } %>
+    </main>
+            <%- include('./partials/footer') %>
+    
+    <script type="module" src="/js/basics.js"></script>
+    <script src="/js/heartbeat.js"></script>
+    <script>
+        // Enhanced Video Player JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize learning heartbeat
+            const userId = localStorage.getItem('userId');
+            const courseId = '<%= videos && videos.id ? videos.id : "" %>';
+            if (userId && courseId) {
+                window.currentProgressPercent = 0;
+                initLearningHeartbeat({
+                    apiBase: '/learning/events',
+                    userId,
+                    courseId,
+                    getProgress: () => window.currentProgressPercent || 0
+                });
+            }
+            const video = document.getElementById('mainVideo');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const progressFilled = document.getElementById('progressFilled');
+            const currentTimeSpan = document.getElementById('currentTime');
+            const totalTimeSpan = document.getElementById('totalTime');
+            const videoDurationBadge = document.getElementById('videoDuration');
+            const speedBtn = document.getElementById('speedBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const courseProgress = document.getElementById('courseProgress');
+            const courseProgressFill = document.getElementById('courseProgressFill');
+            const timeWatched = document.getElementById('timeWatched');
+            const completionStatus = document.getElementById('completionStatus');
+
+            let watchedTime = 0;
+            let totalWatchTime = 0;
+            let lastUpdateTime = 0;
+
+            // Video loaded metadata
+            video.addEventListener('loadedmetadata', function() {
+                const duration = formatTime(video.duration);
+                totalTimeSpan.textContent = duration;
+                videoDurationBadge.textContent = duration;
+                totalWatchTime = video.duration;
+                updateProgress();
+            });
+
+            // Play/Pause functionality
+            playPauseBtn.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    document.querySelector('.play-icon').style.display = 'none';
+                    document.querySelector('.pause-icon').style.display = 'inline';
+                } else {
+                    video.pause();
+                    document.querySelector('.play-icon').style.display = 'inline';
+                    document.querySelector('.pause-icon').style.display = 'none';
+                }
+            });
+
+            // Time update
+            video.addEventListener('timeupdate', function() {
+                const currentTime = video.currentTime;
+                const duration = video.duration;
+                
+                // Update progress bar
+                const progressPercent = (currentTime / duration) * 100;
+                progressFilled.style.width = progressPercent + '%';
+                
+                // Update time display
+                currentTimeSpan.textContent = formatTime(currentTime);
+                
+                // Track watched time
+                if (currentTime > lastUpdateTime) {
+                    watchedTime += currentTime - lastUpdateTime;
+                }
+                lastUpdateTime = currentTime;
+                
+                updateProgress();
+            });
+
+            // Speed control
+            let speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+            let currentSpeedIndex = 2; // 1x speed
+            
+            speedBtn.addEventListener('click', function() {
+                currentSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
+                const newSpeed = speeds[currentSpeedIndex];
+                video.playbackRate = newSpeed;
+                speedBtn.textContent = newSpeed + 'x';
+            });
+
+            // Fullscreen
+            fullscreenBtn.addEventListener('click', function() {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            });
+
+            // Progress bar click
+            document.querySelector('.progress-bar').addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const clickPercent = clickX / width;
+                const newTime = clickPercent * video.duration;
+                video.currentTime = newTime;
+            });
+
+            // Format time helper
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return minutes + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+
+            // Update progress tracking
+            function updateProgress() {
+                if (totalWatchTime > 0) {
+                    const progressPercent = Math.min((watchedTime / totalWatchTime) * 100, 100);
+                    window.currentProgressPercent = Math.round(progressPercent);
+                    courseProgress.textContent = Math.round(progressPercent) + '%';
+                    courseProgressFill.style.width = progressPercent + '%';
+                    timeWatched.textContent = Math.round(watchedTime / 60) + ' min';
+                    
+                    if (progressPercent >= 90) {
+                        completionStatus.textContent = 'Completed';
+                        completionStatus.style.color = 'var(--success-color)';
+                    } else if (progressPercent >= 50) {
+                        completionStatus.textContent = 'In Progress';
+                        completionStatus.style.color = 'var(--primary-color)';
+                    }
+                }
+            }
+
+            // Video ended
+            video.addEventListener('ended', function() {
+                watchedTime = totalWatchTime;
+                updateProgress();
+                showCompletionMessage();
+            });
+
+            // Show completion message
+            function showCompletionMessage() {
+                const message = document.createElement('div');
+                message.className = 'completion-message';
+                message.innerHTML = `
+                    <div class="completion-content">
+                        <div class="completion-icon">🎉</div>
+                        <h3>Congratulations!</h3>
+                        <p>You've completed this lesson!</p>
+                        <div class="completion-actions">
+                            <a href="/quiz?category=${video.dataset.category || 'basics'}" class="completion-btn primary">Take Quiz</a>
+                            <a href="/courses/${video.dataset.ageGroup || '1-4'}" class="completion-btn secondary">Next Lesson</a>
+                        </div>
+                    </div>
+                `;
+                
+                message.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    animation: fadeIn 0.3s ease;
+                `;
+                
+                document.body.appendChild(message);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.style.animation = 'fadeOut 0.3s ease';
+                        setTimeout(() => message.remove(), 300);
+                    }
+                }, 5000);
+                
+                // Click to close
+                message.addEventListener('click', function(e) {
+                    if (e.target === message) {
+                        message.style.animation = 'fadeOut 0.3s ease';
+                        setTimeout(() => message.remove(), 300);
+                    }
+                });
+            }
+
+            // Add completion message styles
+            const completionStyles = document.createElement('style');
+            completionStyles.textContent = `
+                .completion-message .completion-content {
+                    background: white;
+                    padding: 3rem;
+                    border-radius: 20px;
+                    text-align: center;
+                    max-width: 400px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                }
+                .completion-icon {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                }
+                .completion-content h3 {
+                    font-size: 2.4rem;
+                    color: var(--text-dark);
+                    margin-bottom: 1rem;
+                }
+                .completion-content p {
+                    font-size: 1.5rem;
+                    color: var(--text-medium);
+                    margin-bottom: 2rem;
+                }
+                .completion-actions {
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: center;
+                }
+                .completion-btn {
+                    padding: 1rem 2rem;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+                .completion-btn.primary {
+                    background: var(--primary-color);
+                    color: white;
+                }
+                .completion-btn.secondary {
+                    background: #f5f5f5;
+                    color: var(--text-dark);
+                }
+                .completion-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                }
+            `;
+            document.head.appendChild(completionStyles);
+        });
+
+        // Action button functions
+        function markAsCompleted() {
+            const button = event.target.closest('.action-btn');
+            button.innerHTML = '<span class="btn-icon">✓</span><span class="btn-text">Completed!</span>';
+            button.style.background = 'var(--success-color)';
+            button.style.borderColor = 'var(--success-color)';
+            
+            // Update progress to 100%
+            document.getElementById('courseProgress').textContent = '100%';
+            document.getElementById('courseProgressFill').style.width = '100%';
+            document.getElementById('completionStatus').textContent = 'Completed';
+            document.getElementById('completionStatus').style.color = 'var(--success-color)';
+            
+            // Show success message
+            showNotification('Course marked as completed! 🎉', 'success');
+        }
+
+        function addToFavorites() {
+            const button = event.target.closest('.action-btn');
+            const icon = button.querySelector('.btn-icon');
+            const text = button.querySelector('.btn-text');
+            
+            if (icon.textContent === '♡') {
+                icon.textContent = '♥';
+                text.textContent = 'Saved!';
+                button.style.background = 'var(--danger-color)';
+                button.style.borderColor = 'var(--danger-color)';
+                showNotification('Added to favorites! ❤️', 'success');
+            } else {
+                icon.textContent = '♡';
+                text.textContent = 'Save';
+                button.style.background = 'rgba(255, 255, 255, 0.2)';
+                button.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                showNotification('Removed from favorites', 'info');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                padding: 1rem 2rem;
+                background: ${type === 'success' ? 'var(--success-color)' : 'var(--primary-color)'};
+                color: white;
+                border-radius: 25px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add notification animations
+        const notificationStyles = document.createElement('style');
+        notificationStyles.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(notificationStyles);
+    </script>
+</body>
+
+</html>

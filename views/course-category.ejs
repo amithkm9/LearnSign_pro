@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/course-category.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="course-category-content">
+        <% if (data && data.category) { %>
+            <!-- Category Header -->
+            <section class="category-header">
+                <div class="container">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a> 
+                        <span>></span> 
+                        <a href="/courses">Courses</a> 
+                        <span>></span> 
+                        <span><%= data.category.title %></span>
+                    </div>
+                    
+                    <div class="category-hero">
+                        <div class="category-info">
+                            <h1><%= data.category.title %></h1>
+                            <p><%= data.category.description %></p>
+                            <div class="category-meta">
+                                <span class="course-count">📚 <%= data.courses.length %> courses</span>
+                                <span class="difficulty">
+                                    <% if (ageGroup === '1-4') { %>⭐ Beginner Level<% } %>
+                                    <% if (ageGroup === '5-10') { %>⭐⭐ Intermediate Level<% } %>
+                                    <% if (ageGroup === '15+') { %>⭐⭐⭐ Advanced Level<% } %>
+                                </span>
+                                <span class="price">💯 100% FREE</span>
+                            </div>
+                        </div>
+                        <div class="category-icon" style="--icon-color: <%= data.category.color %>; color: var(--icon-color)">
+                            <% if (ageGroup === '1-4') { %>🧸<% } %>
+                            <% if (ageGroup === '5-10') { %>🎒<% } %>
+                            <% if (ageGroup === '15+') { %>🎓<% } %>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Course List -->
+            <section class="courses-list">
+                <div class="container">
+                    <div class="courses-header">
+                        <h2>Available Courses</h2>
+                        <div class="view-options">
+                            <button class="view-btn active" data-view="grid">Grid</button>
+                            <button class="view-btn" data-view="list">List</button>
+                        </div>
+                    </div>
+
+                    <div class="courses-grid" id="courses-container">
+                        <% data.courses.forEach(course => { %>
+                            <div class="course-card">
+                                <div class="course-thumbnail">
+                                    <% if (course.video) { %>
+                                        <video class="course-video-preview" preload="metadata" muted>
+                                            <source src="<%= course.video %>#t=10" type="video/mp4">
+                                        </video>
+                                    <% } else { %>
+                                        <div class="video-placeholder">
+                                            <div class="placeholder-icon">🎬</div>
+                                        </div>
+                                    <% } %>
+                                    <div class="play-overlay">
+                                        <button class="play-btn" onclick="playCourse('<%= course.id %>')">▶</button>
+                                    </div>
+                                    <div class="course-duration"><%= course.duration %></div>
+                                </div>
+                                
+                                <div class="course-content">
+                                    <div class="course-header">
+                                        <h3><%= course.title %></h3>
+                                        <span class="difficulty-badge <%= course.difficulty.toLowerCase() %>">
+                                            <%= course.difficulty %>
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="course-description"><%= course.description %></p>
+                                    
+                                    <div class="course-skills">
+                                        <h4>Skills You'll Learn:</h4>
+                                        <div class="skills-tags">
+                                            <% course.skills.forEach(skill => { %>
+                                                <span class="skill-tag"><%= skill %></span>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+
+                                    <% if (course.prerequisites && course.prerequisites.length > 0) { %>
+                                        <div class="course-prerequisites">
+                                            <h4>Prerequisites:</h4>
+                                            <div class="prereq-list">
+                                                <% course.prerequisites.forEach(prereq => { %>
+                                                    <span class="prereq-item">Course <%= prereq %></span>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <div class="course-footer">
+                                        <div class="course-price">
+                                            <span class="current-price"><%= course.price %></span>
+                                        </div>
+                                        <div class="course-actions">
+                                            <button class="btn primary-btn start-course-btn" onclick="startCourse('<%= course.id %>')">
+                                                🚀 Start Course
+                                            </button>
+                                            <button class="btn secondary-btn preview-btn" onclick="previewCourse('<%= course.id %>')">
+                                                👁️ Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Path Guide -->
+            <section class="learning-path-guide">
+                <div class="container">
+                    <h2>📚 Recommended Learning Order</h2>
+                    <p>For optimal results, follow this suggested sequence:</p>
+                    
+                    <div class="learning-sequence">
+                        <% data.courses.forEach((course, index) => { %>
+                            <div class="sequence-item" data-course="<%= course.id %>">
+                                <div class="sequence-number"><%= index + 1 %></div>
+                                <div class="sequence-content">
+                                    <h4><%= course.title %></h4>
+                                    <p><%= course.description %></p>
+                                    <span class="sequence-duration"><%= course.duration %></span>
+                                </div>
+                                <% if (index < data.courses.length - 1) { %>
+                                    <div class="sequence-arrow">↓</div>
+                                <% } %>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Integrated Quiz Section -->
+            <section class="course-quiz-section">
+                <div class="container">
+                    <div class="quiz-section-header">
+                        <div class="quiz-header-content">
+                            <h2>🎯 Test Your Knowledge</h2>
+                            <p>Practice what you've learned with our AI-powered sign recognition quiz</p>
+                        </div>
+                        <div class="quiz-header-visual">
+                            <div class="floating-icons">
+                                <div class="icon-item">🤟</div>
+                                <div class="icon-item">👋</div>
+                                <div class="icon-item">👍</div>
+                                <div class="icon-item">✌️</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-integration-card">
+                        <div class="quiz-info-section">
+                            <div class="quiz-stats-grid">
+                                <div class="quiz-stat-card">
+                                    <div class="stat-icon">📝</div>
+                                    <div class="stat-content">
+                                        <span class="stat-number">
+                                            <% if (ageGroup === '1-4') { %>4<% } %>
+                                            <% if (ageGroup === '5-10') { %>6<% } %>
+                                            <% if (ageGroup === '15+') { %>8<% } %>
+                                        </span>
+                                        <span class="stat-label">Questions</span>
+                                    </div>
+                                </div>
+                                <div class="quiz-stat-card">
+                                    <div class="stat-icon">⏱️</div>
+                                    <div class="stat-content">
+                                        <span class="stat-number">5-10</span>
+                                        <span class="stat-label">Minutes</span>
+                                    </div>
+                                </div>
+                                <div class="quiz-stat-card">
+                                    <div class="stat-icon">🎯</div>
+                                    <div class="stat-content">
+                                        <span class="stat-number">AI</span>
+                                        <span class="stat-label">Recognition</span>
+                                    </div>
+                                </div>
+                                <div class="quiz-stat-card">
+                                    <div class="stat-icon">🏆</div>
+                                    <div class="stat-content">
+                                        <span class="stat-number">Real-time</span>
+                                        <span class="stat-label">Feedback</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-description">
+                                <h3>Interactive Sign Language Practice</h3>
+                                <p>Test your understanding of the signs you've learned in this course category. Our advanced AI system will analyze your hand gestures in real-time and provide instant feedback.</p>
+                                
+                                <div class="quiz-features">
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🎥</div>
+                                        <div class="feature-content">
+                                            <h4>Live Camera Recognition</h4>
+                                            <p>Uses your webcam to capture and analyze hand movements</p>
+                                        </div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🧠</div>
+                                        <div class="feature-content">
+                                            <h4>AI-Powered Analysis</h4>
+                                            <p>Advanced machine learning for accurate sign detection</p>
+                                        </div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">📊</div>
+                                        <div class="feature-content">
+                                            <h4>Progress Tracking</h4>
+                                            <p>Monitor your improvement over time with detailed analytics</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-preview-section">
+                            <div class="webcam-preview-container">
+                                <div class="preview-frame">
+                                    <div class="preview-content">
+                                        <div class="camera-icon">📹</div>
+                                        <h4>Camera Preview</h4>
+                                        <p>Your webcam will activate when you start the quiz</p>
+                                        <div class="preview-indicators">
+                                            <div class="indicator active"></div>
+                                            <div class="indicator"></div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                    </div>
+                                    <div class="preview-overlay">
+                                        <div class="hand-outline">
+                                            <div class="gesture-hint">👋</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-action-panel">
+                                <div class="action-buttons">
+                                    <button class="btn quiz-start-btn" onclick="startCourseQuiz('<%= ageGroup %>')">
+                                        <span class="btn-icon">🚀</span>
+                                        <span class="btn-text">Start Quiz Now</span>
+                                        <span class="btn-sub">Begin Practice Session</span>
+                                    </button>
+                                    <button class="btn info-btn" onclick="showQuizInfo()">
+                                        <span class="btn-icon">ℹ️</span>
+                                        <span class="btn-text">How It Works</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="quiz-tips">
+                                    <h4>💡 Quiz Tips</h4>
+                                    <ul>
+                                        <li>Ensure good lighting and clear background</li>
+                                        <li>Position your hand clearly in camera view</li>
+                                        <li>Hold each sign for 2-3 seconds</li>
+                                        <li>Complete all courses before taking the quiz</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        <% } else { %>
+            <!-- Error State -->
+            <section class="error-section">
+                <div class="container">
+                    <div class="error-content">
+                        <h1>😔 Course Category Not Found</h1>
+                        <p>Sorry, we couldn't find the course category you're looking for.</p>
+                        <div class="error-actions">
+                            <a href="/courses" class="btn primary-btn">Browse All Courses</a>
+                            <a href="/dashboard" class="btn secondary-btn">Go to Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        <% } %>
+    </main>
+
+    <%- include('./partials/footer') %>
+
+    <script>
+        // Course actions
+        function startCourse(courseId) {
+            // Redirect to the video player
+            window.location.href = `/tutorials/basics/${courseId}`;
+        }
+
+        function previewCourse(courseId) {
+            // Find the course data
+            const courseCard = event.target.closest('.course-card');
+            const courseTitle = courseCard.querySelector('h3').textContent;
+            const courseDescription = courseCard.querySelector('.course-description').textContent;
+            const courseDuration = courseCard.querySelector('.course-duration').textContent;
+            const courseVideo = courseCard.querySelector('.course-video-preview')?.src || '/assets/videos/Introduction.mp4';
+            
+            // Create enhanced preview modal
+            const modal = document.createElement('div');
+            modal.className = 'course-preview-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="header-content">
+                            <div class="preview-badge">
+                                <span class="badge-icon">👁️</span>
+                                <span class="badge-text">Course Preview</span>
+                            </div>
+                            <h3 class="modal-title">${courseTitle}</h3>
+                        </div>
+                        <button class="close-btn" onclick="closePreviewModal()">
+                            <span class="close-icon">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="preview-video-container">
+                            <div class="video-wrapper">
+                                <video controls width="100%" height="300" poster="" autoplay muted>
+                                    <source src="${courseVideo}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div class="video-overlay-info">
+                                    <div class="video-duration">${courseDuration}</div>
+                                    <div class="video-quality">HD</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-info">
+                            <div class="info-section">
+                                <h4 class="info-title">📚 What's Included</h4>
+                                <p class="info-description">${courseDescription}</p>
+                                <div class="preview-features">
+                                    <div class="feature-item">
+                                        <span class="feature-icon">🎯</span>
+                                        <span class="feature-text">Step-by-step instructions</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-icon">🤟</span>
+                                        <span class="feature-text">Interactive demonstrations</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-icon">🧠</span>
+                                        <span class="feature-text">Practice exercises</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-icon">🏆</span>
+                                        <span class="feature-text">Progress tracking</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn primary-btn" onclick="startCourse('${courseId}')">
+                                <span class="btn-icon">🚀</span>
+                                <span class="btn-text">Start Full Course</span>
+                            </button>
+                            <button class="btn secondary-btn" onclick="closePreviewModal()">
+                                <span class="btn-icon">👋</span>
+                                <span class="btn-text">Maybe Later</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Enhanced modal styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                animation: modalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                backdrop-filter: blur(10px);
+            `;
+
+            // Auto-play video after a short delay
+            setTimeout(() => {
+                const video = modal.querySelector('video');
+                if (video) {
+                    video.play().catch(e => console.log('Auto-play prevented'));
+                }
+            }, 500);
+        }
+
+        function playCourse(courseId) {
+            startCourse(courseId);
+        }
+
+        function closePreviewModal() {
+            const modal = document.querySelector('.course-preview-modal');
+            if (modal) {
+                modal.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        // Quiz actions
+        function startCourseQuiz(ageGroup) {
+            // Redirect to quiz with age group parameter
+            window.location.href = `/quiz?category=${ageGroup}`;
+        }
+
+        function showQuizInfo() {
+            const modal = document.createElement('div');
+            modal.className = 'quiz-info-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>🎯 How the Quiz Works</h3>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="info-section">
+                            <h4>📹 Camera Setup</h4>
+                            <p>Position yourself in front of your camera with good lighting. Make sure your hands are clearly visible.</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>🤟 Hand Gestures</h4>
+                            <p>You'll be asked to perform signs you learned in this course category. Hold each sign clearly for 2-3 seconds.</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>🧠 AI Recognition</h4>
+                            <p>Our AI system analyzes your hand movements in real-time using advanced machine learning models.</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>📊 Instant Feedback</h4>
+                            <p>Get immediate results for each sign, plus tips for improvement and overall progress tracking.</p>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn primary-btn" onclick="startCourseQuiz('<%= ageGroup %>')">Start Quiz</button>
+                            <button class="btn secondary-btn" onclick="closeModal()">Maybe Later</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Add modal styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+            `;
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.quiz-info-modal');
+            if (modal) {
+                modal.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        // View switcher
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const view = btn.dataset.view;
+                const container = document.getElementById('courses-container');
+                
+                if (view === 'list') {
+                    container.classList.add('list-view');
+                } else {
+                    container.classList.remove('list-view');
+                }
+            });
+        });
+
+        // Add smooth animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Observe all course cards for animation
+        document.querySelectorAll('.course-card, .sequence-item').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Add course card hover effects
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

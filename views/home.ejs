@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="home-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-background">
+                <!-- Clean background without floating elements -->
+            </div>
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="brand-title">
+                            <span class="brand-name">LearnSign</span>
+                        </div>
+                        <h1 class="hero-title">
+                            <span class="title-line">Learn Sign Language</span>
+                            <span class="title-line">The Fun Way</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Interactive AI-powered learning platform designed specifically for children ages 1-15+
+                        </p>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">1000+</span>
+                                <span class="stat-label">Happy Families</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">50+</span>
+                                <span class="stat-label">Interactive Lessons</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">24/7</span>
+                                <span class="stat-label">Learning Support</span>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <a href="/dashboard" class="btn btn-primary">
+                                <span class="btn-icon"></span>
+                                Start Learning Free
+                            </a>
+                            <a href="/packages" class="btn btn-secondary">
+                                <span class="btn-icon"></span>
+                                View Packages
+                            </a>
+                        </div>
+                        
+                        <!-- Contact Section -->
+                        <div class="hero-contact">
+                            <div class="contact-info">
+                                <span class="contact-label">Need Help? Call Us:</span>
+                                <a href="tel:+1234567890" class="contact-phone">
+                                    <span class="phone-icon">📞</span>
+                                    <span class="phone-number">+91 7022955705</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Why Choose learnSign?</h2>
+                    <p class="section-subtitle">Empowering children with innovative sign language education</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3 class="feature-title">AI-Powered Learning</h3>
+                        <p class="feature-description">Advanced recognition technology that adapts to your child's learning pace</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-text">Real-time feedback</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-title">Interactive Experience</h3>
+                        <p class="feature-description">Engaging games and activities that make learning fun and memorable</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-text">Gamified learning</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-title">Progress Tracking</h3>
+                        <p class="feature-description">Monitor your child's development with detailed analytics and insights</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-text">Detailed reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Age Groups Section -->
+        <section class="age-groups-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Learning Paths by Age</h2>
+                    <p class="section-subtitle">Tailored content for every developmental stage</p>
+                </div>
+                <div class="age-groups-grid">
+                    <div class="age-group-card">
+                        <div class="age-group-header">
+                            <div class="age-icon"></div>
+                            <h3 class="age-title">Early Learners</h3>
+                            <span class="age-range">Ages 1-4</span>
+                        </div>
+                        <div class="age-group-content">
+                            <p class="age-description">Foundational sign language through play, songs, and basic gestures</p>
+                            <ul class="age-features">
+                                <li>Simple hand movements</li>
+                                <li>Interactive games</li>
+                                <li>Parent-child activities</li>
+                            </ul>
+                            <div class="age-actions">
+                                <a href="/courses/1-4" class="btn btn-outline">Explore Courses</a>
+                                <span class="price-tag">FREE</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="age-group-card featured">
+                        <div class="age-group-header">
+                            <div class="age-icon"></div>
+                            <h3 class="age-title">Young Explorers</h3>
+                            <span class="age-range">Ages 5-10</span>
+                        </div>
+                        <div class="age-group-content">
+                            <p class="age-description">Building vocabulary, simple conversations, and interactive storytelling</p>
+                            <ul class="age-features">
+                                <li>Vocabulary building</li>
+                                <li>Conversation practice</li>
+                                <li>Story-based learning</li>
+                            </ul>
+                            <div class="age-actions">
+                                <a href="/courses/5-10" class="btn btn-outline">Explore Courses</a>
+                                <span class="price-tag">FREE</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="age-group-card">
+                        <div class="age-group-header">
+                            <div class="age-icon"></div>
+                            <h3 class="age-title">Advanced Learners</h3>
+                            <span class="age-range">Ages 15+</span>
+                        </div>
+                        <div class="age-group-content">
+                            <p class="age-description">Complex communication, everyday conversations, and cultural context</p>
+                            <ul class="age-features">
+                                <li>Advanced grammar</li>
+                                <li>Cultural context</li>
+                                <li>Real-world practice</li>
+                            </ul>
+                            <div class="age-actions">
+                                <a href="/courses/15+" class="btn btn-outline">Explore Courses</a>
+                                <span class="price-tag">FREE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">What Families Say</h2>
+                    <p class="section-subtitle">Real stories from our community</p>
+                </div>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                learnSign has transformed how my child engages with language learning. The interactive lessons keep him excited and motivated.
+                            </p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">👩‍👦</div>
+                                <div class="author-info">
+                                    <span class="author-name">Sarah Johnson</span>
+                                    <span class="author-role">Parent of a 7-year-old</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                As an educator, I appreciate the structured approach and quality resources. My students love the interactive elements.
+                            </p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">👨‍🏫</div>
+                                <div class="author-info">
+                                    <span class="author-name">Michael Chen</span>
+                                    <span class="author-role">Special Education Teacher</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                The progress tracking helps me understand exactly where my twins are in their learning journey. Highly recommended!
+                            </p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">👩‍👧‍👦</div>
+                                <div class="author-info">
+                                    <span class="author-name">Emily Rodriguez</span>
+                                    <span class="author-role">Parent of twins, age 10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <p class="section-subtitle">Got questions? We've got answers to help you get started</p>
+                </div>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Is LearnSign really free?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! All our core courses and learning features are 100% free. We believe every child should have access to quality sign language education. We offer optional premium packages for families who want additional features and support.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What age groups is LearnSign suitable for?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>LearnSign is designed for children aged 1-15+ with tailored content for each age group: Early Learners (1-4), Young Explorers (5-10), and Advanced Learners (15+). Parents and educators can also use the platform to learn alongside children.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How does the AI-powered recognition work?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Our AI technology uses your device's camera to analyze hand movements and gestures in real-time. It provides instant feedback on accuracy, helping learners perfect their signs. The system adapts to each learner's pace and provides personalized recommendations.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Can I track my child's progress?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Absolutely! Our comprehensive dashboard provides detailed analytics including completed lessons, time spent learning, quiz scores, and learning streaks. Parents and educators can monitor progress and celebrate achievements together.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Do I need any special equipment?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No special equipment needed! LearnSign works on any device with a camera and internet connection - computers, tablets, or smartphones. The platform is fully responsive and optimized for all screen sizes.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Can multiple family members use one account?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! We encourage family learning. Our Family Packages allow multiple family members to learn together, with individual progress tracking for each person. Check out our Packages page for more details.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What if I need help or support?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We're here to help! You can reach us via email, phone (displayed on our homepage), or through our community forums. Premium package members get priority support with faster response times.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How long does it take to learn sign language?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Learning pace varies for each individual. With consistent practice (15-30 minutes daily), most learners can master basic communication within 2-3 months. Our adaptive AI ensures you progress at a comfortable pace while staying challenged.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-content">
+                    <div class="cta-text">
+                        <h2 class="cta-title">Ready to Start Your Journey?</h2>
+                        <p class="cta-subtitle">Join thousands of families empowering their children through sign language</p>
+                        <div class="cta-features">
+                            <div class="cta-feature">
+                                <span class="feature-check">✅</span>
+                                <span>100% Free to Start</span>
+                            </div>
+                            <div class="cta-feature">
+                                <span class="feature-check">✅</span>
+                                <span>No Credit Card Required</span>
+                            </div>
+                            <div class="cta-feature">
+                                <span class="feature-check">✅</span>
+                                <span>Instant Access</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cta-actions">
+                        <a href="/login" class="btn btn-primary btn-large">
+                            <span class="btn-icon">🎉</span>
+                            Create Free Account
+                        </a>
+                        <a href="/about" class="btn btn-text">Learn More About Us</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('./partials/footer') %>
+
+    <script>
+        // FAQ Accordion Functionality
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.parentElement;
+                const isActive = faqItem.classList.contains('active');
+                
+                // Close all FAQ items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                    item.querySelector('.faq-icon').textContent = '+';
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                    button.querySelector('.faq-icon').textContent = '−';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

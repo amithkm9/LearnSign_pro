@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/translate.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="translate-content">
+        <!-- Hero Section -->
+        <section class="translate-hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>🤟 Sign Language Practice Hub</h1>
+                        <p>Learn and practice sign language with interactive tools</p>
+                        <div class="hero-features">
+                            <div class="feature-badge">
+                                <span class="feature-icon">📹</span>
+                                <span>Learn Signs</span>
+                            </div>
+                            <div class="feature-badge">
+                                <span class="feature-icon">🎯</span>
+                                <span>Practice Recognition</span>
+                            </div>
+                            <div class="feature-badge">
+                                <span class="feature-icon">✨</span>
+                                <span>Get Instant Feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-animation">
+                        <div class="translation-demo">
+                            <div class="demo-icon">👋</div>
+                            <div class="demo-text">Start Learning Today!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Section -->
+        <section class="translator-main">
+            <div class="container">
+                <!-- Mode Tabs -->
+                <div class="translation-modes">
+                    <button class="mode-tab" data-mode="text-to-sign">
+                        <span class="mode-icon">📚</span>
+                        <span class="mode-label">Learn Signs</span>
+                        <span class="mode-desc">Watch sign language videos</span>
+                    </button>
+                    <button class="mode-tab active" data-mode="sign-to-text">
+                        <span class="mode-icon">🎯</span>
+                        <span class="mode-label">Practice Signs</span>
+                        <span class="mode-desc">Test your sign language skills</span>
+                    </button>
+                </div>
+
+                <!-- Text-to-Sign Mode (Learn) -->
+                <div class="translation-mode-content" id="text-to-sign-mode">
+                    <div class="mode-header">
+                        <h2>📚 Learn Sign Language</h2>
+                        <p>Type words or letters to see them in sign language</p>
+                    </div>
+
+                    <div class="text-to-sign-layout">
+                        <div class="input-section">
+                            <div class="input-card">
+                                <h3>✍️ What do you want to learn?</h3>
+                                <textarea id="text-to-sign-input" rows="4" 
+                                    placeholder="Type words or letters here... For example: hello, thank you, a b c"></textarea>
+                                
+                                <div class="example-section">
+                                    <p class="example-label">Quick Examples:</p>
+                                    <div class="example-buttons">
+                                        <button class="example-btn" data-text="hello">👋 Hello</button>
+                                        <button class="example-btn" data-text="thank you">🙏 Thank You</button>
+                                        <button class="example-btn" data-text="please">🤝 Please</button>
+                                        <button class="example-btn" data-text="yes">👍 Yes</button>
+                                        <button class="example-btn" data-text="no">👎 No</button>
+                                        <button class="example-btn" data-text="a b c">🔤 ABC</button>
+                                        <button class="example-btn" data-text="one two three">🔢 123</button>
+                                    </div>
+                                </div>
+
+                                <div class="text-controls">
+                                    <button id="translate-to-sign-btn" class="btn primary-btn large">
+                                        <span class="btn-icon">▶️</span>
+                                        <span>Show Sign Language</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="video-section">
+                            <div class="video-card">
+                                <div class="video-header">
+                                    <h3>🎥 Sign Language Video</h3>
+                                    <div class="video-controls-mini">
+                                        <button id="stop-sign-video-btn" class="btn-mini danger" style="display: none;">
+                                            ⏸️ Pause
+                                        </button>
+                                        <button id="loop-sign-video-btn" class="btn-mini success" disabled>
+                                            🔁 Loop
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="sign-video-display" class="sign-video-container">
+                                    <video id="sign-video" autoplay muted class="sign-video"></video>
+                                    <div class="video-placeholder">
+                                        <div class="placeholder-content">
+                                            <span class="placeholder-icon">🤟</span>
+                                            <p class="placeholder-title">Ready to Learn!</p>
+                                            <p class="placeholder-text">Type a word above to see the sign language video</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="video-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Status:</span>
+                                        <span id="video-status-text" class="info-value">Ready</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Progress:</span>
+                                        <span id="video-progress-text" class="info-value">0 / 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sign-to-Text Mode (Practice) -->
+                <div class="translation-mode-content active" id="sign-to-text-mode">
+                    <div class="mode-header">
+                        <h2>🎯 Practice Your Signs</h2>
+                        <p>Show signs to the camera and get instant feedback</p>
+                    </div>
+
+                    <div class="translator-layout">
+                        <!-- Camera Section -->
+                        <div class="camera-section">
+                            <div class="camera-card">
+                                <div class="camera-header">
+                                    <h3>📹 Your Camera</h3>
+                                    <div class="camera-status">
+                                        <div class="status-dot"></div>
+                                        <span class="status-text">Ready</span>
+                                    </div>
+                                </div>
+
+                                <div class="webcam-container">
+                                    <div class="webcam-frame">
+                                        <video id="webcam" autoplay playsinline></video>
+                                        <canvas id="canvas" style="display: none;"></canvas>
+                                        
+                                        <div class="webcam-overlay">
+                                            <div id="recording-indicator" class="recording-badge">
+                                                <div class="rec-dot"></div>
+                                                <span>Watching...</span>
+                                            </div>
+                                            <div class="detection-guide">
+                                                <div class="guide-frame"></div>
+                                                <div class="guide-text">Place your hand here</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="camera-controls">
+                                        <button id="start-camera" class="btn primary-btn">
+                                            <span>📷 Start Camera</span>
+                                        </button>
+                                        <button id="start-translate" class="btn success-btn" disabled>
+                                            <span>▶️ Start Practice</span>
+                                        </button>
+                                        <button id="stop-translate" class="btn danger-btn" style="display: none;">
+                                            <span>⏹️ Stop</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="help-section">
+                                    <h4>💡 Tips for Success:</h4>
+                                    <ul class="help-list">
+                                        <li>✓ Use good lighting</li>
+                                        <li>✓ Keep hand in the circle</li>
+                                        <li>✓ Hold sign for 2-3 seconds</li>
+                                        <li>✓ Try multiple times</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div class="results-section">
+                            <div class="results-card">
+                                <div class="results-header">
+                                    <h3>📊 Your Results</h3>
+                                    <div class="language-selector">
+                                        <label>Language:</label>
+                                        <select id="target-language" class="language-dropdown">
+                                            <option value="en">🇺🇸 English</option>
+                                            <option value="hi">🇮🇳 Hindi</option>
+                                            <option value="kn">🇮🇳 Kannada</option>
+                                            <option value="te">🇮🇳 Telugu</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="detection-panel">
+                                    <div class="result-card detected">
+                                        <div class="result-icon">🔍</div>
+                                        <h4>Detected Sign</h4>
+                                        <div id="detected-sign" class="result-value">
+                                            <span class="gesture-text">No sign yet</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="result-card translation">
+                                        <div class="result-icon">💬</div>
+                                        <h4>Translation</h4>
+                                        <div id="translation-result" class="result-value">
+                                            Start practicing to see results!
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button id="speak-translation" class="btn action-btn" disabled>
+                                        <span>🔊 Hear It</span>
+                                    </button>
+                                    <button id="copy-translation" class="btn action-btn" disabled>
+                                        <span>📋 Copy</span>
+                                    </button>
+                                </div>
+
+                                <div class="history-section">
+                                    <h4>📚 Practice History</h4>
+                                    <div id="history-list" class="history-list">
+                                        <div class="history-empty">
+                                            <span class="empty-icon">✨</span>
+                                            <span class="empty-text">Your practice results will appear here</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Tips Section -->
+                <div class="info-section">
+                    <div class="tips-card">
+                        <h2>🌟 Learning Tips</h2>
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <div class="tip-icon">💡</div>
+                                <div class="tip-content">
+                                    <h4>Start Simple</h4>
+                                    <p>Begin with letters and numbers, then move to words</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">🎯</div>
+                                <div class="tip-content">
+                                    <h4>Practice Daily</h4>
+                                    <p>Regular practice helps you remember signs better</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">👀</div>
+                                <div class="tip-content">
+                                    <h4>Watch Carefully</h4>
+                                    <p>Pay attention to hand movements and positions</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">🌈</div>
+                                <div class="tip-content">
+                                    <h4>Have Fun!</h4>
+                                    <p>Learning sign language opens up a new world</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('./partials/footer') %>
+    <script src="/js/translate.js"></script>
+</body>
+
+</html>

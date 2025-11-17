@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <style>
+        /* Community Success Stories Page Styles */
+        .community-hero {
+            background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
+            color: var(--white);
+            padding: 12rem 0 6rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .community-hero h1,
+        .community-hero p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .community-hero h1 {
+            color: var(--white);
+            font-size: 3.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .community-hero p {
+            font-size: 1.8rem;
+            max-width: 70rem;
+            margin: 0 auto;
+        }
+
+        .success-container {
+            padding: 6rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-title h2 {
+            color: var(--text-dark);
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8rem;
+            height: 0.3rem;
+            background: linear-gradient(90deg, #7C6FDB, #9B8FF5);
+            border-radius: 0.5rem;
+        }
+
+        .section-title p {
+            color: var(--text-medium);
+            font-size: 1.8rem;
+            max-width: 70rem;
+            margin: 0 auto;
+        }
+
+        .success-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35rem, 1fr));
+            gap: 4rem;
+            margin-bottom: 6rem;
+        }
+
+        .success-card {
+            background-color: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .success-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-image {
+            height: 30rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .success-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 2.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            margin-bottom: 1rem;
+        }
+
+        .card-title h3 {
+            font-size: 2.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title p {
+            font-size: 1.4rem;
+            color: #6A11CB;
+            font-weight: 600;
+        }
+
+        .achievement-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .achievement-tag {
+            background-color: rgba(106, 17, 203, 0.1);
+            color: #6A11CB;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+        }
+
+        .card-description {
+            color: var(--text-medium);
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .quote {
+            background-color: #f8f5ff;
+            border-left: 4px solid #6A11CB;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            font-style: italic;
+            color: var(--text-dark);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .learn-more {
+            display: inline-flex;
+            align-items: center;
+            color: #6A11CB;
+            font-weight: 600;
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .learn-more i {
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learn-more:hover {
+            color: #5512a3;
+        }
+
+        .learn-more:hover i {
+            transform: translateX(3px);
+        }
+
+        .social-share {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 3.6rem;
+            height: 3.6rem;
+            border-radius: 50%;
+            background-color: #f4f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-medium);
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: #6A11CB;
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .share-story {
+            background-color: #f8f5ff;
+            border-radius: var(--radius-lg);
+            padding: 4rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .share-story h3 {
+            font-size: 2.4rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .share-story p {
+            font-size: 1.6rem;
+            color: var(--text-medium);
+            margin-bottom: 2.5rem;
+            max-width: 70rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .community-hero h1 {
+                font-size: 3rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2.5rem;
+            }
+
+            .success-cards {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .share-story {
+                padding: 3rem 2rem;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+            }
+
+            .share-buttons .btn {
+                width: 100%;
+                max-width: 30rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .community-hero {
+                padding: 9rem 0 4rem;
+            }
+
+            .community-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .community-hero p {
+                font-size: 1.6rem;
+            }
+
+            .card-image {
+                height: 22rem;
+            }
+
+            .card-content {
+                padding: 2rem;
+            }
+
+            .card-title h3 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="community-content">
+        <section class="community-hero">
+            <div class="container">
+                <h1>Inspiring Success Stories</h1>
+                <p>Celebrating achievements of individuals with hearing and speech impairments who have overcome barriers to follow their dreams and inspire others</p>
+            </div>
+        </section>
+
+        <section class="success-container">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Inspiring Journeys</h2>
+                    <p>Read about remarkable individuals who have overcome challenges, shattered stereotypes, and achieved exceptional success in their respective fields</p>
+                </div>
+
+                <div class="success-cards">
+                    <!-- Story 1: Sudeep Shukla -->
+                    <div class="success-card">
+                        <div class="card-image">
+                            <img src="/assets/imgs/a.png" alt="Sudeep Shukla">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">
+                                <h3>Sudeep Shukla</h3>
+                                <p>IAS Officer | Advocate for Disability Rights</p>
+                            </div>
+                            <div class="achievement-tags">
+                                <span class="achievement-tag">Civil Services</span>
+                                <span class="achievement-tag">Public Policy</span>
+                                <span class="achievement-tag">Accessibility Advocate</span>
+                            </div>
+                            <div class="card-description">
+                                <p>Sudeep Shukla made history by becoming India's first deaf and mute IAS officer in 2018. Born in Madhya Pradesh, he overcame significant communication barriers through determination and hard work. His journey from a small town to clearing one of India's toughest examinations has inspired thousands with disabilities.</p>
+                            </div>
+                            <div class="quote">
+                                "Disabilities are not a hindrance; they are just a different way of living. My aim is to create policies that make India more inclusive and accessible to all."
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" class="learn-more">Read full story <i class="fas fa-arrow-right"></i></a>
+                                <div class="social-share">
+                                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Story 2: Nishtha Dudeja -->
+                    <div class="success-card">
+                        <div class="card-image">
+                            <img src="/assets/imgs/b.png" alt="Nishtha Dudeja">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">
+                                <h3>Nishtha Dudeja</h3>
+                                <p>Miss Deaf India | International Tennis Player</p>
+                            </div>
+                            <div class="achievement-tags">
+                                <span class="achievement-tag">Miss Deaf World 2018</span>
+                                <span class="achievement-tag">Sports Excellence</span>
+                                <span class="achievement-tag">Women Empowerment</span>
+                            </div>
+                            <div class="card-description">
+                                <p>Nishtha Dudeja created history by becoming the first Indian to win the Miss Deaf World title in 2018. Born with profound hearing loss, she never let her disability become an obstacle. She's also an accomplished tennis player who has represented India in the Deaflympics and various international tournaments.</p>
+                            </div>
+                            <div class="quote">
+                                "Being differently-abled doesn't make you any less capable. It's about focusing on your strengths rather than limitations. I want to inspire more deaf girls to pursue their dreams fearlessly."
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" class="learn-more">Read full story <i class="fas fa-arrow-right"></i></a>
+                                <div class="social-share">
+                                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Story 3: Vaibhav Kothari -->
+                    <div class="success-card">
+                        <div class="card-image">
+                            <img src="/assets/imgs/c.png" alt="Vaibhav Kothari">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">
+                                <h3>Vaibhav Kothari</h3>
+                                <p>Tech Entrepreneur | Accessibility Innovator</p>
+                            </div>
+                            <div class="achievement-tags">
+                                <span class="achievement-tag">Technology</span>
+                                <span class="achievement-tag">Entrepreneurship</span>
+                                <span class="achievement-tag">Social Impact</span>
+                            </div>
+                            <div class="card-description">
+                                <p>Vaibhav Kothari, born with severe hearing impairment, founded SignAble Communications, a start-up that develops innovative technological solutions for the deaf community. An alumnus of IIT Delhi, his company has created mobile applications that translate sign language to text and voice in real-time, revolutionizing communication for the deaf community.</p>
+                            </div>
+                            <div class="quote">
+                                "Technology has the power to bridge communication gaps. I believe that every deaf person deserves access to tools that can help them connect with the world without barriers."
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" class="learn-more">Read full story <i class="fas fa-arrow-right"></i></a>
+                                <div class="social-share">
+                                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="share-story">
+                    <h3>Join Our Supportive Community</h3>
+                    <p>Connect with fellow learners, share experiences, and get real-time support from our experts. Our WhatsApp community is a safe space where you can ask questions, access exclusive resources, and be part of a network that understands your journey.</p>
+                    <div class="share-buttons">
+                        <a href="https://chat.whatsapp.com/learnsign-community" class="btn primary-btn">Join WhatsApp Group <i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('./partials/footer') %>
+
+    <script>
+        // JavaScript for enhancing the page experience
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Fade-in animation for success cards on scroll
+            const cards = document.querySelectorAll('.success-card');
+            
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+                entries.forEach(entry => {
+                    if(!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                        appearOnScroll.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            cards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(50px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                appearOnScroll.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>

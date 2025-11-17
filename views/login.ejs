@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+        <main id="login-content">
+            <!-- Background Animation -->
+            <div class="auth-background">
+                <div class="floating-shapes">
+                    <div class="shape shape-1">🤟</div>
+                    <div class="shape shape-2">👋</div>
+                    <div class="shape shape-3">👌</div>
+                    <div class="shape shape-4">✋</div>
+                    <div class="shape shape-5">🤏</div>
+                    <div class="shape shape-6">👍</div>
+                </div>
+            </div>
+
+            <section class="auth-container">
+                <div class="auth-card-wrapper">
+                    <div class="auth-card">
+                        <div class="auth-header">
+                            <div class="logo-section">
+                                <div class="app-logo">🤟</div>
+                                <h1>Welcome to <span class="brand-name">learnSign</span></h1>
+                            </div>
+                            <p class="auth-subtitle">Your journey to mastering sign language starts here</p>
+                        </div>
+
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" id="login-tab">Sign In</button>
+                            <button class="auth-tab" id="register-tab">Sign Up</button>
+                        </div>
+
+                        <!-- Email Login Form -->
+                        <form id="email-login-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="login-email">
+                                    <span class="label-icon">📧</span>
+                                    Email Address
+                                </label>
+                                <input type="email" id="login-email" name="email" required placeholder="Enter your email">
+                                <div class="input-border"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">
+                                    <span class="label-icon">🔒</span>
+                                    Password
+                                </label>
+                                <input type="password" id="login-password" name="password" required placeholder="Enter your password">
+                                <div class="input-border"></div>
+                                <div class="password-options">
+                                    <a href="#" class="forgot-password">Forgot Password?</a>
+                                </div>
+                            </div>
+                            <div class="form-group remember-me">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="remember-me" name="remember">
+                                    <span class="checkmark"></span>
+                                    Remember me for 30 days
+                                </label>
+                            </div>
+                            <button type="submit" class="btn primary-btn auth-submit-btn" id="email-login-submit-btn">
+                                <span class="btn-text">Sign In</span>
+                                <div class="btn-loader" style="display: none;"></div>
+                            </button>
+                        </form>
+
+                        <!-- Email Registration Form -->
+                        <form id="email-register-form" class="auth-form" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="register-fname">
+                                        <span class="label-icon">👤</span>
+                                        First Name
+                                    </label>
+                                    <input type="text" id="register-fname" name="firstName" required placeholder="First name">
+                                    <div class="input-border"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="register-lname">
+                                        <span class="label-icon">👤</span>
+                                        Last Name
+                                    </label>
+                                    <input type="text" id="register-lname" name="lastName" required placeholder="Last name">
+                                    <div class="input-border"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-email">
+                                    <span class="label-icon">📧</span>
+                                    Email Address
+                                </label>
+                                <input type="email" id="register-email" name="email" required placeholder="Enter your email">
+                                <div class="input-border"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-phone">
+                                    <span class="label-icon">📱</span>
+                                    Phone Number
+                                </label>
+                                <div class="phone-input-wrapper">
+                                    <select id="register-country-code" class="country-code-select">
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+91" selected>🇮🇳 +91</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+61">🇦🇺 +61</option>
+                                    </select>
+                                    <input type="tel" id="register-phone" name="phone" required placeholder="Enter phone number">
+                                </div>
+                                <div class="input-border"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-password">
+                                    <span class="label-icon">🔒</span>
+                                    Password
+                                </label>
+                                <input type="password" id="register-password" name="password" required placeholder="Create a password">
+                                <div class="input-border"></div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="register-age-group">
+                                        <span class="label-icon">🎂</span>
+                                        Age Group
+                                    </label>
+                                    <select id="register-age-group" name="ageGroup" required>
+                                        <option value="">Select age group</option>
+                                        <option value="1-4">1-4 years</option>
+                                        <option value="5-10">5-10 years</option>
+                                        <option value="15+">15+ years</option>
+                                    </select>
+                                    <div class="input-border"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <span class="label-icon">👥</span>
+                                        User Type
+                                    </label>
+                                    <div class="radio-group">
+                                        <label class="radio-container">
+                                            <input type="radio" name="userType" value="student" required>
+                                            <span class="radio-checkmark"></span>
+                                            Student
+                                        </label>
+                                        <label class="radio-container">
+                                            <input type="radio" name="userType" value="parent" required>
+                                            <span class="radio-checkmark"></span>
+                                            Parent
+                                        </label>
+                                        <label class="radio-container">
+                                            <input type="radio" name="userType" value="educator" required>
+                                            <span class="radio-checkmark"></span>
+                                            Educator
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group terms-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="terms-agreement" name="terms" required>
+                                    <span class="checkmark"></span>
+                                    I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="privacy-link">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn primary-btn auth-submit-btn" id="email-register-submit-btn">
+                                <span class="btn-text">Create Account</span>
+                                <div class="btn-loader" style="display: none;"></div>
+                            </button>
+                        </form>
+
+                        <!-- Success Message -->
+                        <div id="success-message" class="success-message" style="display: none;">
+                            <div class="success-icon">✅</div>
+                            <div class="success-content">
+                                <h3>Account Created Successfully!</h3>
+                                <p>Welcome to learnSign! You can now access all our features.</p>
+                                <button class="btn primary-btn" onclick="window.location.href='/dashboard'">Go to Dashboard</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    <%- include('./partials/footer') %>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

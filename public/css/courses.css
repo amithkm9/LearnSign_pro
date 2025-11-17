@@ -1,0 +1,572 @@
+/* Courses Page Styles */
+
+/* Header Section */
+.courses-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 6rem 0 4rem;
+    text-align: center;
+}
+
+.courses-header h1 {
+    font-size: 3.6rem;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.courses-header p {
+    font-size: 1.8rem;
+    opacity: 0.9;
+    margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.header-stats {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+}
+
+.header-stats .stat {
+    text-align: center;
+}
+
+.header-stats .number {
+    display: block;
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.header-stats .label {
+    font-size: 1.4rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Course Categories */
+.course-categories {
+    padding: 6rem 0;
+    background: var(--white);
+}
+
+.categories-grid {
+    display: grid;
+    gap: 3rem;
+}
+
+.category-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    box-shadow: var(--shadow-md);
+    border: 2px solid transparent;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover::before {
+    transform: scaleX(1);
+}
+
+.category-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+    transform: translateY(-5px) scale(1.01);
+}
+
+.category-header {
+    display: flex;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+    align-items: flex-start;
+}
+
+.category-icon {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+.category-info {
+    flex: 1;
+}
+
+.category-info h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 2.4rem;
+}
+
+.category-info p {
+    color: var(--text-medium);
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.category-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.course-count,
+.difficulty {
+    background: var(--light-gray);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-tag.free {
+    background: var(--success-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-features {
+    margin-bottom: 2.5rem;
+}
+
+.category-features h3 {
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.features-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+}
+
+.features-list li {
+    color: var(--text-medium);
+    font-size: 1.4rem;
+    padding: 0.3rem 0;
+}
+
+.category-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.category-actions .btn {
+    flex: 1;
+    padding: 1.2rem 2rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    border-radius: var(--radius-md);
+}
+
+.category-progress {
+    padding-top: 2rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-info span {
+    font-size: 1.4rem;
+    color: var(--text-medium);
+}
+
+.progress-percent {
+    font-weight: 600;
+    color: var(--primary-color) !important;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--light-gray);
+    border-radius: 4px;
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+.progress-text {
+    font-size: 1.3rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* Learning Path */
+.learning-path {
+    padding: 6rem 0;
+    background: var(--light-gray);
+}
+
+.learning-path h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.learning-path > .container > p {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--text-medium);
+    margin-bottom: 4rem;
+}
+
+.path-timeline {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.path-step {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.6s ease;
+}
+
+.path-step.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-md);
+}
+
+.step-content {
+    flex: 1;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.step-content h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.step-content p {
+    color: var(--text-medium);
+    margin-bottom: 1.5rem;
+}
+
+.step-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.step-link:hover {
+    color: var(--primary-dark);
+}
+
+.path-arrow {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 1rem 0;
+}
+
+/* Special Features */
+.special-features {
+    padding: 6rem 0;
+}
+
+.special-features h2 {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.feature-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.feature-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.feature-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.feature-card p {
+    color: var(--text-medium);
+    line-height: 1.6;
+}
+
+/* Call to Action */
+.cta-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-section h2 {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.cta-section p {
+    font-size: 1.8rem;
+    opacity: 0.9;
+    margin-bottom: 3rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.large-btn {
+    padding: 1.5rem 3rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.large-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .courses-header {
+        padding: 4rem 0 3rem;
+    }
+
+    .courses-header h1 {
+        font-size: 2.8rem;
+    }
+
+    .courses-header p {
+        font-size: 1.6rem;
+    }
+
+    .header-stats {
+        gap: 2rem;
+    }
+
+    .header-stats .number {
+        font-size: 2.4rem;
+    }
+
+    .course-categories {
+        padding: 4rem 0;
+    }
+
+    .category-card {
+        padding: 2rem;
+    }
+
+    .category-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .category-icon {
+        align-self: center;
+        width: 80px;
+        height: 80px;
+        font-size: 2.4rem;
+    }
+
+    .category-info h2 {
+        font-size: 2rem;
+    }
+
+    .category-meta {
+        justify-content: center;
+    }
+
+    .features-list {
+        grid-template-columns: 1fr;
+    }
+
+    .category-actions {
+        flex-direction: column;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .path-step {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .step-number {
+        align-self: center;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .large-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .courses-header {
+        padding: 3rem 0 2rem;
+    }
+
+    .courses-header h1 {
+        font-size: 2.4rem;
+    }
+
+    .header-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .category-card {
+        padding: 1.5rem;
+    }
+
+    .category-actions .btn {
+        font-size: 1.4rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .learning-path,
+    .special-features {
+        padding: 4rem 0;
+    }
+
+    .cta-section {
+        padding: 4rem 0;
+    }
+
+    .cta-section h2 {
+        font-size: 2.4rem;
+    }
+}

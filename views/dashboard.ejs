@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashboard-quiz.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="dashboard-content">
+        <!-- Welcome Section -->
+        <section class="dashboard-welcome">
+            <div class="container">
+                <div class="welcome-header">
+                    <div class="welcome-content">
+                        <h1 id="welcome-message">Welcome to Your learnSign Dashboard</h1>
+                        <p>Track your progress and continue your sign language learning journey</p>
+                    </div>
+                    <div class="dashboard-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="completed-courses">0</span>
+                                <span class="stat-label">Courses Completed</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="weekly-minutes">0</span>
+                                <span class="stat-label">Minutes This Week</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">🔥</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="current-streak">0</span>
+                                <span class="stat-label">Day Streak</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Detailed Progress Section -->
+        <section class="learning-progress">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>📈 Your Learning Progress</h2>
+                    <button onclick="loadDashboardData()" class="refresh-btn">
+                        🔄 Refresh Data
+                    </button>
+                </div>
+                
+                <!-- Overall Progress -->
+                <div class="progress-overview">
+                    <div class="progress-main-card">
+                        <div class="progress-header">
+                            <h3>Overall Learning Progress</h3>
+                            <span class="progress-percentage" id="overall-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar-large">
+                            <div class="progress-fill" id="overall-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Lessons Completed:</span>
+                                <span class="detail-value" id="lessons-completed">0 / 50</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Time Spent Learning:</span>
+                                <span class="detail-value" id="time-spent">0 hours</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Last Activity:</span>
+                                <span class="detail-value" id="last-activity">Get started today!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <!-- Weekly Activity Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>📅 Weekly Activity</h3>
+                            <span class="chart-subtitle">Learning minutes per day</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyActivityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Progress Distribution Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>🎯 Progress by Category</h3>
+                            <span class="chart-subtitle">Your learning distribution</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="progressDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card purple-gradient">
+                        <div class="metric-icon">💯</div>
+                        <div class="metric-content">
+                            <span class="metric-value" id="accuracy-rate">0%</span>
+                            <span class="metric-label">Accuracy Rate</span>
+                        </div>
+                        <div class="metric-trend up">↗ +5% this week</div>
+                    </div>
+
+                    <div class="metric-card blue-gradient">
+                        <div class="metric-icon">🏆</div>
+                        <div class="metric-content">
+                            <span class="metric-value" id="achievements-earned">0</span>
+                            <span class="metric-label">Achievements</span>
+                        </div>
+                        <div class="metric-trend">🎖️ Keep learning!</div>
+                    </div>
+
+                    <div class="metric-card green-gradient">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-content">
+                            <span class="metric-value" id="total-signs">0</span>
+                            <span class="metric-label">Signs Mastered</span>
+                        </div>
+                        <div class="metric-trend up">↗ +12 this month</div>
+                    </div>
+
+                    <div class="metric-card orange-gradient">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-content">
+                            <span class="metric-value" id="avg-session">0m</span>
+                            <span class="metric-label">Avg Session</span>
+                        </div>
+                        <div class="metric-trend">⏱️ Consistency is key</div>
+                    </div>
+                </div>
+
+                <!-- Quiz Performance -->
+                <div class="quiz-performance">
+                    <h3>🎯 Quiz Performance</h3>
+                    <div class="quiz-stats-grid">
+                        <div class="quiz-stat-card">
+                            <div class="quiz-stat-icon">📝</div>
+                            <div class="quiz-stat-content">
+                                <span class="quiz-stat-number" id="quiz-attempts">0</span>
+                                <span class="quiz-stat-label">Quizzes Taken</span>
+                            </div>
+                        </div>
+                        <div class="quiz-stat-card">
+                            <div class="quiz-stat-icon">⭐</div>
+                            <div class="quiz-stat-content">
+                                <span class="quiz-stat-number" id="avg-quiz-score">0%</span>
+                                <span class="quiz-stat-label">Average Score</span>
+                            </div>
+                        </div>
+                        <div class="quiz-stat-card">
+                            <div class="quiz-stat-icon">✅</div>
+                            <div class="quiz-stat-content">
+                                <span class="quiz-stat-number" id="quiz-pass-rate">0%</span>
+                                <span class="quiz-stat-label">Pass Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Streak Calendar -->
+                <div class="streak-calendar-section">
+                    <h3>🔥 Learning Streak Calendar</h3>
+                    <div class="streak-info">
+                        <div class="streak-stat">
+                            <span class="streak-number" id="current-streak-display">0</span>
+                            <span class="streak-label">Current Streak</span>
+                        </div>
+                        <div class="streak-stat">
+                            <span class="streak-number" id="longest-streak">0</span>
+                            <span class="streak-label">Longest Streak</span>
+                        </div>
+                        <div class="streak-stat">
+                            <span class="streak-number" id="total-days-active">0</span>
+                            <span class="streak-label">Total Days Active</span>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="streakCalendar">
+                        <!-- Calendar will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3>📋 Recent Activity</h3>
+                    <div class="activity-list" id="recent-activity-list">
+                        <div class="activity-item placeholder">
+                            <div class="activity-icon">🎯</div>
+                            <div class="activity-content">
+                                <p>Start your first lesson to see your activity here!</p>
+                                <span class="activity-time">Ready to begin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <div class="container">
+                <h2>🚀 Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="/tutorials" class="action-card">
+                        <div class="action-icon">📹</div>
+                        <h3>Start with Tutorials</h3>
+                        <p>Basic introduction videos</p>
+                    </a>
+                    <a href="/quiz" class="action-card">
+                        <div class="action-icon">🧠</div>
+                        <h3>Take a Quiz</h3>
+                        <p>Test your knowledge</p>
+                    </a>
+                    <a href="/translate" class="action-card">
+                        <div class="action-icon">🤝</div>
+                        <h3>Try Translator</h3>
+                        <p>Practice real-time translation</p>
+                    </a>
+                    <a href="/community" class="action-card">
+                        <div class="action-icon">👥</div>
+                        <h3>Join Community</h3>
+                        <p>Connect with other learners</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('./partials/footer') %>
+
+    <script>
+        // Enroll in package
+        function enrollInPackage(packageId) {
+            // In a real app, this would handle enrollment
+            alert(`Enrolling in package: ${packageId}. This would redirect to the course content!`);
+            
+            // For now, redirect to courses
+            window.location.href = '/courses';
+        }
+
+        // Preview category
+        function previewCategory(categoryId) {
+            // Show a quick preview modal or redirect
+            alert(`This would show a quick preview of the ${categoryId} age group courses!`);
+        }
+
+        // Add smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Fetch comprehensive analytics
+        async function loadDashboardData() {
+            try {
+                const userId = localStorage.getItem('userId');
+                console.log('Loading dashboard for userId:', userId);
+                
+                if (!userId) {
+                    console.error('No userId found in localStorage');
+                    console.log('Available localStorage keys:', Object.keys(localStorage));
+                    alert('Please log in again to see your dashboard data');
+                    return;
+                }
+                
+                // Fetch summary analytics
+                const res = await fetch(`/api/analytics/summary/${userId}`);
+                if (!res.ok) {
+                    console.error('Failed to fetch analytics:', res.status);
+                    return;
+                }
+                
+                const data = await res.json();
+                console.log('Dashboard data:', data);
+                
+                // Update top stats
+                document.getElementById('completed-courses').textContent = data.totalCompleted || 0;
+                document.getElementById('weekly-minutes').textContent = data.weeklyMinutes || 0;
+                document.getElementById('current-streak').textContent = data.currentStreak || 0;
+                
+                // Update overall progress
+                const completionPct = data.completionPct || 0;
+                document.getElementById('overall-percentage').textContent = `${completionPct}%`;
+                document.getElementById('overall-progress').style.width = `${completionPct}%`;
+                
+                // Update lessons completed
+                const totalCourses = data.coursesInProgress + data.totalCompleted;
+                document.getElementById('lessons-completed').textContent = `${data.totalCompleted} / ${totalCourses}`;
+                
+                // Update time spent (convert minutes to hours if > 60)
+                const minutes = data.weeklyMinutes || 0;
+                const timeText = minutes >= 60 
+                    ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` 
+                    : `${minutes} min`;
+                document.getElementById('time-spent').textContent = timeText;
+                
+                // Update quiz stats
+                document.getElementById('quiz-attempts').textContent = data.quizAttempts || 0;
+                document.getElementById('avg-quiz-score').textContent = `${data.avgQuiz || 0}%`;
+                document.getElementById('quiz-pass-rate').textContent = `${data.quizPassRate || 0}%`;
+                
+                // Fetch and display recent activity
+                await loadRecentActivity(userId);
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        // Fetch recent learning events
+        async function loadRecentActivity(userId) {
+            try {
+                const res = await fetch(`/api/admin/learning-events/${userId}`);
+                if (!res.ok) return;
+                
+                const events = await res.json();
+                const activityList = document.getElementById('recent-activity-list');
+                
+                if (!events || events.length === 0) {
+                    return; // Keep placeholder
+                }
+                
+                // Clear placeholder
+                activityList.innerHTML = '';
+                
+                // Show last 5 events
+                events.slice(0, 5).forEach(event => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    
+                    const icon = event.type === 'start' ? '▶️' : 
+                                event.type === 'end' ? '✅' : 
+                                event.type === 'pause' ? '⏸️' : '📹';
+                    
+                    const timeAgo = getTimeAgo(new Date(event.ts));
+                    const minutes = Math.round(event.activeMs / 60000);
+                    
+                    item.innerHTML = `
+                        <div class="activity-icon">${icon}</div>
+                        <div class="activity-content">
+                            <p>${event.type.charAt(0).toUpperCase() + event.type.slice(1)} learning session${minutes > 0 ? ` (${minutes} min)` : ''}</p>
+                            <span class="activity-time">${timeAgo}</span>
+                        </div>
+                    `;
+                    activityList.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+            }
+        }
+        
+        // Helper function to format time ago
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} min ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            const days = Math.floor(hours / 24);
+            return `${days} day${days > 1 ? 's' : ''} ago`;
+        }
+        
+        // Initialize Charts
+        let weeklyChart, progressChart;
+        
+        function initializeCharts() {
+            // Weekly Activity Chart
+            const weeklyCtx = document.getElementById('weeklyActivityChart');
+            if (weeklyCtx) {
+                weeklyChart = new Chart(weeklyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Minutes',
+                            data: [25, 35, 20, 45, 30, 15, 40],
+                            backgroundColor: 'rgba(124, 111, 219, 0.8)',
+                            borderColor: 'rgba(124, 111, 219, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: 'rgba(124, 111, 219, 0.5)',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#718096' },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            },
+                            x: {
+                                ticks: { color: '#718096' },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Progress Donut Chart
+            const progressCtx = document.getElementById('progressDonutChart');
+            if (progressCtx) {
+                progressChart = new Chart(progressCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Alphabets', 'Numbers', 'Family', 'Feelings', 'Actions'],
+                        datasets: [{
+                            data: [30, 25, 20, 15, 10],
+                            backgroundColor: [
+                                'rgba(124, 111, 219, 0.9)',
+                                'rgba(72, 187, 120, 0.9)',
+                                'rgba(237, 137, 54, 0.9)',
+                                'rgba(99, 102, 241, 0.9)',
+                                'rgba(236, 72, 153, 0.9)'
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 15,
+                                    color: '#2d3748',
+                                    font: { size: 12, weight: '500' },
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.parsed + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Generate Streak Calendar
+        function generateStreakCalendar() {
+            const calendar = document.getElementById('streakCalendar');
+            if (!calendar) return;
+            
+            const today = new Date();
+            const days = 84; // 12 weeks
+            let html = '';
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                
+                // Simulate activity (in real app, fetch from API)
+                const hasActivity = Math.random() > 0.3;
+                const level = hasActivity ? Math.floor(Math.random() * 4) + 1 : 0;
+                
+                html += `<div class="calendar-day level-${level}" 
+                         title="${date.toLocaleDateString()}: ${level > 0 ? level * 10 : 0} min" 
+                         data-date="${date.toISOString()}"></div>`;
+            }
+            
+            calendar.innerHTML = html;
+        }
+        
+        // Load dashboard data on page load
+        loadDashboardData();
+        initializeCharts();
+        generateStreakCalendar();
+        
+        // Update metric values with sample data
+        document.getElementById('accuracy-rate').textContent = '94%';
+        document.getElementById('achievements-earned').textContent = '12';
+        document.getElementById('total-signs').textContent = '47';
+        document.getElementById('avg-session').textContent = '23m';
+        document.getElementById('current-streak-display').textContent = '7';
+        document.getElementById('longest-streak').textContent = '15';
+        document.getElementById('total-days-active').textContent = '42';
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards for animation
+        document.querySelectorAll('.package-card, .category-card, .progress-card, .action-card, .chart-card, .metric-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

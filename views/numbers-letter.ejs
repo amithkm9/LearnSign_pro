@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbers & Letters Recognition | learnSign</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <main class="container">
+        <h1>Numbers & Letters Recognition</h1>
+        
+        <div class="recognition-container">
+            <div class="webcam-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <div id="recording-indicator">Recording...</div>
+            </div>
+            
+            <div class="controls">
+                <button id="start-camera" class="primary-button">Start Camera</button>
+                <button id="start-recognition" class="primary-button" disabled>Start Recognition</button>
+                <button id="stop-recognition" class="secondary-button" style="display: none;">Stop Recognition</button>
+            </div>
+            
+            <div class="result-display">
+                <div class="result-card">
+                    <h2>Detected Sign:</h2>
+                    <div id="detected-sign" class="result-value">---</div>
+                </div>
+                
+                <div class="frames-info">
+                    <span>Frames: </span>
+                    <span id="frames-count">0</span>
+                    <div class="progress-bar">
+                        <div id="frames-progress" class="progress-indicator"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <h3>Recognition History</h3>
+                <ul id="history-list">
+                    <li>No recognitions yet</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('partials/footer') %>
+    
+    <script src="/js/numbers-letters.js"></script>
+</body>
+</html>

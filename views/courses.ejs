@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/courses.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="courses-content">
+        <!-- Header Section -->
+        <section class="courses-header">
+            <div class="container">
+                <h1>📚 Course Catalog</h1>
+                <p>Comprehensive sign language courses organized by age groups. All courses are completely FREE!</p>
+                
+            </div>
+        </section>
+
+        <!-- Course Categories -->
+        <section class="course-categories">
+            <div class="container">
+                <div class="categories-grid">
+                    <% categories.forEach(category => { %>
+                        <div class="category-card" data-age-group="<%= category.id %>">
+                            <div class="category-header">
+                                <div class="category-icon category-icon-<%= category.id %>">
+                                    <% if (category.id === '1-4') { %>
+                                        🧸
+                                    <% } else if (category.id === '5-10') { %>
+                                        🎒
+                                    <% } else if (category.id === '15+') { %>
+                                        🎓
+                                    <% } %>
+                                </div>
+                                <div class="category-info">
+                                    <h2><%= category.title %></h2>
+                                    <p><%= category.description %></p>
+                                    <div class="category-meta">
+                                        <span class="course-count">
+                                            <i>📖</i> <%= category.courseCount %> courses
+                                        </span>
+                                        <span class="difficulty">
+                                            <% if (category.id === '1-4') { %>
+                                                <i>⭐</i> Beginner
+                                            <% } else if (category.id === '5-10') { %>
+                                                <i>⭐⭐</i> Intermediate
+                                            <% } else { %>
+                                                <i>⭐⭐⭐</i> Advanced
+                                            <% } %>
+                                        </span>
+                                        <span class="price-tag free">FREE</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="category-features">
+                                <h3>What You'll Learn:</h3>
+                                <ul class="features-list">
+                                    <% if (category.id === '1-4') { %>
+                                        <li>✓ Basic gestures and signs</li>
+                                        <li>✓ Simple words and expressions</li>
+                                        <li>✓ Numbers 1-10</li>
+                                        <li>✓ Common objects and actions</li>
+                                        <li>✓ Play-based learning activities</li>
+                                    <% } else if (category.id === '5-10') { %>
+                                        <li>✓ Complete alphabet signs</li>
+                                        <li>✓ Family and relationship terms</li>
+                                        <li>✓ School and educational vocabulary</li>
+                                        <li>✓ Basic conversation skills</li>
+                                        <li>✓ Numbers and simple math</li>
+                                    <% } else { %>
+                                        <li>✓ Advanced conversation techniques</li>
+                                        <li>✓ Complex grammatical structures</li>
+                                        <li>✓ Professional and academic terms</li>
+                                        <li>✓ Cultural aspects of ASL</li>
+                                        <li>✓ Interpretation skills</li>
+                                    <% } %>
+                                </ul>
+                            </div>
+
+                            <div class="category-actions">
+                                <a href="/courses/<%= category.id %>" class="btn primary-btn">
+                                    <i>🚀</i> Start Learning
+                                </a>
+                                <button class="btn secondary-btn preview-btn" onclick="previewCategory('<%= category.id %>')">
+                                    <i>👁️</i> Preview
+                                </button>
+                            </div>
+
+                            <div class="category-progress">
+                                <div class="progress-info">
+                                    <span>Your Progress</span>
+                                    <span class="progress-percent">0%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <p class="progress-text">Ready to begin your journey!</p>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Path Guide -->
+        <section class="learning-path">
+            <div class="container">
+                <h2>🗺️ Recommended Learning Path</h2>
+                <p>Follow this structured path for optimal learning results</p>
+                
+                <div class="path-timeline">
+                    <div class="path-step" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Start with Basics (Ages 1-4)</h3>
+                            <p>Begin with fundamental gestures and simple signs, regardless of your age. This builds a strong foundation.</p>
+                            <a href="/courses/1-4" class="step-link">Begin Here</a>
+                        </div>
+                    </div>
+
+                    <div class="path-arrow">↓</div>
+
+                    <div class="path-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Build Vocabulary (Ages 5-10)</h3>
+                            <p>Expand your sign vocabulary with alphabet, family terms, and everyday conversations.</p>
+                            <a href="/courses/5-10" class="step-link">Continue Here</a>
+                        </div>
+                    </div>
+
+                    <div class="path-arrow">↓</div>
+
+                    <div class="path-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Master Communication (Ages 15+)</h3>
+                            <p>Develop advanced skills, complex conversations, and cultural understanding.</p>
+                            <a href="/courses/15+" class="step-link">Advance Here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Special Features -->
+        <section class="special-features">
+            <div class="container">
+                <h2>🌟 Why Choose Our Courses?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Age-Appropriate Content</h3>
+                        <p>Carefully designed curriculum that matches cognitive development and learning abilities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3>Interactive Learning</h3>
+                        <p>Engaging activities, quizzes, and real-time practice with our comprehensive recognition system.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Progress Tracking</h3>
+                        <p>Monitor learning progress with detailed analytics and achievement milestones.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👨‍👩‍👧‍👦</div>
+                        <h3>Family-Friendly</h3>
+                        <p>Designed for parents and children to learn together, strengthening family bonds.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <h3>Self-Paced</h3>
+                        <p>Learn at your own speed with 24/7 access to all course materials and resources.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <h3>Certification</h3>
+                        <p>Earn certificates upon course completion to showcase your sign language achievements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Start Your Sign Language Journey?</h2>
+                <p>Join thousands of families already learning together</p>
+                <div class="cta-buttons">
+                    <a href="/packages" class="btn primary-btn large-btn">
+                        🎁 View Combo Packages
+                    </a>
+                    <a href="/dashboard" class="btn secondary-btn large-btn">
+                        📊 Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('./partials/footer') %>
+
+    <script>
+        // Preview category functionality
+        function previewCategory(categoryId) {
+            const categoryData = {
+                '1-4': {
+                    title: 'Early Learners (Ages 1-4)',
+                    preview: 'Perfect for toddlers and preschoolers! Learn through colorful visuals, simple gestures, and play-based activities. Includes basic signs for everyday objects, emotions, and family members.',
+                    highlights: ['Visual learning', 'Simple gestures', 'Play-based approach', 'Parent guidance included']
+                },
+                '5-10': {
+                    title: 'Young Explorers (Ages 5-10)',
+                    preview: 'Ideal for school-age children! Build vocabulary through interactive lessons covering alphabet, numbers, school terms, and family signs. Perfect for developing communication skills.',
+                    highlights: ['Complete alphabet', 'Numbers & counting', 'School vocabulary', 'Interactive quizzes']
+                },
+                '15+': {
+                    title: 'Advanced Learners (Ages 15+)',
+                    preview: 'Comprehensive curriculum for teens and adults! Master complex conversations, grammar structures, and professional terminology. Includes cultural context and interpretation techniques.',
+                    highlights: ['Advanced grammar', 'Professional terms', 'Cultural context', 'Interpretation skills']
+                }
+            };
+
+            const data = categoryData[categoryId];
+            if (data) {
+                alert(`${data.title}\n\n${data.preview}\n\nHighlights:\n${data.highlights.map(h => `• ${h}`).join('\n')}\n\nClick "Start Learning" to begin!`);
+            }
+        }
+
+        // Add smooth animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards and sections
+        document.querySelectorAll('.category-card, .feature-card, .path-step').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Add hover effects for category cards
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <style>
+        /* Dynamic styling for category icons */
+        .category-icon-1-4 {
+            background: #FF9F4A20;
+            color: #FF9F4A;
+        }
+        .category-icon-5-10 {
+            background: #4A6FFF20;
+            color: #4A6FFF;
+        }
+        .category-icon-15\+ {
+            background: #36B37E20;
+            color: #36B37E;
+        }
+    </style>
+</body>
+</html>

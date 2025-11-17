@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/quiz.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main id="quiz-content">
+        <!-- Hero Section -->
+        <section class="quiz-hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>🎯 AI-Powered Sign Language Quiz</h1>
+                        <p>Test your sign language skills with our interactive recognition technology</p>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <span class="stat-icon">🎥</span>
+                                <span class="stat-text">Real-time Recognition</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">🧠</span>
+                                <span class="stat-text">AI-Powered</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">📊</span>
+                                <span class="stat-text">Instant Feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="floating-gestures">
+                            <div class="gesture-icon">🤟</div>
+                            <div class="gesture-icon">👋</div>
+                            <div class="gesture-icon">👍</div>
+                            <div class="gesture-icon">✌️</div>
+                            <div class="gesture-icon">🤝</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Quiz Section -->
+        <section class="quiz-main">
+            <div class="container">
+                <div class="quiz-layout">
+                    <!-- Quiz Control Panel -->
+                    <div class="quiz-control-panel">
+                        <div class="quiz-info-card">
+                            <div class="quiz-header">
+                                <h2>📝 Quiz Session</h2>
+                                <div class="quiz-mode-badge">Interactive Mode</div>
+                            </div>
+
+                            <div class="quiz-prompt-section quiz-prompt">
+                                <div class="prompt-container">
+                                    <h3>Current Challenge:</h3>
+                                    <div class="prompt-display">
+                                        <span id="current-prompt">Ready to begin...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="quiz-progress-section quiz-progress">
+                                <div class="progress-header">
+                                    <span class="progress-text">Question <span id="current-question">1</span> of <span id="total-questions">6</span></span>
+                                    <span class="progress-percentage">0%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-indicator" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="control-buttons">
+                                <button id="start-quiz" class="btn primary-btn">
+                                    <span class="btn-icon">🚀</span>
+                                    <span>Start Quiz</span>
+                                </button>
+                                <button id="submit-sign" class="btn success-btn" disabled>
+                                    <span class="btn-icon">✅</span>
+                                    <span>Submit Sign</span>
+                                </button>
+                                <button id="next-question" class="btn primary-btn" style="display: none;">
+                                    <span class="btn-icon">➡️</span>
+                                    <span>Next Question</span>
+                                </button>
+                            </div>
+
+                            <div class="quiz-tips">
+                                <h4>💡 Tips for Success</h4>
+                                <ul>
+                                    <li>Ensure good lighting</li>
+                                    <li>Keep hands clearly visible</li>
+                                    <li>Hold sign for 2-3 seconds</li>
+                                    <li>Stay within camera frame</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Webcam Section -->
+                    <div class="quiz-camera-section">
+                        <div class="camera-container webcam-container">
+                            <div class="camera-header">
+                                <h3>📹 Live Camera Feed</h3>
+                                <div class="camera-status">
+                                    <div class="status-indicator"></div>
+                                    <span class="status-text">Camera Ready</span>
+                                </div>
+                            </div>
+
+                            <div class="webcam-frame">
+                                <video id="webcam" autoplay playsinline></video>
+                                <canvas id="canvas" style="display: none;"></canvas>
+                                
+                                <div class="webcam-overlay">
+                                    <div id="countdown" class="countdown-overlay"></div>
+                                    <div class="hand-guide">
+                                        <div class="guide-outline"></div>
+                                        <div class="guide-text">Position your hand here</div>
+                                    </div>
+                                </div>
+
+                                <div class="camera-controls">
+                                    <div class="recording-indicator" id="recording-indicator">
+                                        <div class="indicator-dot"></div>
+                                        <span>Recording...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="feedback" class="feedback-panel" style="display: block; opacity: 1;">
+                                <div class="feedback-content">
+                                    <div class="feedback-icon">ℹ️</div>
+                                    <div class="feedback-text">Position your hand and get ready!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="quiz-results-section" style="display: none;">
+                    <div class="results-card">
+                        <div class="results-header">
+                            <div class="results-icon">🏆</div>
+                            <h2>Quiz Complete!</h2>
+                        </div>
+
+                        <div class="results-stats">
+                            <div class="score-display">
+                                <div class="score-circle">
+                                    <div class="score-number">
+                                        <span id="score">0</span>/<span id="max-score">6</span>
+                                    </div>
+                                    <div class="score-percentage" id="score-percentage">0%</div>
+                                    <div class="score-label">Final Score</div>
+                                </div>
+                            </div>
+
+                            <div class="performance-metrics">
+                                <div class="metric-item">
+                                    <span class="metric-icon">🎯</span>
+                                    <span class="metric-label">Accuracy</span>
+                                    <span class="metric-value" id="accuracy">0%</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-icon">⏱️</span>
+                                    <span class="metric-label">Time</span>
+                                    <span class="metric-value" id="total-time">0s</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-icon">🌟</span>
+                                    <span class="metric-label">Rating</span>
+                                    <span class="metric-value" id="rating">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="results-message">
+                            <div id="result-message" class="message-text">Great job practicing!</div>
+                            <div class="message-subtitle">Keep practicing to improve your skills</div>
+                        </div>
+
+                        <div class="results-actions">
+                            <button id="restart-quiz" class="btn primary-btn">
+                                <span class="btn-icon">🔄</span>
+                                <span>Take Quiz Again</span>
+                            </button>
+                            <a href="/courses" class="btn secondary-btn">
+                                <span class="btn-icon">📚</span>
+                                <span>Back to Courses</span>
+                            </a>
+                            <a href="/dashboard" class="btn secondary-btn">
+                                <span class="btn-icon">🏠</span>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Feedback Message -->
+    <div class="floating-feedback" id="floating-feedback"></div>
+
+    <%- include('./partials/footer') %>
+    <script src="/js/quiz.js"></script>
+</body>
+
+</html>
