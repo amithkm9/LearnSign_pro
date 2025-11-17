@@ -1120,12 +1120,6 @@ in the Software without restriction...
 
 ---
 
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=amithkm9/LearnSign_pro&type=Date)](https://star-history.com/#amithkm9/LearnSign_pro&Date)
-
----
-
 <div align="center">
   
   **Made with ❤️ for the deaf and hard-of-hearing community**
