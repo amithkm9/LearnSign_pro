@@ -24,6 +24,8 @@
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Sign Recognition System](#sign-recognition-system)
+- [AI Tutor System](#-ai-tutor-system-signmentor)
+- [Parent Report System](#-parent-report-system)
 - [Getting Started](#getting-started)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -99,6 +101,48 @@ Our cutting-edge machine learning system provides:
   - Achievement metrics
   - Performance trends
 
+### 🤖 **AI Tutor (SignMentor)** *(NEW)*
+
+Your personal AI-powered sign language tutor:
+
+- **Smart Chat Interface**
+  - Natural language conversations about sign language
+  - Ask about any sign and get video demonstrations
+  - Step-by-step learning guides with practice exercises
+  - Related signs and vocabulary suggestions
+
+- **Voice Interaction** (OpenAI Whisper + TTS)
+  - 🎤 Voice input - speak naturally in your language
+  - 🔊 Voice responses - hear pronunciations and instructions
+  - Multi-language support: English, Hindi (हिंदी), Kannada (ಕನ್ನಡ), Telugu (తెలుగు)
+
+- **Intelligent Video Sequences**
+  - Automatic sentence-to-sign video playback
+  - Word-by-word progress indicators
+  - Pause, replay, and slow-motion controls
+  - Click any word to jump to its sign
+
+### 📄 **Parent Report Dashboard** *(NEW)*
+
+Comprehensive AI-generated learning reports for parents:
+
+- **AI-Powered Insights**
+  - Personalized learning summary
+  - Strengths and growth areas analysis
+  - Weekly goals and recommendations
+  - Actionable tips for parents
+
+- **Visual Analytics**
+  - Weekly activity charts
+  - Quiz performance trends
+  - Course progress visualization
+  - Achievement showcase
+
+- **Export Options**
+  - 📥 Download as PDF
+  - 🖨️ Print-friendly format
+  - Beautiful, shareable reports
+
 ### 🎮 **Interactive Learning Experience**
 
 - **Translator Tool**
@@ -159,6 +203,18 @@ Our cutting-edge machine learning system provides:
   <p><i>Inspiring stories from successful deaf individuals</i></p>
 </div>
 
+### AI Tutor (SignMentor) *(NEW)*
+<div align="center">
+  <img src="docs/screenshots/tutor.png" alt="AI Tutor" width="800"/>
+  <p><i>Conversational AI tutor with voice input/output and video demonstrations</i></p>
+</div>
+
+### Parent Report *(NEW)*
+<div align="center">
+  <img src="docs/screenshots/report.png" alt="Parent Report" width="800"/>
+  <p><i>AI-generated learning reports with charts and PDF export</i></p>
+</div>
+
 ---
 
 ## 🛠 Tech Stack
@@ -182,6 +238,12 @@ Our cutting-edge machine learning system provides:
 - **MediaPipe** - Hand tracking and pose estimation
 - **OpenCV** - Computer vision processing
 - **FastAPI** - Python API framework
+
+### AI & Voice Services
+- **OpenAI GPT-4** - AI tutor conversations and insights
+- **OpenAI Whisper** - Speech-to-text for voice input
+- **OpenAI TTS** - Text-to-speech for voice responses
+- **html2pdf.js** - PDF report generation
 
 ### Authentication & Security
 - **bcryptjs** - Password hashing
@@ -509,6 +571,184 @@ Response:
 
 ---
 
+## 🤖 AI Tutor System (SignMentor)
+
+### Overview
+
+SignMentor is an AI-powered conversational tutor that helps users learn sign language through natural language interactions, voice commands, and video demonstrations.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SignMentor AI Tutor                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────────┐         ┌──────────────┐                 │
+│  │   Frontend   │         │   Backend    │                 │
+│  │   Chat UI    │◄───────►│  Express.js  │                 │
+│  │              │         │              │                 │
+│  │  - Voice In  │         │  - /api/tutor│                 │
+│  │  - Voice Out │         │  - /api/voice│                 │
+│  │  - Videos    │         │  - /api/report                 │
+│  └──────────────┘         └──────┬───────┘                 │
+│                                  │                          │
+│                                  ▼                          │
+│  ┌─────────────────────────────────────────────────┐      │
+│  │              OpenAI Services                     │      │
+│  ├─────────────────────────────────────────────────┤      │
+│  │                                                   │      │
+│  │  ┌──────────────┐  ┌──────────────┐             │      │
+│  │  │   GPT-4      │  │   Whisper    │             │      │
+│  │  │   Chat       │  │   Speech-to- │             │      │
+│  │  │   Completion │  │   Text       │             │      │
+│  │  └──────────────┘  └──────────────┘             │      │
+│  │                                                   │      │
+│  │  ┌──────────────┐  ┌──────────────┐             │      │
+│  │  │   TTS        │  │   Video      │             │      │
+│  │  │   Text-to-   │  │   Sequence   │             │      │
+│  │  │   Speech     │  │   Player     │             │      │
+│  │  └──────────────┘  └──────────────┘             │      │
+│  │                                                   │      │
+│  └─────────────────────────────────────────────────┘      │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Features
+
+#### 1. **Text Chat**
+```javascript
+// User types: "How do I sign hello?"
+POST /api/tutor/chat
+{
+  "userId": "...",
+  "message": "How do I sign hello?",
+  "conversationHistory": [...]
+}
+```
+
+Response includes:
+- Video demonstration path
+- Step-by-step instructions
+- Memory tricks
+- Related signs
+- Practice exercises
+
+#### 2. **Voice Input (OpenAI Whisper)**
+```javascript
+// User speaks in any supported language
+POST /api/voice/chat
+{
+  "userId": "...",
+  "audio": "base64_encoded_audio",
+  "language": "hi",  // Hindi
+  "voiceEnabled": true
+}
+```
+
+Supported languages:
+- 🇬🇧 English (en)
+- 🇮🇳 Hindi (hi)
+- 🇮🇳 Kannada (kn)
+- 🇮🇳 Telugu (te)
+
+#### 3. **Voice Output (OpenAI TTS)**
+```javascript
+POST /api/voice/text-to-speech
+{
+  "text": "Here's how to sign hello...",
+  "voice": "nova"
+}
+```
+
+#### 4. **Video Sequence Player**
+For sentences/phrases, the tutor plays videos sequentially:
+- Automatic word-by-word progression
+- Visual progress indicators
+- Clickable word navigation
+- Pause/Replay/Slow-motion controls
+
+---
+
+## 📄 Parent Report System
+
+### Overview
+
+AI-generated comprehensive learning reports for parents to track their child's progress.
+
+### Report Contents
+
+1. **Student Profile**
+   - Name and age group
+   - Membership duration
+   - Current learning streak
+
+2. **AI Summary**
+   - Personalized learning assessment
+   - Generated using GPT-4
+
+3. **Statistics**
+   - Courses completed
+   - Total learning time
+   - Overall progress percentage
+   - Average quiz scores
+
+4. **Visual Charts**
+   - Weekly activity (bar chart)
+   - Quiz performance trend (line chart)
+   - Course progress bars
+
+5. **Achievements**
+   - Earned badges
+   - Milestones reached
+
+6. **Analysis**
+   - Strengths identification
+   - Areas for growth
+   - Recommended focus areas
+
+7. **Parent Tips**
+   - AI-generated suggestions
+   - Home practice activities
+
+8. **Weekly Goals**
+   - Personalized learning targets
+
+### API Endpoint
+
+```http
+GET /api/report/generate/:userId
+
+Response:
+{
+  "success": true,
+  "report": {
+    "student": { ... },
+    "statistics": { ... },
+    "weeklyActivity": [...],
+    "quizTrend": [...],
+    "courseProgress": [...],
+    "aiInsights": {
+      "overallSummary": "...",
+      "strengthsAnalysis": "...",
+      "areasForGrowth": "...",
+      "achievements": [...],
+      "parentTips": [...],
+      "weeklyGoal": "...",
+      "encouragement": "..."
+    }
+  }
+}
+```
+
+### Export Options
+
+- **PDF Download**: Using html2pdf.js
+- **Print**: Native browser print dialog
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -701,6 +941,7 @@ This creates:
 | `NODE_ENV` | Environment mode | `development` |
 | `SESSION_SECRET` | Session encryption key | Required |
 | `PYTHON_API_URL` | ML API base URL | `http://localhost:8000` |
+| `OPENAI_API_KEY` | OpenAI API key for AI Tutor | Required for AI features |
 
 ### Database Schema
 
@@ -839,6 +1080,23 @@ pm2 start ecosystem.config.js
 4. See achievements
 5. Identify areas for improvement
 
+#### 6. **Chat with AI Tutor** *(NEW)*
+
+1. Navigate to `/tutor`
+2. Type any word or phrase
+3. Watch video demonstrations
+4. Use 🎤 for voice input
+5. Enable 🔊 for voice responses
+6. Select your preferred language
+
+#### 7. **View Parent Report** *(NEW)*
+
+1. Go to `/dashboard`
+2. Click "View Parent Report"
+3. Review AI-generated insights
+4. Check progress charts
+5. Download as PDF or print
+
 ---
 
 ## 📚 API Documentation
@@ -884,6 +1142,26 @@ POST /api/quizzes/submit
 GET  /api/quizzes/results/:userId
 ```
 
+#### AI Tutor
+
+```http
+POST /api/tutor/chat
+GET  /api/tutor/profile/:userId
+```
+
+#### Voice Services
+
+```http
+POST /api/voice/chat
+POST /api/voice/text-to-speech
+```
+
+#### Parent Reports
+
+```http
+GET /api/report/generate/:userId
+```
+
 ### Python ML API Endpoints
 
 #### Sign Recognition
@@ -920,6 +1198,8 @@ LearnSign/
 │   ├── courses.ejs            # Course catalog
 │   ├── dashboard.ejs          # User dashboard
 │   ├── translate.ejs          # Sign translator
+│   ├── tutor.ejs              # AI Tutor (SignMentor)
+│   ├── report.ejs             # Parent Report
 │   ├── about.ejs              # About page
 │   └── community.ejs          # Community section
 ├── public/
@@ -927,12 +1207,16 @@ LearnSign/
 │   │   ├── home.css
 │   │   ├── dashboard.css
 │   │   ├── courses.css
-│   │   └── translate.css
+│   │   ├── translate.css
+│   │   ├── tutor.css           # AI Tutor styles
+│   │   └── report.css          # Parent Report styles
 │   ├── js/
 │   │   ├── auth.js
 │   │   ├── translate.js
 │   │   ├── quiz.js
-│   │   └── heartbeat.js
+│   │   ├── heartbeat.js
+│   │   ├── tutor.js            # AI Tutor logic
+│   │   └── report.js           # Parent Report logic
 │   └── assets/
 │       ├── imgs/              # Images and logo
 │       └── videos/
@@ -1058,6 +1342,7 @@ in the Software without restriction...
 
 ## 🙏 Acknowledgments
 
+- **OpenAI** - GPT-4, Whisper, and TTS APIs for AI tutor
 - **MediaPipe Team** - Hand tracking technology
 - **TensorFlow Team** - Deep learning framework
 - **MongoDB** - Database platform
@@ -1084,11 +1369,14 @@ in the Software without restriction...
 - [x] Number recognition
 - [x] Word recognition
 
-### Phase 3: Enhanced Features (🚧 In Progress)
+### Phase 3: Enhanced Features (✅ Completed)
+- [x] AI Tutor (SignMentor) with GPT-4
+- [x] Voice input with OpenAI Whisper
+- [x] Voice output with OpenAI TTS
+- [x] Multi-language support (English, Hindi, Kannada, Telugu)
+- [x] Parent Report Dashboard with PDF export
+- [x] AI-generated learning insights
 - [ ] Mobile responsive design
-- [ ] Gamification enhancements
-- [ ] Social features
-- [ ] Parent dashboard
 - [ ] Teacher portal
 
 ### Phase 4: Scaling (📋 Planned)
@@ -1102,20 +1390,22 @@ in the Software without restriction...
 - [ ] AR/VR integration
 - [ ] Voice-to-sign translation
 - [ ] Sign-to-voice translation
-- [ ] AI chatbot tutor
+- [x] AI chatbot tutor *(Completed - SignMentor)*
 - [ ] Community features
 
 ---
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~30,000+
-- **Sign Language Videos**: 350+
+- **Lines of Code**: ~35,000+
+- **Sign Language Videos**: 354+
 - **Courses**: 50+ lessons
 - **Age Groups Supported**: 3 (1-4, 5-10, 15+)
 - **ML Model Accuracy**: 95%+
-- **API Endpoints**: 25+
+- **API Endpoints**: 30+
 - **Database Collections**: 7
+- **Voice Languages**: 4 (English, Hindi, Kannada, Telugu)
+- **AI Services**: OpenAI GPT-4, Whisper, TTS
 - **Contributors**: 5+
 
 ---

@@ -868,6 +868,30 @@
     box-shadow: 0 6px 20px rgba(124, 111, 219, 0.4);
 }
 
+/* Report Button */
+.report-btn {
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.report-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+    color: white;
+}
+
 /* Charts Grid */
 .charts-grid {
     display: grid;

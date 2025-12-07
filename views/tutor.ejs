@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/tutor.css">
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main class="tutor-page">
+        <!-- Full Page Chat Interface -->
+        <div class="chat-fullpage">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="tutor-avatar-small">
+                        <span>🤟</span>
+                    </div>
+                    <div class="tutor-info-small">
+                        <h1>SignMentor</h1>
+                        <span class="status-online">
+                            <span class="status-dot"></span>
+                            Online
+                        </span>
+                    </div>
+                </div>
+                <div class="chat-header-right">
+                    <div class="user-stat">
+                        <span class="stat-value" id="stat-streak">0</span>
+                        <span class="stat-label">🔥 Streak</span>
+                    </div>
+                    <div class="user-stat">
+                        <span class="stat-value" id="stat-courses">0</span>
+                        <span class="stat-label">📚 Courses</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div class="chat-messages-fullpage" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message tutor-message welcome-message">
+                    <div class="message-avatar">
+                        <span>🤟</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="sender-name">SignMentor</span>
+                            <span class="message-time">Just now</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Hi! Hello! 👋 I'm your sign language tutor\n 👋 Just type any word and I'll show you how to sign it!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-fullpage">
+                <div class="chat-input-container">
+                    <!-- Voice Controls -->
+                    <div class="voice-controls">
+                        <!-- Language Selector -->
+                        <select id="language-select" class="language-select" title="Select language">
+                            <option value="en">🇬🇧 English</option>
+                            <option value="hi">🇮🇳 हिंदी</option>
+                            <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+                            <option value="te">🇮🇳 తెలుగు</option>
+                        </select>
+                        
+                        <button id="mic-btn" class="voice-btn mic-btn" title="Click to start/stop recording">
+                            <span class="mic-icon">🎤</span>
+                        </button>
+                        <button id="speaker-toggle" class="voice-btn speaker-btn active" title="Toggle voice responses">
+                            <span class="speaker-icon">🔊</span>
+                        </button>
+                    </div>
+                    
+                    <textarea 
+                        id="chat-input" 
+                        placeholder="Type or speak any word... hello, mother, love, happy..."
+                        rows="1"
+                        maxlength="100"
+                    ></textarea>
+                    <button id="send-btn" class="send-button" disabled>
+                        <span class="send-icon">➤</span>
+                    </button>
+                </div>
+                
+                <!-- Voice Recording Indicator -->
+                <div id="voice-recording-indicator" class="voice-recording-indicator" style="display: none;">
+                    <div class="recording-pulse"></div>
+                    <span class="recording-text">Listening...</span>
+                    <span class="recording-timer" id="recording-timer">0s</span>
+                    <button id="stop-recording-btn" class="stop-recording-btn">⏹️ Stop</button>
+                </div>
+                
+                <!-- Voice Status Messages -->
+                <div id="voice-status" class="voice-status" style="display: none;"></div>
+                
+                <div class="input-hints">
+                    <span class="hint-text">354 signs available • Type or 🎤 click to speak!</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Required Modal -->
+    <div class="modal-overlay" id="login-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-icon">🔐</div>
+            <h2>Sign In Required</h2>
+            <p>Please sign in to chat with SignMentor.</p>
+            <div class="modal-actions">
+                <a href="/login" class="btn btn-primary">Sign In</a>
+                <button class="btn btn-secondary" onclick="closeLoginModal()">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/tutor.js"></script>
+</body>
+</html>

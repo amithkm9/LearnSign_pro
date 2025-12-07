@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <link rel="stylesheet" href="/css/report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+    <%- include('./partials/header') %>
+
+    <main class="report-page">
+        <!-- Loading State -->
+        <div id="report-loading" class="report-loading">
+            <div class="loading-spinner"></div>
+            <h2>Generating Your Report...</h2>
+            <p>Our AI is analyzing learning progress and creating personalized insights</p>
+        </div>
+
+        <!-- Report Content -->
+        <div id="report-content" class="report-container" style="display: none;">
+            <!-- Report Header -->
+            <div class="report-header">
+                <div class="report-header-content">
+                    <div class="report-logo">
+                        <span class="logo-icon">🤟</span>
+                        <span class="logo-text">LearnSign</span>
+                    </div>
+                    <div class="report-title-section">
+                        <h1>Learning Progress Report</h1>
+                        <p class="report-subtitle">Personalized insights for parents</p>
+                    </div>
+                    <div class="report-meta">
+                        <p class="report-date" id="report-date"></p>
+                    </div>
+                </div>
+                <div class="report-actions no-print">
+                    <button id="download-pdf-btn" class="btn-download">
+                        📥 Download PDF
+                    </button>
+                    <button onclick="window.print()" class="btn-print">
+                        🖨️ Print
+                    </button>
+                    <a href="/dashboard" class="btn-back">
+                        ← Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Student Profile Card -->
+            <section class="report-section student-profile-section">
+                <div class="student-profile-card">
+                    <div class="student-avatar">
+                        <span id="student-initials">LS</span>
+                    </div>
+                    <div class="student-info">
+                        <h2 id="student-name">Student Name</h2>
+                        <div class="student-meta">
+                            <span class="meta-item">
+                                <span class="meta-icon">🎂</span>
+                                <span id="student-age-group">Age Group</span>
+                            </span>
+                            <span class="meta-item">
+                                <span class="meta-icon">📅</span>
+                                <span>Member since <span id="member-since">-</span></span>
+                            </span>
+                            <span class="meta-item streak-badge">
+                                <span class="meta-icon">🔥</span>
+                                <span id="current-streak">0</span> day streak
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Summary -->
+            <section class="report-section ai-summary-section">
+                <div class="section-header">
+                    <span class="section-icon">🤖</span>
+                    <h2>AI Summary</h2>
+                </div>
+                <div class="ai-summary-card">
+                    <p id="ai-summary" class="summary-text"></p>
+                </div>
+            </section>
+
+            <!-- Key Statistics -->
+            <section class="report-section stats-section">
+                <div class="section-header">
+                    <span class="section-icon">📊</span>
+                    <h2>Learning Statistics</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card purple">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="stat-courses">0</div>
+                        <div class="stat-label">Courses Completed</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="stat-time">0h</div>
+                        <div class="stat-label">Total Learning Time</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="stat-progress">0%</div>
+                        <div class="stat-label">Overall Progress</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="stat-quiz-score">0%</div>
+                        <div class="stat-label">Avg Quiz Score</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="report-section charts-section">
+                <div class="charts-grid">
+                    <!-- Weekly Activity Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">📅</span>
+                            <h3>Weekly Activity</h3>
+                        </div>
+                        <p class="chart-description">Learning minutes per day this week</p>
+                        <div class="chart-container">
+                            <canvas id="weeklyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Performance Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">📝</span>
+                            <h3>Quiz Performance</h3>
+                        </div>
+                        <p class="chart-description">Recent quiz scores trend</p>
+                        <div class="chart-container">
+                            <canvas id="quizChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Progress -->
+                <div class="chart-card full-width">
+                    <div class="chart-header">
+                        <span class="chart-icon">🎓</span>
+                        <h3>Course Progress</h3>
+                    </div>
+                    <p class="chart-description">Progress across all enrolled courses</p>
+                    <div class="course-progress-list" id="course-progress-list">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Achievements Section -->
+            <section class="report-section achievements-section">
+                <div class="section-header">
+                    <span class="section-icon">🏆</span>
+                    <h2>Achievements</h2>
+                </div>
+                <div class="achievements-grid" id="achievements-list">
+                    <!-- Will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- Strengths & Growth Areas -->
+            <section class="report-section analysis-section">
+                <div class="analysis-grid">
+                    <div class="analysis-card strengths">
+                        <div class="analysis-header">
+                            <span class="analysis-icon">💪</span>
+                            <h3>Strengths</h3>
+                        </div>
+                        <p id="strengths-text" class="analysis-text"></p>
+                        <ul id="strengths-list" class="analysis-list"></ul>
+                    </div>
+                    <div class="analysis-card growth">
+                        <div class="analysis-header">
+                            <span class="analysis-icon">🌱</span>
+                            <h3>Areas for Growth</h3>
+                        </div>
+                        <p id="growth-text" class="analysis-text"></p>
+                        <ul id="growth-list" class="analysis-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Parent Tips -->
+            <section class="report-section tips-section">
+                <div class="section-header">
+                    <span class="section-icon">💡</span>
+                    <h2>Tips for Parents</h2>
+                </div>
+                <p class="tips-intro">Here's how you can support your child's learning at home:</p>
+                <div class="tips-grid" id="parent-tips">
+                    <!-- Will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- Weekly Goal -->
+            <section class="report-section goal-section">
+                <div class="goal-card">
+                    <div class="goal-icon">🎯</div>
+                    <div class="goal-content">
+                        <h3>This Week's Goal</h3>
+                        <p id="weekly-goal"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Encouragement -->
+            <section class="report-section encouragement-section">
+                <div class="encouragement-card">
+                    <div class="encouragement-quote">
+                        <span class="quote-icon">✨</span>
+                        <p id="encouragement-text"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="report-footer">
+                <div class="footer-content">
+                    <p>Generated by LearnSign AI • <span id="footer-date"></span></p>
+                    <p class="footer-tagline">Breaking barriers, one sign at a time 🤟</p>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Error State -->
+        <div id="report-error" class="report-error" style="display: none;">
+            <div class="error-icon">😔</div>
+            <h2>Oops! Something went wrong</h2>
+            <p id="error-message">Unable to generate report. Please try again.</p>
+            <button onclick="loadReport()" class="btn-retry">Try Again</button>
+            <a href="/dashboard" class="btn-back">Back to Dashboard</a>
+        </div>
+    </main>
+
+    <script src="/js/report.js"></script>
+</body>
+</html>
+

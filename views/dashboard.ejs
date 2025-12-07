@@ -51,11 +51,16 @@
         <!-- Detailed Progress Section -->
         <section class="learning-progress">
             <div class="container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                     <h2>📈 Your Learning Progress</h2>
-                    <button onclick="loadDashboardData()" class="refresh-btn">
-                        🔄 Refresh Data
-                    </button>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="/report" class="report-btn">
+                            📄 View Parent Report
+                        </a>
+                        <button onclick="loadDashboardData()" class="refresh-btn">
+                            🔄 Refresh Data
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Overall Progress -->

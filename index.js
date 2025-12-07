@@ -508,6 +508,161 @@ app.post("/api/speech/summarize", async (req, res) => {
     }
 });
 
+// ========== AI TUTOR (SignMentor) ENDPOINTS ==========
+
+// Tutor page route
+app.get("/tutor", (req, res) => {
+    res.render("tutor.ejs");
+});
+
+// Parent Report page route
+app.get("/report", (req, res) => {
+    res.render("report.ejs");
+});
+
+// AI Tutor chat proxy endpoint
+app.post("/api/tutor/chat", async (req, res) => {
+    try {
+        const response = await axios.post(`${API_URL}/tutor/chat`, req.body, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            timeout: 60000 // 60 second timeout for AI responses
+        });
+        
+        res.json(response.data);
+    } catch (error) {
+        console.error("Tutor chat error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to process tutor request",
+            details: error.message
+        });
+    }
+});
+
+// AI Tutor profile proxy endpoint
+app.get("/api/tutor/profile/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const response = await axios.get(`${API_URL}/tutor/profile/${userId}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Tutor profile error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: "Failed to fetch tutor profile",
+            details: error.message
+        });
+    }
+});
+
+// Get available signs
+app.get("/api/signs/available", async (req, res) => {
+    try {
+        const response = await axios.get(`${API_URL}/signs/available`);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Signs list error:", error.message);
+        res.status(500).json({ error: "Failed to fetch signs" });
+    }
+});
+
+// Check if sign video exists
+app.get("/api/signs/check/:word", async (req, res) => {
+    try {
+        const { word } = req.params;
+        const response = await axios.get(`${API_URL}/signs/check/${word}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Sign check error:", error.message);
+        res.status(500).json({ error: "Failed to check sign" });
+    }
+});
+
+// ========== VOICE-ENABLED AI TUTOR ENDPOINTS ==========
+
+// Speech-to-Text proxy endpoint
+app.post("/api/voice/speech-to-text", async (req, res) => {
+    try {
+        const response = await axios.post(`${API_URL}/voice/speech-to-text`, req.body, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+            timeout: 30000 // 30 second timeout for audio processing
+        });
+        
+        res.json(response.data);
+    } catch (error) {
+        console.error("Speech-to-text error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to transcribe audio",
+            details: error.message
+        });
+    }
+});
+
+// Text-to-Speech proxy endpoint
+app.post("/api/voice/text-to-speech", async (req, res) => {
+    try {
+        const response = await axios.post(`${API_URL}/voice/text-to-speech`, req.body, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            timeout: 30000 // 30 second timeout for TTS
+        });
+        
+        res.json(response.data);
+    } catch (error) {
+        console.error("Text-to-speech error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to generate speech",
+            details: error.message
+        });
+    }
+});
+
+// Combined Voice Chat proxy endpoint
+app.post("/api/voice/chat", async (req, res) => {
+    try {
+        const response = await axios.post(`${API_URL}/voice/chat`, req.body, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+            timeout: 60000 // 60 second timeout for full voice chat flow
+        });
+        
+        res.json(response.data);
+    } catch (error) {
+        console.error("Voice chat error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to process voice chat",
+            details: error.message
+        });
+    }
+});
+
+// ========== PARENT REPORT ENDPOINTS ==========
+
+// Generate parent report
+app.get("/api/report/generate/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const response = await axios.get(`${API_URL}/report/generate/${userId}`, {
+            timeout: 60000 // 60 second timeout for AI report generation
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error("Report generation error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to generate report",
+            details: error.message
+        });
+    }
+});
+
 app.listen(port, () => {
     console.log("Server listening on port " + port);
 });
