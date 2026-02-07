@@ -1,0 +1,74 @@
+# Render Blueprint - LearnSign Pro
+# This file defines all services for one-click deployment
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ============================================
+  # Web Server (Frontend + API Proxy)
+  # ============================================
+  - type: web
+    name: learnsign-web
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: API_URL
+        fromService:
+          type: web
+          name: learnsign-api
+          property: hostport
+          envVarKey: RENDER_INTERNAL_HOSTNAME
+      - key: PYTHON_API_URL
+        fromService:
+          type: web
+          name: learnsign-ml
+          property: hostport
+          envVarKey: RENDER_INTERNAL_HOSTNAME
+      - key: SESSION_SECRET
+        generateValue: true
+    healthCheckPath: /
+
+  # ============================================
+  # API Server (Backend + MongoDB)
+  # ============================================
+  - type: web
+    name: learnsign-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node api.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PORT
+        value: 4000
+      - key: PORT
+        value: 4000
+      - key: MONGODB_URI
+        sync: false  # You'll add this manually
+      - key: OPENAI_API_KEY
+        sync: false  # You'll add this manually
+    healthCheckPath: /health
+
+  # ============================================
+  # Python ML Service (Sign Recognition)
+  # ============================================
+  - type: web
+    name: learnsign-ml
+    runtime: docker
+    plan: starter  # $7/month - needed for ML model memory
+    dockerfilePath: ./sign_recognition/Dockerfile
+    dockerContext: ./sign_recognition
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: HOST
+        value: 0.0.0.0
+      - key: RELOAD
+        value: "false"
+    healthCheckPath: /health

@@ -202,6 +202,15 @@ async def recognize_sign(data: FrameData):
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Error in recognition: {str(e)}")
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Render deployment"""
+    return {
+        "status": "healthy",
+        "model_loaded": model is not None,
+        "classes": model.classes if model else []
+    }
+
 if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
