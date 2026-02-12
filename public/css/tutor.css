@@ -931,13 +931,13 @@
 
 /* Microphone Button */
 .mic-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.4);
 }
 
 .mic-btn:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 20px rgba(124, 111, 219, 0.5);
 }
 
 .mic-btn:active,

@@ -2,7 +2,7 @@
 
 /* Quiz Hero Section */
 .quiz-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 80px 0 60px;
     position: relative;
@@ -165,14 +165,14 @@
 }
 
 .prompt-display {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 20px;
     border-radius: 15px;
     text-align: center;
     font-size: 1.3em;
     font-weight: 600;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.3);
     min-height: 60px;
     display: flex;
     align-items: center;
@@ -197,7 +197,7 @@
 }
 
 .progress-percentage {
-    color: #667eea;
+    color: #7C6FDB;
     font-weight: 600;
 }
 
@@ -247,14 +247,14 @@
 }
 
 .primary-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.3);
 }
 
 .primary-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(124, 111, 219, 0.4);
 }
 
 .success-btn {
@@ -668,7 +668,7 @@
 .score-circle {
     width: 180px;
     height: 180px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -721,7 +721,7 @@
     font-size: 1.5em;
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;

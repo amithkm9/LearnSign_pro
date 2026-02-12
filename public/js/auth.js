@@ -4,6 +4,440 @@ console.log('MongoDB Auth System Loading...');
 // Global variables
 let currentUser = null;
 
+// ============ VALIDATION FUNCTIONS ============
+
+// Validation rules
+const validationRules = {
+    email: {
+        pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        message: 'Please enter a valid email address (e.g., name@example.com)'
+    },
+    phone: {
+        pattern: /^[0-9]{10}$/,
+        message: 'Phone number must be exactly 10 digits'
+    },
+    password: {
+        minLength: 8,
+        requireUppercase: true,
+        requireLowercase: true,
+        requireNumber: true,
+        requireSpecial: true,
+        specialChars: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    },
+    name: {
+        minLength: 2,
+        pattern: /^[a-zA-Z\s]+$/,
+        message: 'Name must be at least 2 characters and contain only letters'
+    }
+};
+
+// Validate email
+function validateEmail(email) {
+    const result = { valid: true, message: '' };
+    
+    if (!email || email.trim() === '') {
+        result.valid = false;
+        result.message = 'Email is required';
+        return result;
+    }
+    
+    if (!validationRules.email.pattern.test(email)) {
+        result.valid = false;
+        result.message = validationRules.email.message;
+        return result;
+    }
+    
+    return result;
+}
+
+// Validate phone number
+function validatePhone(phone) {
+    const result = { valid: true, message: '' };
+    
+    if (!phone || phone.trim() === '') {
+        result.valid = false;
+        result.message = 'Phone number is required';
+        return result;
+    }
+    
+    // Remove any spaces or dashes
+    const cleanPhone = phone.replace(/[\s-]/g, '');
+    
+    if (!validationRules.phone.pattern.test(cleanPhone)) {
+        result.valid = false;
+        result.message = validationRules.phone.message;
+        return result;
+    }
+    
+    return result;
+}
+
+// Validate password with detailed requirements
+function validatePassword(password) {
+    const result = { valid: true, message: '', requirements: [] };
+    const rules = validationRules.password;
+    
+    if (!password || password.trim() === '') {
+        result.valid = false;
+        result.message = 'Password is required';
+        return result;
+    }
+    
+    // Check minimum length
+    if (password.length < rules.minLength) {
+        result.requirements.push(`At least ${rules.minLength} characters`);
+    }
+    
+    // Check uppercase
+    if (rules.requireUppercase && !/[A-Z]/.test(password)) {
+        result.requirements.push('At least one uppercase letter (A-Z)');
+    }
+    
+    // Check lowercase
+    if (rules.requireLowercase && !/[a-z]/.test(password)) {
+        result.requirements.push('At least one lowercase letter (a-z)');
+    }
+    
+    // Check number
+    if (rules.requireNumber && !/[0-9]/.test(password)) {
+        result.requirements.push('At least one number (0-9)');
+    }
+    
+    // Check special character
+    if (rules.requireSpecial && !/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+        result.requirements.push('At least one special character (!@#$%^&*...)');
+    }
+    
+    if (result.requirements.length > 0) {
+        result.valid = false;
+        result.message = 'Password must contain: ' + result.requirements.join(', ');
+    }
+    
+    return result;
+}
+
+// Validate name
+function validateName(name, fieldName = 'Name') {
+    const result = { valid: true, message: '' };
+    
+    if (!name || name.trim() === '') {
+        result.valid = false;
+        result.message = `${fieldName} is required`;
+        return result;
+    }
+    
+    if (name.trim().length < validationRules.name.minLength) {
+        result.valid = false;
+        result.message = `${fieldName} must be at least ${validationRules.name.minLength} characters`;
+        return result;
+    }
+    
+    if (!validationRules.name.pattern.test(name)) {
+        result.valid = false;
+        result.message = `${fieldName} can only contain letters and spaces`;
+        return result;
+    }
+    
+    return result;
+}
+
+// Show field error
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    // Remove existing error
+    clearFieldError(fieldId);
+    
+    // Add error class to field
+    field.classList.add('error');
+    field.parentElement.classList.add('error');
+    
+    // Create error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error-message';
+    errorDiv.innerHTML = `<span class="error-icon">⚠️</span> ${message}`;
+    
+    // Insert after the field or input-border
+    const inputBorder = field.nextElementSibling;
+    if (inputBorder && inputBorder.classList.contains('input-border')) {
+        inputBorder.insertAdjacentElement('afterend', errorDiv);
+    } else {
+        field.insertAdjacentElement('afterend', errorDiv);
+    }
+}
+
+// Clear field error
+function clearFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    field.classList.remove('error');
+    field.parentElement.classList.remove('error');
+    
+    // Remove error message
+    const errorMsg = field.parentElement.querySelector('.field-error-message');
+    if (errorMsg) {
+        errorMsg.remove();
+    }
+}
+
+// Show field success
+function showFieldSuccess(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    clearFieldError(fieldId);
+    field.classList.add('success');
+    field.parentElement.classList.add('success');
+}
+
+// Real-time validation on blur
+function setupRealTimeValidation() {
+    // Email validation
+    const loginEmail = document.getElementById('login-email');
+    const registerEmail = document.getElementById('register-email');
+    
+    [loginEmail, registerEmail].forEach(field => {
+        if (field) {
+            field.addEventListener('blur', function() {
+                const result = validateEmail(this.value);
+                if (!result.valid) {
+                    showFieldError(this.id, result.message);
+                } else {
+                    showFieldSuccess(this.id);
+                }
+            });
+            field.addEventListener('input', function() {
+                clearFieldError(this.id);
+            });
+        }
+    });
+    
+    // Phone validation
+    const registerPhone = document.getElementById('register-phone');
+    if (registerPhone) {
+        registerPhone.addEventListener('blur', function() {
+            const result = validatePhone(this.value);
+            if (!result.valid) {
+                showFieldError(this.id, result.message);
+            } else {
+                showFieldSuccess(this.id);
+            }
+        });
+        registerPhone.addEventListener('input', function() {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+            // Limit to 10 digits
+            if (this.value.length > 10) {
+                this.value = this.value.slice(0, 10);
+            }
+            clearFieldError(this.id);
+        });
+    }
+    
+    // Password validation
+    const loginPassword = document.getElementById('login-password');
+    const registerPassword = document.getElementById('register-password');
+    
+    if (registerPassword) {
+        registerPassword.addEventListener('blur', function() {
+            const result = validatePassword(this.value);
+            if (!result.valid) {
+                showFieldError(this.id, result.message);
+            } else {
+                showFieldSuccess(this.id);
+            }
+        });
+        registerPassword.addEventListener('input', function() {
+            clearFieldError(this.id);
+            // Show password strength indicator
+            updatePasswordStrength(this.value);
+        });
+    }
+    
+    // Name validation
+    const registerFname = document.getElementById('register-fname');
+    const registerLname = document.getElementById('register-lname');
+    
+    [registerFname, registerLname].forEach(field => {
+        if (field) {
+            const fieldName = field.id === 'register-fname' ? 'First name' : 'Last name';
+            field.addEventListener('blur', function() {
+                const result = validateName(this.value, fieldName);
+                if (!result.valid) {
+                    showFieldError(this.id, result.message);
+                } else {
+                    showFieldSuccess(this.id);
+                }
+            });
+            field.addEventListener('input', function() {
+                clearFieldError(this.id);
+            });
+        }
+    });
+}
+
+// Password strength indicator
+function updatePasswordStrength(password) {
+    let strength = 0;
+    let strengthText = '';
+    let strengthClass = '';
+    
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) strength++;
+    
+    if (strength <= 2) {
+        strengthText = 'Weak';
+        strengthClass = 'weak';
+    } else if (strength <= 4) {
+        strengthText = 'Medium';
+        strengthClass = 'medium';
+    } else {
+        strengthText = 'Strong';
+        strengthClass = 'strong';
+    }
+    
+    // Update or create strength indicator
+    let strengthIndicator = document.querySelector('.password-strength');
+    if (!strengthIndicator && password.length > 0) {
+        strengthIndicator = document.createElement('div');
+        strengthIndicator.className = 'password-strength';
+        const passwordField = document.getElementById('register-password');
+        if (passwordField) {
+            passwordField.parentElement.appendChild(strengthIndicator);
+        }
+    }
+    
+    if (strengthIndicator) {
+        if (password.length === 0) {
+            strengthIndicator.remove();
+        } else {
+            strengthIndicator.innerHTML = `
+                <div class="strength-bar">
+                    <div class="strength-fill ${strengthClass}" style="width: ${(strength/6) * 100}%"></div>
+                </div>
+                <span class="strength-text ${strengthClass}">${strengthText}</span>
+            `;
+        }
+    }
+}
+
+// Validate entire registration form
+function validateRegistrationForm() {
+    let isValid = true;
+    const errors = [];
+    
+    // Validate first name
+    const fname = document.getElementById('register-fname');
+    if (fname) {
+        const result = validateName(fname.value, 'First name');
+        if (!result.valid) {
+            showFieldError('register-fname', result.message);
+            errors.push(result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate last name
+    const lname = document.getElementById('register-lname');
+    if (lname) {
+        const result = validateName(lname.value, 'Last name');
+        if (!result.valid) {
+            showFieldError('register-lname', result.message);
+            errors.push(result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate email
+    const email = document.getElementById('register-email');
+    if (email) {
+        const result = validateEmail(email.value);
+        if (!result.valid) {
+            showFieldError('register-email', result.message);
+            errors.push(result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate phone
+    const phone = document.getElementById('register-phone');
+    if (phone) {
+        const result = validatePhone(phone.value);
+        if (!result.valid) {
+            showFieldError('register-phone', result.message);
+            errors.push(result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate password
+    const password = document.getElementById('register-password');
+    if (password) {
+        const result = validatePassword(password.value);
+        if (!result.valid) {
+            showFieldError('register-password', result.message);
+            errors.push(result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate age group
+    const ageGroup = document.getElementById('register-age-group');
+    if (ageGroup && !ageGroup.value) {
+        showFieldError('register-age-group', 'Please select an age group');
+        errors.push('Age group is required');
+        isValid = false;
+    }
+    
+    // Validate user type
+    const userType = document.querySelector('input[name="userType"]:checked');
+    if (!userType) {
+        showErrorMessage('Please select a user type (Student, Parent, or Educator)');
+        errors.push('User type is required');
+        isValid = false;
+    }
+    
+    // Validate terms agreement
+    const terms = document.getElementById('terms-agreement');
+    if (terms && !terms.checked) {
+        showErrorMessage('Please agree to the Terms of Service and Privacy Policy');
+        errors.push('Terms agreement is required');
+        isValid = false;
+    }
+    
+    return { isValid, errors };
+}
+
+// Validate login form
+function validateLoginForm() {
+    let isValid = true;
+    
+    // Validate email
+    const email = document.getElementById('login-email');
+    if (email) {
+        const result = validateEmail(email.value);
+        if (!result.valid) {
+            showFieldError('login-email', result.message);
+            isValid = false;
+        }
+    }
+    
+    // Validate password (just check if not empty for login)
+    const password = document.getElementById('login-password');
+    if (password && !password.value.trim()) {
+        showFieldError('login-password', 'Password is required');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
 // DOM Elements
 const loginTab = document.getElementById('login-tab');
 const registerTab = document.getElementById('register-tab');
@@ -97,6 +531,9 @@ function setupEventListeners() {
         console.error('Register form not found!');
     }
     
+    // Setup real-time validation
+    setupRealTimeValidation();
+    
     console.log('Event listeners setup complete');
 }
 
@@ -120,6 +557,11 @@ function switchMode(mode) {
 async function handleEmailLogin(e) {
     e.preventDefault();
     console.log('Login form submitted!');
+    
+    // Validate form first
+    if (!validateLoginForm()) {
+        return;
+    }
     
     const emailField = document.getElementById('login-email');
     const passwordField = document.getElementById('login-password');
@@ -177,6 +619,13 @@ async function handleEmailLogin(e) {
 // Handle email registration
 async function handleEmailRegister(e) {
     e.preventDefault();
+    
+    // Validate form first
+    const validation = validateRegistrationForm();
+    if (!validation.isValid) {
+        console.log('Validation failed:', validation.errors);
+        return;
+    }
     
     const firstName = document.getElementById('register-fname').value;
     const lastName = document.getElementById('register-lname').value;

@@ -24,7 +24,8 @@ function initializeHeader() {
     
     console.log('Initializing header - loginBtn:', !!loginBtn, 'userDropdown:', !!userDropdown);
     
-    if (loginBtn) loginBtn.style.display = 'inline-block';
+    // Show login button by default (will be hidden if user is logged in)
+    if (loginBtn) loginBtn.classList.remove('hidden');
     if (userDropdown) userDropdown.style.display = 'none';
     
     // Hide dashboard nav by default (will be shown when user logs in)
@@ -236,14 +237,17 @@ function updateHeaderForLoggedInUser(user) {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
+    const coursesNav = document.getElementById('courses-nav-item');
     
     console.log('Updating header for user:', user.name);
     
-    if (loginBtn) loginBtn.style.display = 'none';
+    // Hide sign in button and show user dropdown
+    if (loginBtn) loginBtn.classList.add('hidden');
     if (userDropdown) userDropdown.style.display = 'block';
     
-    // Show dashboard nav item when logged in
+    // Show dashboard and courses nav items when logged in
     if (dashboardNav) dashboardNav.style.display = 'block';
+    if (coursesNav) coursesNav.style.display = 'block';
     
     // Update user info in dropdown
     const userName = document.getElementById('user-name');
@@ -264,12 +268,15 @@ function updateHeaderForLoggedOutUser() {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
+    const coursesNav = document.getElementById('courses-nav-item');
     
-    if (loginBtn) loginBtn.style.display = 'inline-block';
+    // Show sign in button and hide user dropdown
+    if (loginBtn) loginBtn.classList.remove('hidden');
     if (userDropdown) userDropdown.style.display = 'none';
     
-    // Hide dashboard nav item when logged out
+    // Hide dashboard and courses nav items when logged out
     if (dashboardNav) dashboardNav.style.display = 'none';
+    if (coursesNav) coursesNav.style.display = 'none';
 }
 
 function showMessage(message, type) {

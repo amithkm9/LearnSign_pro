@@ -19,6 +19,8 @@
                     <div class="shape shape-4">✋</div>
                     <div class="shape shape-5">🤏</div>
                     <div class="shape shape-6">👍</div>
+                    <div class="shape shape-7">🌟</div>
+                    <div class="shape shape-8">🎉</div>
                 </div>
             </div>
 
@@ -128,42 +130,44 @@
                                 <div class="input-border"></div>
                             </div>
                             
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="register-age-group">
-                                        <span class="label-icon">🎂</span>
-                                        Age Group
+                            <div class="form-group">
+                                <label for="register-age-group">
+                                    <span class="label-icon">🎂</span>
+                                    Age Group
+                                </label>
+                                <select id="register-age-group" name="ageGroup" required>
+                                    <option value="">Select age group</option>
+                                    <option value="1-4">👶 1-4 years (Early Learners)</option>
+                                    <option value="5-10">🧒 5-10 years (Young Explorers)</option>
+                                    <option value="15+">🎓 15+ years (Advanced)</option>
+                                </select>
+                                <div class="input-border"></div>
+                            </div>
+                            
+                            <div class="form-group user-type-group">
+                                <label>
+                                    <span class="label-icon">👥</span>
+                                    I am a...
+                                </label>
+                                <div class="radio-options user-type-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="userType" value="student" required>
+                                        <span class="user-type-icon">🎒</span>
+                                        <span class="radio-checkmark"></span>
+                                        <span class="radio-label">Student</span>
                                     </label>
-                                    <select id="register-age-group" name="ageGroup" required>
-                                        <option value="">Select age group</option>
-                                        <option value="1-4">1-4 years</option>
-                                        <option value="5-10">5-10 years</option>
-                                        <option value="15+">15+ years</option>
-                                    </select>
-                                    <div class="input-border"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>
-                                        <span class="label-icon">👥</span>
-                                        User Type
+                                    <label class="radio-option">
+                                        <input type="radio" name="userType" value="parent" required>
+                                        <span class="user-type-icon">👨‍👩‍👧</span>
+                                        <span class="radio-checkmark"></span>
+                                        <span class="radio-label">Parent</span>
                                     </label>
-                                    <div class="radio-group">
-                                        <label class="radio-container">
-                                            <input type="radio" name="userType" value="student" required>
-                                            <span class="radio-checkmark"></span>
-                                            Student
-                                        </label>
-                                        <label class="radio-container">
-                                            <input type="radio" name="userType" value="parent" required>
-                                            <span class="radio-checkmark"></span>
-                                            Parent
-                                        </label>
-                                        <label class="radio-container">
-                                            <input type="radio" name="userType" value="educator" required>
-                                            <span class="radio-checkmark"></span>
-                                            Educator
-                                        </label>
-                                    </div>
+                                    <label class="radio-option">
+                                        <input type="radio" name="userType" value="educator" required>
+                                        <span class="user-type-icon">👩‍🏫</span>
+                                        <span class="radio-checkmark"></span>
+                                        <span class="radio-label">Educator</span>
+                                    </label>
                                 </div>
                             </div>
                             

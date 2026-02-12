@@ -1,3 +1,36 @@
+<style>
+/* Header Sign In Button - Inline for consistency across all pages */
+.site-header .header-signin-btn {
+    padding: 1rem 2.4rem !important;
+    border-radius: 50px !important;
+    font-size: 1.5rem !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.3) !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    width: auto !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+}
+.site-header .header-signin-btn:hover {
+    background: linear-gradient(135deg, #8B7FE8 0%, #6A5DCF 100%) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(124, 111, 219, 0.5) !important;
+}
+/* Hide sign in button when logged in */
+.site-header .header-signin-btn.hidden {
+    display: none !important;
+}
+</style>
+
 <header class="site-header">
     <div class="container">
         <div class="header-content">
@@ -11,12 +44,14 @@
             <nav class="main-nav" id="main-navigation">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="/" class="nav-link" id="nav-home">Home</a></li>
-                    <li class="nav-item"><a href="/courses" class="nav-link" id="nav-courses">Courses</a></li>
+                    <li class="nav-item courses-nav" id="courses-nav-item" style="display: none;">
+                        <a href="/courses" class="nav-link" id="nav-courses">Courses</a>
+                    </li>
                     <li class="nav-item"><a href="/packages" class="nav-link" id="nav-packages">Packages</a></li>
-                    <li class="nav-item"><a href="/translate" class="nav-link" id="nav-translator">Translator</a></li>
                     <li class="nav-item"><a href="/about" class="nav-link" id="nav-about">About</a></li>
                     <li class="nav-item"><a href="/community" class="nav-link" id="nav-community">Community</a></li>
-                    <li class="nav-item"><a href="/tutor" class="nav-link" id="nav-tutor">🤟 AI Tutor</a></li>
+                    <li class="nav-item"><a href="/tutor" class="nav-link" id="nav-tutor">AI Tutor</a></li>
+                    <li class="nav-item"><a href="/translate" class="nav-link" id="nav-translator">Translator</a></li>
                     <li class="nav-item dashboard-nav" id="dashboard-nav-item" style="display: none;">
                         <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
                     </li>
@@ -26,7 +61,7 @@
 
             <div class="user-menu" id="user-menu">
                 <!-- Login Button (shown when not logged in) -->
-                <a href="/login" class="btn login-btn" id="login-btn" style="color: rgb(112, 157, 215); font-size: 19px;">Sign In</a>
+                <a href="/login" class="header-signin-btn" id="login-btn">Sign In</a>
                 
                 <!-- User Dropdown Menu (shown when logged in) -->
                 <div class="user-dropdown" id="user-dropdown" style="display: none;">
