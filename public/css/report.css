@@ -24,7 +24,7 @@
     width: 60px;
     height: 60px;
     border: 4px solid #e2e8f0;
-    border-top-color: #667eea;
+    border-top-color: #7C6FDB;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 2rem;
@@ -57,7 +57,7 @@
 
 /* Report Header */
 .report-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 3rem;
 }
@@ -128,7 +128,7 @@
 
 .btn-download {
     background: white;
-    color: #667eea;
+    color: #7C6FDB;
     border: none;
 }
 
@@ -245,7 +245,7 @@
     background: linear-gradient(135deg, #ebf4ff 0%, #e6fffa 100%);
     padding: 2.5rem;
     border-radius: 20px;
-    border-left: 5px solid #667eea;
+    border-left: 5px solid #7C6FDB;
 }
 
 .summary-text {
@@ -269,7 +269,7 @@
 }
 
 .stat-card.purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
 }
 
 .stat-card.blue {
@@ -385,7 +385,7 @@
 }
 
 .progress-bar-fill.in-progress {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
 }
 
 .progress-percentage {
@@ -621,7 +621,7 @@
 }
 
 .btn-retry {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     border: none;
     padding: 1rem 2.5rem;

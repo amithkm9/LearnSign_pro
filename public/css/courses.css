@@ -2,7 +2,7 @@
 
 /* Header Section */
 .courses-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 6rem 0 4rem;
     text-align: center;

@@ -6,7 +6,7 @@
 /* ========= HERO SECTION ========= */
 .about-hero {
     position: relative;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 8rem 0 6rem;
     overflow: hidden;
@@ -133,34 +133,35 @@
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.15);
-    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem 3rem;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     text-align: center;
     transition: all 0.3s ease;
     min-width: 150px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
     transform: scale(1.05) translateY(-5px);
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
-.stat-number {
+.hero-stats .stat-number {
     display: block;
     font-size: 2.5rem;
-    font-weight: 700;
-    color: #FFD700;
+    font-weight: 800;
+    color: #333;
     margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
 }
 
-.stat-label {
+.hero-stats .stat-label {
     font-size: 1.2rem;
-    opacity: 0.9;
+    color: #666;
+    font-weight: 500;
 }
 
 @keyframes fadeInUp {
@@ -191,11 +192,11 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(124, 111, 219, 0.1);
     color: var(--primary-color);
     padding: 0.8rem 1.6rem;
     border-radius: 30px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     margin-bottom: 2rem;
     font-size: 1.4rem;
     font-weight: 600;
@@ -222,7 +223,7 @@
     gap: 2rem;
 }
 
-.feature-item {
+.mission-section .feature-item {
     display: flex;
     align-items: flex-start;
     gap: 1.5rem;
@@ -230,32 +231,32 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(124, 111, 219, 0.1);
     transition: all 0.3s ease;
 }
 
-.feature-item:hover {
+.mission-section .feature-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 30px rgba(124, 111, 219, 0.15);
+    border-color: rgba(124, 111, 219, 0.3);
 }
 
-.feature-icon {
+.mission-section .feature-icon {
     font-size: 2.5rem;
     flex-shrink: 0;
     margin-top: 0.5rem;
 }
 
-.feature-content h3 {
+.mission-section .feature-content h3 {
     font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--text-dark);
+    font-weight: 700;
+    color: #333;
     margin-bottom: 0.8rem;
 }
 
-.feature-content p {
+.mission-section .feature-content p {
     font-size: 1.4rem;
-    color: var(--text-medium);
+    color: #555;
     line-height: 1.6;
 }
 
@@ -271,7 +272,7 @@
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(124, 111, 219, 0.1);
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
@@ -295,7 +296,7 @@
 
 .visual-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 15px 50px rgba(124, 111, 219, 0.15);
 }
 
 .card-icon {
@@ -343,15 +344,15 @@
 }
 
 .lead-card {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(124, 111, 219, 0.05) 0%, rgba(90, 77, 191, 0.05) 100%);
     border-radius: 24px;
     padding: 4rem;
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 4rem;
     align-items: center;
-    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.1);
-    border: 2px solid rgba(102, 126, 234, 0.1);
+    box-shadow: 0 12px 40px rgba(124, 111, 219, 0.1);
+    border: 2px solid rgba(124, 111, 219, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -473,13 +474,13 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     transition: all 0.4s ease;
     position: relative;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(124, 111, 219, 0.1);
 }
 
 .team-card:hover {
     transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 60px rgba(124, 111, 219, 0.15);
+    border-color: rgba(124, 111, 219, 0.3);
 }
 
 .team-image {
@@ -506,7 +507,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+    background: linear-gradient(45deg, rgba(124, 111, 219, 0.8), rgba(90, 77, 191, 0.8));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -566,13 +567,13 @@
 }
 
 .skill {
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(124, 111, 219, 0.1);
     color: var(--primary-color);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 1.1rem;
     font-weight: 500;
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(124, 111, 219, 0.2);
 }
 
 /* ========= VALUES SECTION ========= */
@@ -594,7 +595,7 @@
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(124, 111, 219, 0.1);
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
@@ -618,7 +619,7 @@
 
 .value-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 15px 50px rgba(124, 111, 219, 0.15);
 }
 
 .value-icon {
@@ -664,15 +665,15 @@
     align-items: center;
     gap: 2rem;
     padding: 2rem;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(124, 111, 219, 0.05) 0%, rgba(90, 77, 191, 0.05) 100%);
     border-radius: 16px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(124, 111, 219, 0.1);
     transition: all 0.3s ease;
 }
 
 .impact-stat:hover {
     transform: translateX(10px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.15);
 }
 
 .stat-icon {
@@ -723,7 +724,7 @@
     position: absolute;
     width: 120%;
     height: 120%;
-    border: 2px solid rgba(102, 126, 234, 0.3);
+    border: 2px solid rgba(124, 111, 219, 0.3);
     border-radius: 50%;
     top: -10%;
     left: -10%;
@@ -762,7 +763,7 @@
 
 /* ========= CTA SECTION ========= */
 .cta-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 8rem 0;
     text-align: center;
@@ -844,7 +845,7 @@
 
 .btn-primary {
     background: white;
-    color: #667eea;
+    color: #7C6FDB;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -882,10 +883,14 @@
     gap: 0.8rem;
     font-size: 1.4rem;
     font-weight: 500;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    backdrop-filter: blur(5px);
 }
 
-.feature-icon {
-    font-size: 1.8rem;
+.cta-feature .feature-icon {
+    font-size: 1.6rem;
 }
 
 /* ========= RESPONSIVE DESIGN ========= */
@@ -976,15 +981,5 @@
     }
 }
 
-/* CSS Variables */
-:root {
-    --primary-color: #4A6FFF;
-    --primary-dark: #3A5FEF;
-    --secondary-color: #FF9F4A;
-    --success-color: #36B37E;
-    --danger-color: #FF5630;
-    --text-dark: #2C3E50;
-    --text-medium: #5A6C7D;
-    --text-light: #8B9DC3;
-    --light-gray: #F8FAFC;
-}
+/* CSS Variables - Inherited from style1.css */
+/* Primary theme colors: #7C6FDB (primary), #5A4DBF (primary-dark), #9B8FF5 (primary-light), #FF9F4A (secondary) */

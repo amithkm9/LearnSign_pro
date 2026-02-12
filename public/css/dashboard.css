@@ -602,7 +602,7 @@
 
 .progress-bar-large {
     height: 12px;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(124, 111, 219, 0.1);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 2rem;
@@ -610,7 +610,7 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
     border-radius: 6px;
     transition: width 0.8s ease;
 }
@@ -780,7 +780,7 @@
 }
 
 .activity-item:hover {
-    background: rgba(102, 126, 234, 0.05);
+    background: rgba(124, 111, 219, 0.05);
 }
 
 .activity-item.placeholder {
@@ -969,7 +969,7 @@
 }
 
 .metric-card.blue-gradient::before {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
 }
 
 .metric-card.green-gradient::before {
@@ -1014,7 +1014,7 @@
 }
 
 .blue-gradient .metric-value {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

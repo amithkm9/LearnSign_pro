@@ -4,9 +4,9 @@
    ========================================== */
 
 :root {
-    --primary-color: #667eea;
-    --primary-dark: #5568d3;
-    --secondary-color: #764ba2;
+    --primary-color: #7C6FDB;
+    --primary-dark: #5A4DBF;
+    --secondary-color: #FF9F4A;
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
@@ -23,7 +23,7 @@
    HERO SECTION
    ========================================== */
 .translate-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     color: white;
     padding: 80px 0 60px;
     position: relative;
@@ -193,7 +193,7 @@
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
     border-color: var(--primary-color);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 10px 25px rgba(124, 111, 219, 0.3);
 }
 
 .mode-icon {
@@ -290,7 +290,7 @@
 #text-to-sign-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(124, 111, 219, 0.1);
 }
 
 .example-section {
@@ -323,7 +323,7 @@
 
 .example-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 5px 15px rgba(124, 111, 219, 0.3);
 }
 
 .text-controls {
@@ -360,12 +360,12 @@
 .primary-btn {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.3);
 }
 
 .primary-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(124, 111, 219, 0.4);
 }
 
 .success-btn {
@@ -445,7 +445,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
 }
 
 .placeholder-content {

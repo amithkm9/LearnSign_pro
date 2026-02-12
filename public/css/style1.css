@@ -149,10 +149,32 @@
     box-shadow: var(--shadow-md);
   }
   
-  .login-btn {
-    padding: 0.8rem 2rem;
-    border-radius: var(--radius-sm);
-    font-size: 1.4rem;
+  /* Header Sign In Button - High specificity to override other styles */
+  .site-header .login-btn,
+  .site-header .user-menu .login-btn {
+    padding: 1rem 2.4rem !important;
+    border-radius: 50px !important;
+    font-size: 1.5rem !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.3) !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  
+  .site-header .login-btn:hover,
+  .site-header .user-menu .login-btn:hover {
+    background: linear-gradient(135deg, #8B7FE8 0%, #6A5DCF 100%) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(124, 111, 219, 0.5) !important;
   }
   
   /* ========= HEADER STYLES ========= */
@@ -361,14 +383,14 @@
     gap: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 50px;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(124, 111, 219, 0.1);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     transition: all 0.3s ease;
   }
 
   .profile-info:hover {
-    background: rgba(102, 126, 234, 0.15);
+    background: rgba(124, 111, 219, 0.15);
     transform: translateY(-1px);
   }
 
@@ -376,7 +398,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1769,4 +1791,379 @@
     flex-direction: column;
     gap: 1rem;
   }
+}
+
+/* ========= CHILD-FRIENDLY ENHANCEMENTS ========= */
+
+/* Playful Animations for Kids */
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes sparkle-glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(124, 111, 219, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(124, 111, 219, 0.6), 0 0 40px rgba(155, 143, 245, 0.4);
+  }
+}
+
+@keyframes rainbow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Interactive Elements for Kids */
+.kid-friendly-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.kid-friendly-btn:hover {
+  animation: bounce-gentle 0.6s ease;
+}
+
+.kid-friendly-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.kid-friendly-btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Colorful Achievement Badges */
+.badge-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.badge-silver {
+  background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+}
+
+.badge-bronze {
+  background: linear-gradient(135deg, #CD7F32, #B87333);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+}
+
+/* Fun Progress Indicators */
+.progress-fun {
+  height: 20px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fun-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    #7C6FDB 0%, 
+    #FF9F4A 25%, 
+    #36B37E 50%, 
+    #FF9F4A 75%, 
+    #7C6FDB 100%
+  );
+  background-size: 200% 100%;
+  animation: rainbow-shift 3s linear infinite;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* Star Ratings for Kids */
+.star-rating {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.star {
+  font-size: 2rem;
+  color: #e2e8f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.star.filled {
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.star:hover {
+  transform: scale(1.2);
+  animation: wiggle 0.4s ease;
+}
+
+/* Cute Cards for Age Groups */
+.age-card-cute {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.age-card-cute:hover {
+  transform: translateY(-10px) rotate(-1deg);
+  box-shadow: 0 20px 40px rgba(124, 111, 219, 0.2);
+}
+
+.age-card-cute .card-emoji {
+  font-size: 4rem;
+  animation: bounce-gentle 2s ease infinite;
+}
+
+/* Fun Loading Spinners */
+.loader-fun {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader-fun span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: bounce-gentle 0.6s ease infinite;
+}
+
+.loader-fun span:nth-child(1) {
+  background: #7C6FDB;
+  animation-delay: 0s;
+}
+
+.loader-fun span:nth-child(2) {
+  background: #FF9F4A;
+  animation-delay: 0.1s;
+}
+
+.loader-fun span:nth-child(3) {
+  background: #36B37E;
+  animation-delay: 0.2s;
+}
+
+.loader-fun span:nth-child(4) {
+  background: #FFAB00;
+  animation-delay: 0.3s;
+}
+
+/* Confetti Animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -20px;
+  animation: confetti-fall 3s linear forwards;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Emoji Decorations */
+.emoji-float {
+  display: inline-block;
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+.emoji-spin {
+  display: inline-block;
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Child-Friendly Tooltips */
+.tooltip-fun {
+  position: relative;
+}
+
+.tooltip-fun::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: linear-gradient(135deg, #7C6FDB, #9B8FF5);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(124, 111, 219, 0.3);
+}
+
+.tooltip-fun::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  border: 8px solid transparent;
+  border-top-color: #7C6FDB;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.tooltip-fun:hover::after,
+.tooltip-fun:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Celebration Effects */
+.celebrate {
+  animation: pop 0.5s ease;
+}
+
+.celebrate::before {
+  content: '🎉';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  animation: bounce-gentle 1s ease infinite;
+}
+
+/* Interactive Hand Signs */
+.hand-sign-interactive {
+  font-size: 4rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.hand-sign-interactive:hover {
+  transform: scale(1.2);
+  animation: wiggle 0.5s ease;
+}
+
+/* Age-Appropriate Color Schemes */
+.theme-toddler {
+  --accent-1: #FFB6C1; /* Light Pink */
+  --accent-2: #87CEEB; /* Sky Blue */
+  --accent-3: #98FB98; /* Pale Green */
+  --accent-4: #FFFACD; /* Lemon Chiffon */
+}
+
+.theme-explorer {
+  --accent-1: #7C6FDB; /* Purple */
+  --accent-2: #FF9F4A; /* Orange */
+  --accent-3: #36B37E; /* Green */
+  --accent-4: #4A6FFF; /* Blue */
+}
+
+.theme-advanced {
+  --accent-1: #2C5282; /* Deep Blue */
+  --accent-2: #553C9A; /* Purple */
+  --accent-3: #276749; /* Forest Green */
+  --accent-4: #744210; /* Brown */
+}
+
+/* Parent Dashboard Styles */
+.parent-view {
+  background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+.child-progress-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.child-progress-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 8px 30px rgba(124, 111, 219, 0.15);
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode for Better Readability */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: #5A4DBF;
+    --primary-dark: #3D3399;
+    --text-dark: #000000;
+    --text-medium: #333333;
+  }
+}
+
+/* Focus States for Accessibility */
+*:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(124, 111, 219, 0.2);
 }

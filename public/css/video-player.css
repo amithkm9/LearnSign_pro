@@ -11,7 +11,7 @@
     --text-light: #8B9DC3;
     --light-gray: #F8FAFC;
     --dark-overlay: rgba(0, 0, 0, 0.8);
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-primary: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
     --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -460,8 +460,8 @@
 }
 
 .quiz-card:hover {
-    border-color: #667eea;
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    border-color: #7C6FDB;
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.2);
 }
 
 .courses-card:hover {
@@ -487,7 +487,7 @@
 }
 
 .quiz-card .action-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
     color: white;
 }
 
@@ -587,7 +587,7 @@
 }
 
 .quiz-action-card.main-quiz::before {
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #7C6FDB, #5A4DBF);
 }
 
 .quiz-action-card.continue-learning::before {
@@ -605,8 +605,8 @@
 }
 
 .quiz-action-card.main-quiz:hover {
-    border-color: #667eea;
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
+    border-color: #7C6FDB;
+    box-shadow: 0 20px 60px rgba(124, 111, 219, 0.25);
 }
 
 .quiz-action-card.continue-learning:hover {
@@ -633,7 +633,7 @@
 }
 
 .quiz-action-card.main-quiz .quiz-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #7C6FDB, #5A4DBF);
 }
 
 .quiz-action-card.continue-learning .quiz-icon {

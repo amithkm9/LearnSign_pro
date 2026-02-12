@@ -25,7 +25,7 @@
     bottom: 0;
     background: url('/assets/imgs/hands-sign-language.jpg') no-repeat center center;
     background-size: cover;
-    opacity: 0.85;
+    opacity: 0.35;
     z-index: 1;
     pointer-events: none;
     border-radius: 0;
@@ -150,11 +150,7 @@
     display: block;
     font-size: 2.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #7C6FDB, #9B8FF5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: brightness(1.3);
+    color: #000000;
 }
 
 .stat-label {
@@ -1059,5 +1055,141 @@
     
     .author-role {
         font-size: 1rem;
+    }
+}
+
+/* ========= CHILD-FRIENDLY ENHANCEMENTS ========= */
+
+/* Floating Emoji Decorations */
+.floating-emoji {
+    position: absolute;
+    font-size: 3rem;
+    opacity: 0.7;
+    z-index: 1;
+    animation: float-around 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes float-around {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-15px) rotate(5deg);
+    }
+    50% {
+        transform: translateY(5px) rotate(-5deg);
+    }
+    75% {
+        transform: translateY(-8px) rotate(3deg);
+    }
+}
+
+/* Age Group Card Emoji Icons */
+.card-emoji {
+    font-size: 4rem !important;
+    animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+@keyframes bounce-gentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Popular Badge */
+.popular-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #FF9F4A, #FFB347);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    margin-top: 0.8rem;
+    animation: pulse-soft 2s ease-in-out infinite;
+    box-shadow: 0 4px 15px rgba(255, 159, 74, 0.4);
+}
+
+@keyframes pulse-soft {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(255, 159, 74, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255, 159, 74, 0.6);
+    }
+}
+
+/* Age-Specific Header Colors */
+.toddler-header {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%) !important;
+}
+
+.toddler-header .age-title,
+.toddler-header .age-range {
+    color: #8B4563;
+}
+
+.explorer-header {
+    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%) !important;
+}
+
+.advanced-header {
+    background: linear-gradient(135deg, #4A90A4 0%, #5BA3B8 100%) !important;
+}
+
+/* Enhanced Feature Icons */
+.feature-icon {
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s ease;
+}
+
+.feature-card:hover .feature-icon::after {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+.icon-emoji {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .icon-emoji {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* Hide floating emojis on mobile for cleaner experience */
+@media (max-width: 768px) {
+    .floating-emoji {
+        font-size: 2rem;
+        opacity: 0.5;
+    }
+    
+    .card-emoji {
+        font-size: 3rem !important;
+    }
+    
+    .popular-badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .floating-emoji {
+        display: none;
     }
 }
