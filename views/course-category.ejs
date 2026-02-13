@@ -59,6 +59,7 @@
                         <% data.courses.forEach(course => { %>
                             <div class="course-card">
                                 <div class="course-thumbnail">
+                                    <span class="free-badge">FREE</span>
                                     <% if (course.video) { %>
                                         <video class="course-video-preview" preload="metadata" muted>
                                             <source src="<%= course.video %>#t=10" type="video/mp4">
@@ -105,15 +106,12 @@
                                     <% } %>
                                     
                                     <div class="course-footer">
-                                        <div class="course-price">
-                                            <span class="current-price"><%= course.price %></span>
-                                        </div>
                                         <div class="course-actions">
                                             <button class="btn primary-btn start-course-btn" onclick="startCourse('<%= course.id %>')">
-                                                🚀 Start Course
+                                                Start Course
                                             </button>
                                             <button class="btn secondary-btn preview-btn" onclick="previewCourse('<%= course.id %>')">
-                                                👁️ Preview
+                                                Preview
                                             </button>
                                         </div>
                                     </div>

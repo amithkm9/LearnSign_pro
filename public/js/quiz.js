@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
                 progressIndicator.style.width = `${progressPercentage}%`;
                 
-                // Update percentage text
-                const percentageText = document.querySelector('.progress-percentage');
+                // Update percentage text (try both IDs)
+                const percentageText = document.querySelector('.progress-percentage') || document.getElementById('progress-percent');
                 if (percentageText) {
                     percentageText.textContent = `${Math.round(progressPercentage)}%`;
                 }
@@ -573,10 +573,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Submit quiz results to API
         await submitQuizResults(score, percentage, totalTimeSpent);
         
-        // Show results panel
-        document.querySelector('.webcam-container').style.display = 'none';
-        document.querySelector('.quiz-progress').style.display = 'none';
-        document.querySelector('.quiz-prompt').style.display = 'none';
+        // Show results panel - hide quiz layout
+        const quizLayout = document.querySelector('.quiz-layout');
+        if (quizLayout) {
+            quizLayout.style.display = 'none';
+        }
         quizResultsElement.style.display = 'block';
     }
     
@@ -654,13 +655,32 @@ document.addEventListener('DOMContentLoaded', function() {
     startQuizBtn.addEventListener('click', async () => {
         try {
             startQuizBtn.disabled = true;
-            startQuizBtn.innerHTML = '<span class="btn-icon">⏳</span><span>Starting...</span>';
+            startQuizBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">Starting Camera...</span><span class="btn-subtext">Please wait</span>';
             
             await startWebcam();
+            
+            // Hide camera placeholder
+            const cameraPlaceholder = document.getElementById('camera-placeholder');
+            if (cameraPlaceholder) {
+                cameraPlaceholder.style.display = 'none';
+            }
             
             // Hide start button, show submit button
             startQuizBtn.style.display = 'none';
             submitSignBtn.disabled = false;
+            
+            // Update feedback message
+            if (feedbackElement) {
+                feedbackElement.innerHTML = `
+                    <div class="feedback-content info">
+                        <div class="feedback-icon">👋</div>
+                        <div class="feedback-message">
+                            <strong>Camera is ready!</strong>
+                            <p>Show the sign and click "Submit My Sign"</p>
+                        </div>
+                    </div>
+                `;
+            }
             
             // Initialize/reset quiz
             initQuiz();
@@ -668,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error starting quiz:', error);
             startQuizBtn.disabled = false;
-            startQuizBtn.innerHTML = '<span class="btn-icon">🚀</span><span>Start Quiz</span>';
+            startQuizBtn.innerHTML = '<span class="btn-icon">🚀</span><span class="btn-text">Start Quiz</span><span class="btn-subtext">This will turn on your camera</span>';
         }
     });
     
@@ -681,18 +701,43 @@ document.addEventListener('DOMContentLoaded', function() {
     nextQuestionBtn.addEventListener('click', nextQuestion);
     
     restartQuizBtn.addEventListener('click', () => {
-        // Reset UI
-        document.querySelector('.webcam-container').style.display = 'block';
-        document.querySelector('.quiz-progress').style.display = 'block';
-        document.querySelector('.quiz-prompt').style.display = 'block';
+        // Reset UI - show quiz layout
+        const quizLayout = document.querySelector('.quiz-layout');
+        if (quizLayout) {
+            quizLayout.style.display = 'grid';
+        }
         quizResultsElement.style.display = 'none';
+        
+        // Show camera placeholder again
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        if (cameraPlaceholder) {
+            cameraPlaceholder.style.display = 'flex';
+        }
         
         // Reset buttons
         submitSignBtn.disabled = true;
         nextQuestionBtn.style.display = 'none';
-        startQuizBtn.style.display = 'inline-block';
+        startQuizBtn.style.display = 'flex';
         startQuizBtn.disabled = false;
-        startQuizBtn.innerHTML = '<span class="btn-icon">🚀</span><span>Start Quiz</span>';
+        startQuizBtn.innerHTML = '<span class="btn-icon">🚀</span><span class="btn-text">Start Quiz</span><span class="btn-subtext">This will turn on your camera</span>';
+        
+        // Reset feedback
+        if (feedbackElement) {
+            feedbackElement.innerHTML = `
+                <div class="feedback-content info">
+                    <div class="feedback-icon">ℹ️</div>
+                    <div class="feedback-message">
+                        <strong>Ready to start!</strong>
+                        <p>Click the "Start Quiz" button to begin practicing</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Reset prompt
+        if (currentPromptElement) {
+            currentPromptElement.textContent = 'Click "Start Quiz" to begin';
+        }
         
         // Cancel any ongoing capture
         cancelCapture();

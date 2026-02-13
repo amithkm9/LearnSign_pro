@@ -2,9 +2,9 @@
 
 /* Welcome Section */
 .dashboard-welcome {
-    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
-    color: white;
-    padding: 4rem 0;
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
+    color: #172B4D;
+    padding: 6rem 0 4rem;
     margin-bottom: 4rem;
     position: relative;
     overflow: hidden;
@@ -18,8 +18,8 @@
     right: 0;
     bottom: 0;
     background-image: 
-        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        radial-gradient(circle at 10% 20%, rgba(124, 111, 219, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(124, 111, 219, 0.1) 0%, transparent 50%);
     z-index: 0;
 }
 
@@ -36,13 +36,13 @@
 
 .welcome-content h1 {
     font-size: 3.2rem;
-    color: white;
+    color: #000000;
     margin-bottom: 1rem;
 }
 
 .welcome-content p {
     font-size: 1.8rem;
-    opacity: 0.9;
+    color: #333333;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -56,25 +56,26 @@
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: var(--radius-lg);
     padding: 2rem;
     text-align: center;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(124, 111, 219, 0.15);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.1);
 }
 
 .stat-number {
     display: block;
     font-size: 3rem;
     font-weight: 700;
-    color: white;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .stat-label {
     font-size: 1.4rem;
-    opacity: 0.8;
+    color: #333333;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -532,11 +533,12 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(124, 111, 219, 0.15);
     border-radius: 20px;
     padding: 1.5rem 2rem;
+    box-shadow: 0 4px 15px rgba(124, 111, 219, 0.1);
     min-width: 160px;
     transition: transform 0.3s ease;
 }
@@ -554,18 +556,17 @@
     flex-direction: column;
 }
 
-.stat-number {
+.stat-info .stat-number {
     font-size: 2.4rem;
     font-weight: 700;
     line-height: 1;
-    color: white;
+    color: #000000;
 }
 
-.stat-label {
+.stat-info .stat-label {
     font-size: 1.2rem;
-    opacity: 0.8;
     line-height: 1;
-    color: white;
+    color: #333333;
 }
 
 /* Progress Overview */

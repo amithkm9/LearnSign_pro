@@ -12,7 +12,7 @@
     height: 100%;
     z-index: -1;
     overflow: hidden;
-    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
 }
 
 .floating-shapes {
@@ -24,7 +24,7 @@
 .floating-shapes .shape {
     position: absolute;
     font-size: 3rem;
-    opacity: 0.1;
+    opacity: 0.15;
     animation: float 20s infinite linear;
 }
 
@@ -45,9 +45,9 @@
 
 /* Enhanced Hero Section */
 .packages-hero {
-    background: linear-gradient(135deg, rgba(124, 111, 219, 0.9) 0%, rgba(155, 143, 245, 0.9) 100%);
-    color: white;
-    padding: 8rem 0 6rem;
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
+    color: #2d3748;
+    padding: 10rem 0 6rem;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -60,8 +60,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-    opacity: 0.3;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(124, 111, 219, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(142, 127, 238, 0.1) 0%, transparent 50%);
+    opacity: 0.5;
 }
 
 .hero-content {
@@ -76,14 +78,15 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(124, 111, 219, 0.15);
     padding: 0.8rem 1.6rem;
     border-radius: 30px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     margin-bottom: 2rem;
     font-size: 1.4rem;
     font-weight: 600;
+    color: #5A4DBF;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -99,7 +102,7 @@
 
 .packages-hero h1 {
     font-size: 4.5rem;
-    color: white;
+    color: #000000;
     margin-bottom: 2rem;
     font-weight: 700;
     line-height: 1.2;
@@ -107,10 +110,11 @@
 }
 
 .gradient-text {
-    background: linear-gradient(45deg, #FFD700, #FFA500, #FF6B6B);
+    background: linear-gradient(45deg, #7C6FDB, #5A4DBF, #9B8FF5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    background-size: 200% 200%;
     animation: gradientShift 3s ease-in-out infinite;
 }
 
@@ -121,7 +125,7 @@
 
 .hero-subtitle {
     font-size: 2rem;
-    opacity: 0.9;
+    color: #333333;
     margin-bottom: 4rem;
     max-width: 800px;
     margin-left: auto;
@@ -145,15 +149,15 @@
     padding: 1.5rem;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(124, 111, 219, 0.15);
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 20px rgba(124, 111, 219, 0.1);
 }
 
 .feature-item:hover {
     transform: translateY(-5px);
     background: rgba(255, 255, 255, 1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.2);
 }
 
 .feature-icon {
@@ -165,12 +169,12 @@
     font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: #000000;
 }
 
 .feature-content p {
     font-size: 1.2rem;
-    color: #666;
+    color: #333333;
 }
 
 @keyframes bounce {
@@ -192,29 +196,29 @@
     padding: 2rem 3rem;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(124, 111, 219, 0.15);
     text-align: center;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.1);
 }
 
 .stat-card:hover {
     transform: scale(1.05) translateY(-5px);
     background: rgba(255, 255, 255, 1);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.2);
 }
 
 .hero-stats .stat-number {
     display: block;
     font-size: 2.5rem;
     font-weight: 800;
-    color: #333;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .hero-stats .stat-label {
     font-size: 1.2rem;
-    color: #666;
+    color: #333333;
     font-weight: 500;
 }
 
@@ -232,7 +236,7 @@
 /* Packages Grid */
 .packages-grid-section {
     padding: 8rem 0;
-    background: rgba(248, 250, 252, 0.95);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     position: relative;
 }
@@ -989,7 +993,7 @@
 /* Testimonials Section */
 .testimonials-section {
     padding: 8rem 0;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: rgba(255, 255, 255, 0.9);
     position: relative;
 }
 
@@ -1137,8 +1141,8 @@
 
 /* Enhanced CTA Section */
 .packages-cta {
-    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
-    color: white;
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
+    color: #172B4D;
     padding: 8rem 0;
     text-align: center;
     position: relative;
@@ -1166,14 +1170,15 @@
 
 .cta-badge {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(124, 111, 219, 0.15);
     padding: 1rem 2rem;
     border-radius: 30px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     margin-bottom: 2rem;
     font-size: 1.4rem;
     font-weight: 600;
+    color: #5A4DBF;
     animation: pulse 2s infinite;
 }
 
@@ -1182,11 +1187,12 @@
     font-weight: 700;
     margin-bottom: 2rem;
     line-height: 1.2;
+    color: #000000;
 }
 
 .cta-content p {
     font-size: 1.8rem;
-    opacity: 0.9;
+    color: #333333;
     margin-bottom: 3rem;
 }
 
@@ -1204,6 +1210,7 @@
     gap: 0.8rem;
     font-size: 1.4rem;
     font-weight: 500;
+    color: #333333;
 }
 
 .cta-icon {
@@ -1235,26 +1242,27 @@
 }
 
 .cta-btn.primary-btn {
-    background: white;
-    color: #7C6FDB;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
+    color: white;
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.3);
 }
 
 .cta-btn.primary-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.4);
 }
 
 .cta-btn.secondary-btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    color: #5A4DBF;
+    border: 2px solid rgba(124, 111, 219, 0.3);
     backdrop-filter: blur(10px);
 }
 
 .cta-btn.secondary-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 1);
     transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.2);
 }
 
 .btn-arrow {
@@ -1267,11 +1275,11 @@
 
 .cta-trust {
     font-size: 1.4rem;
-    opacity: 0.8;
+    color: #333333;
 }
 
 .cta-trust strong {
-    color: #FFD700;
+    color: #000000;
 }
 
 /* Responsive Design */
@@ -1515,3 +1523,267 @@
 
 /* CSS Variables - Inherited from style1.css */
 /* Primary theme colors: #7C6FDB (primary), #5A4DBF (primary-dark), #9B8FF5 (primary-light), #FF9F4A (secondary) */
+
+/* ===== TUTOR SELECTION POPUP STYLES ===== */
+.tutor-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 2rem;
+}
+
+.tutor-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tutor-popup-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+    animation: popupSlide 0.4s ease;
+}
+
+@keyframes popupSlide {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.tutor-cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.tutor-profile-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid #e8e8e8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.tutor-profile-card:hover {
+    transform: translateY(-8px);
+    border-color: #7C6FDB;
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.2);
+}
+
+.tutor-profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #7C6FDB, #9B8FF5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tutor-profile-card:hover::before {
+    opacity: 1;
+}
+
+.tutor-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1.5rem;
+    border: 4px solid #7C6FDB;
+    box-shadow: 0 5px 20px rgba(124, 111, 219, 0.3);
+}
+
+.tutor-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tutor-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.tutor-info {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.tutor-info h4 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.3rem;
+}
+
+.tutor-specialty {
+    font-size: 1.3rem;
+    color: #7C6FDB;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.age-badge {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.age-badge.toddler {
+    background: linear-gradient(135deg, #FF9F4A 0%, #FFB870 100%);
+    color: white;
+}
+
+.age-badge.children {
+    background: linear-gradient(135deg, #3498db 0%, #5DADE2 100%);
+    color: white;
+}
+
+.age-badge.teens {
+    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
+    color: white;
+}
+
+.tutor-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.tutor-rating {
+    color: #f39c12;
+    font-weight: 600;
+}
+
+.tutor-experience {
+    color: #666;
+    font-weight: 500;
+}
+
+.tutor-bio {
+    font-size: 1.3rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+}
+
+.tutor-highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    text-align: left;
+}
+
+.tutor-highlights li {
+    font-size: 1.2rem;
+    color: #666;
+    padding: 0.4rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tutor-highlights li::before {
+    content: none;
+}
+
+.select-tutor-btn {
+    width: 100%;
+    padding: 1.2rem 2rem;
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.select-tutor-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.4);
+}
+
+/* Responsive styles for tutor popup */
+@media (max-width: 900px) {
+    .tutor-cards-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .tutor-popup-modal {
+        padding: 2rem;
+        max-height: 85vh;
+    }
+    
+    .tutor-profile-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .tutor-popup-overlay {
+        padding: 1rem;
+    }
+    
+    .tutor-popup-modal {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .popup-header h3 {
+        font-size: 1.8rem;
+    }
+    
+    .tutor-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .tutor-info h4 {
+        font-size: 1.6rem;
+    }
+}
