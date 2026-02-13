@@ -160,8 +160,8 @@ async function handleLogin() {
             // Show success message
             showMessage('Login successful! Redirecting...', 'success');
             
-            // Redirect immediately
-            window.location.href = '/';
+            // Redirect to packages page
+            window.location.href = '/packages';
             
         } else {
             showMessage(data.message || 'Login failed', 'error');
@@ -221,8 +221,8 @@ async function handleRegister() {
             // Show success message
             showMessage('Registration successful! Redirecting...', 'success');
             
-            // Redirect immediately
-            window.location.href = '/';
+            // Redirect to packages page
+            window.location.href = '/packages';
             
         } else {
             showMessage(data.message || 'Registration failed', 'error');
@@ -237,7 +237,6 @@ function updateHeaderForLoggedInUser(user) {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
-    const coursesNav = document.getElementById('courses-nav-item');
     
     console.log('Updating header for user:', user.name);
     
@@ -245,9 +244,8 @@ function updateHeaderForLoggedInUser(user) {
     if (loginBtn) loginBtn.classList.add('hidden');
     if (userDropdown) userDropdown.style.display = 'block';
     
-    // Show dashboard and courses nav items when logged in
+    // Show dashboard nav item when logged in
     if (dashboardNav) dashboardNav.style.display = 'block';
-    if (coursesNav) coursesNav.style.display = 'block';
     
     // Update user info in dropdown
     const userName = document.getElementById('user-name');
@@ -268,15 +266,13 @@ function updateHeaderForLoggedOutUser() {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
-    const coursesNav = document.getElementById('courses-nav-item');
     
     // Show sign in button and hide user dropdown
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (userDropdown) userDropdown.style.display = 'none';
     
-    // Hide dashboard and courses nav items when logged out
+    // Hide dashboard nav item when logged out
     if (dashboardNav) dashboardNav.style.display = 'none';
-    if (coursesNav) coursesNav.style.display = 'none';
 }
 
 function showMessage(message, type) {

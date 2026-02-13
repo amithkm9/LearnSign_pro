@@ -244,10 +244,6 @@
                                 <span class="btn-icon">👨‍🏫</span>
                                 Choose Your Tutor
                             </button>
-                            <button class="package-btn secondary-btn" onclick="viewTutors()">
-                                <span class="btn-icon">👁️</span>
-                                View All Tutors
-                            </button>
                         </div>
                     </div>
 
@@ -369,6 +365,100 @@
                 </div>
                 <div class="popup-footer">
                     <p>We typically respond within 24 hours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutor Selection Popup Modal -->
+        <div class="tutor-popup-overlay" id="tutor-popup" onclick="closeTutorPopup(event)">
+            <div class="tutor-popup-modal">
+                <button class="popup-close-btn" onclick="closeTutorPopup(event)">&times;</button>
+                <div class="popup-header">
+                    <div class="popup-icon">👨‍🏫</div>
+                    <h3>Choose Your Personal Tutor</h3>
+                    <p>Select a tutor specialized for your age group</p>
+                </div>
+                <div class="tutor-cards-container">
+                    <!-- Tutor 1: Ages 1-4 -->
+                    <div class="tutor-profile-card" onclick="selectTutor('priya', '1-4')">
+                        <div class="tutor-image">
+                            <img src="/assets/imgs/tutor1.jpg" alt="Priya Menon" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="tutor-avatar-placeholder" style="display: none;">
+                                <span>👩‍🏫</span>
+                            </div>
+                        </div>
+                        <div class="tutor-info">
+                            <h4>Priya Menon</h4>
+                            <p class="tutor-specialty">Early Childhood Specialist</p>
+                            <div class="age-badge toddler">Ages 1-4</div>
+                            <div class="tutor-stats">
+                                <span class="tutor-rating">⭐ 4.9</span>
+                                <span class="tutor-experience">8+ years</span>
+                            </div>
+                            <p class="tutor-bio">Specializes in teaching sign language to toddlers and preschoolers through play-based learning and interactive games.</p>
+                            <ul class="tutor-highlights">
+                                <li>✓ Play-based learning</li>
+                                <li>✓ Parent-child sessions</li>
+                                <li>✓ Early communication skills</li>
+                            </ul>
+                        </div>
+                        <button class="select-tutor-btn">Select Tutor</button>
+                    </div>
+
+                    <!-- Tutor 2: Ages 5-10 -->
+                    <div class="tutor-profile-card" onclick="selectTutor('ananya', '5-10')">
+                        <div class="tutor-image">
+                            <img src="/assets/imgs/tutor2.jpg" alt="Ananya Sharma" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="tutor-avatar-placeholder" style="display: none;">
+                                <span>👩‍🎓</span>
+                            </div>
+                        </div>
+                        <div class="tutor-info">
+                            <h4>Ananya Sharma</h4>
+                            <p class="tutor-specialty">Children's Education Expert</p>
+                            <div class="age-badge children">Ages 5-10</div>
+                            <div class="tutor-stats">
+                                <span class="tutor-rating">⭐ 4.8</span>
+                                <span class="tutor-experience">6+ years</span>
+                            </div>
+                            <p class="tutor-bio">Expert in teaching school-age children with engaging activities, storytelling, and structured curriculum designed for young learners.</p>
+                            <ul class="tutor-highlights">
+                                <li>✓ Fun interactive lessons</li>
+                                <li>✓ School curriculum aligned</li>
+                                <li>✓ Homework support</li>
+                            </ul>
+                        </div>
+                        <button class="select-tutor-btn">Select Tutor</button>
+                    </div>
+
+                    <!-- Tutor 3: Ages 11+ -->
+                    <div class="tutor-profile-card" onclick="selectTutor('rajesh', '11+')">
+                        <div class="tutor-image">
+                            <img src="/assets/imgs/tutor3.jpg" alt="Rajesh Kumar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="tutor-avatar-placeholder" style="display: none;">
+                                <span>👨‍🏫</span>
+                            </div>
+                        </div>
+                        <div class="tutor-info">
+                            <h4>Rajesh Kumar</h4>
+                            <p class="tutor-specialty">Teen & Adult ISL Expert</p>
+                            <div class="age-badge teens">Ages 11+</div>
+                            <div class="tutor-stats">
+                                <span class="tutor-rating">⭐ 4.9</span>
+                                <span class="tutor-experience">10+ years</span>
+                            </div>
+                            <p class="tutor-bio">Certified ISL interpreter with expertise in teaching teenagers and adults. Focuses on conversational fluency and professional sign language.</p>
+                            <ul class="tutor-highlights">
+                                <li>✓ Conversational fluency</li>
+                                <li>✓ Professional ISL</li>
+                                <li>✓ Exam preparation</li>
+                            </ul>
+                        </div>
+                        <button class="select-tutor-btn">Select Tutor</button>
+                    </div>
+                </div>
+                <div class="popup-footer">
+                    <p>All tutors are certified ISL experts with background verification</p>
                 </div>
             </div>
         </div>
@@ -627,23 +717,66 @@
                     window.location.href = '/login';
                 }
             } else if (packageId === 'personal-tutor') {
-                if (user) {
-                    alert('🎉 Great choice! Redirecting to tutor selection...');
-                    // For now, redirect to a placeholder or show coming soon
-                    window.location.href = '/tutor';
-                } else {
-                    alert('Please log in to choose your personal tutor');
-                    window.location.href = '/login';
-                }
+                showTutorPopup();
             } else if (packageId === 'institution') {
                 contactForInstitution();
             }
         }
 
-        // View tutors page
+        // View tutors page - show tutor selection popup
         function viewTutors() {
-            alert('👨‍🏫 Tutor profiles coming soon! Contact us for more info.');
-            // window.location.href = '/tutors';
+            showTutorPopup();
+        }
+
+        // Show tutor selection popup
+        function showTutorPopup() {
+            const user = localStorage.getItem('learnSignUser');
+            if (!user) {
+                alert('Please log in to choose your personal tutor');
+                window.location.href = '/login';
+                return;
+            }
+            const popup = document.getElementById('tutor-popup');
+            popup.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close tutor popup
+        function closeTutorPopup(event) {
+            if (event.target.classList.contains('tutor-popup-overlay') || 
+                event.target.classList.contains('popup-close-btn')) {
+                const popup = document.getElementById('tutor-popup');
+                popup.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Select tutor and proceed to courses
+        function selectTutor(tutorId, ageGroup) {
+            const user = localStorage.getItem('learnSignUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                // Store selected tutor in localStorage
+                localStorage.setItem('selectedTutor', JSON.stringify({
+                    tutorId: tutorId,
+                    ageGroup: ageGroup,
+                    selectedAt: new Date().toISOString()
+                }));
+                
+                // Close popup
+                const popup = document.getElementById('tutor-popup');
+                popup.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                
+                // Show confirmation and redirect
+                const tutorNames = {
+                    'priya': 'Priya Menon',
+                    'ananya': 'Ananya Sharma',
+                    'rajesh': 'Rajesh Kumar'
+                };
+                alert(`🎉 Great choice, ${userData.name}! You've selected ${tutorNames[tutorId]} as your tutor.\n\nRedirecting to courses...`);
+                window.location.href = '/courses';
+            }
         }
 
         // Show contact popup

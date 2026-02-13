@@ -15,31 +15,43 @@
             <div class="container">
                 <div class="hero-content">
                     <div class="hero-text">
-                        <h1>🎯 AI-Powered Sign Language Quiz</h1>
-                        <p>Test your sign language skills with our interactive recognition technology</p>
-                        <div class="hero-stats">
-                            <div class="stat-item">
-                                <span class="stat-icon">🎥</span>
-                                <span class="stat-text">Real-time Recognition</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-icon">🧠</span>
-                                <span class="stat-text">AI-Powered</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-icon">📊</span>
-                                <span class="stat-text">Instant Feedback</span>
-                            </div>
-                        </div>
+                        <h1>🤟 Sign Language Practice</h1>
+                        <p>Practice signs together - show us a sign and we'll check if it's correct!</p>
                     </div>
-                    <div class="hero-visual">
-                        <div class="floating-gestures">
-                            <div class="gesture-icon">🤟</div>
-                            <div class="gesture-icon">👋</div>
-                            <div class="gesture-icon">👍</div>
-                            <div class="gesture-icon">✌️</div>
-                            <div class="gesture-icon">🤝</div>
-                        </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <div class="container">
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">📹</div>
+                        <h3>Allow Camera</h3>
+                        <p>Click "Start Quiz" to turn on your camera</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">👀</div>
+                        <h3>See the Sign</h3>
+                        <p>A sign name will appear on screen</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🤟</div>
+                        <h3>Show the Sign</h3>
+                        <p>Make the sign with your hand in front of camera</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">✅</div>
+                        <h3>Get Feedback</h3>
+                        <p>See if you got it right!</p>
                     </div>
                 </div>
             </div>
@@ -49,158 +61,194 @@
         <section class="quiz-main">
             <div class="container">
                 <div class="quiz-layout">
-                    <!-- Quiz Control Panel -->
+                    <!-- Left Panel - Quiz Controls -->
                     <div class="quiz-control-panel">
                         <div class="quiz-info-card">
+                            <!-- Quiz Header -->
                             <div class="quiz-header">
-                                <h2>📝 Quiz Session</h2>
-                                <div class="quiz-mode-badge">Interactive Mode</div>
+                                <h2>Practice Time</h2>
                             </div>
 
-                            <div class="quiz-prompt-section quiz-prompt">
-                                <div class="prompt-container">
-                                    <h3>Current Challenge:</h3>
-                                    <div class="prompt-display">
-                                        <span id="current-prompt">Ready to begin...</span>
-                                    </div>
+                            <!-- Current Challenge Display -->
+                            <div class="challenge-section">
+                                <div class="challenge-label">
+                                    <span class="label-icon">🎯</span>
+                                    <span>Show this sign:</span>
+                                </div>
+                                <div class="challenge-display">
+                                    <span id="current-prompt">Ready to start?</span>
                                 </div>
                             </div>
 
-                            <div class="quiz-progress-section quiz-progress">
-                                <div class="progress-header">
-                                    <span class="progress-text">Question <span id="current-question">1</span> of <span id="total-questions">6</span></span>
-                                    <span class="progress-percentage">0%</span>
+                            <!-- Progress -->
+                            <div class="progress-section">
+                                <div class="progress-info">
+                                    <span>Question <strong id="current-question">1</strong> of <strong id="total-questions">6</strong></span>
+                                    <span class="progress-percentage" id="progress-percent">0%</span>
                                 </div>
-                                <div class="progress-bar-container">
+                                <div class="progress-bar-wrapper">
                                     <div class="progress-bar">
                                         <div class="progress-fill progress-indicator" style="width: 0%"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="control-buttons">
-                                <button id="start-quiz" class="btn primary-btn">
-                                    <span class="btn-icon">🚀</span>
-                                    <span>Start Quiz</span>
+                            <!-- Main Action Buttons -->
+                            <div class="action-buttons">
+                                <button id="start-quiz" class="btn start-btn">
+                                    <span class="btn-icon">▶️</span>
+                                    <span class="btn-text">Start Practice</span>
+                                    <span class="btn-subtext">Opens camera</span>
                                 </button>
-                                <button id="submit-sign" class="btn success-btn" disabled>
-                                    <span class="btn-icon">✅</span>
-                                    <span>Submit Sign</span>
+                                
+                                <button id="submit-sign" class="btn submit-btn" disabled>
+                                    <span class="btn-icon">📸</span>
+                                    <span class="btn-text">Check My Sign</span>
+                                    <span class="btn-subtext">When you're ready</span>
                                 </button>
-                                <button id="next-question" class="btn primary-btn" style="display: none;">
-                                    <span class="btn-icon">➡️</span>
-                                    <span>Next Question</span>
+                                
+                                <button id="next-question" class="btn next-btn" style="display: none;">
+                                    <span class="btn-icon">→</span>
+                                    <span class="btn-text">Next Sign</span>
                                 </button>
                             </div>
 
-                            <div class="quiz-tips">
-                                <h4>💡 Tips for Success</h4>
-                                <ul>
-                                    <li>Ensure good lighting</li>
-                                    <li>Keep hands clearly visible</li>
-                                    <li>Hold sign for 2-3 seconds</li>
-                                    <li>Stay within camera frame</li>
+                            <!-- Tips Section -->
+                            <div class="tips-section">
+                                <div class="tips-header">
+                                    <span class="tips-icon">💡</span>
+                                    <h4>Tips for Parents</h4>
+                                </div>
+                                <ul class="tips-list">
+                                    <li>
+                                        <span class="tip-check">✓</span>
+                                        <span>Make sure the room has good lighting</span>
+                                    </li>
+                                    <li>
+                                        <span class="tip-check">✓</span>
+                                        <span>Position your child's hand in the dotted box</span>
+                                    </li>
+                                    <li>
+                                        <span class="tip-check">✓</span>
+                                        <span>Hold the sign steady for 2-3 seconds</span>
+                                    </li>
+                                    <li>
+                                        <span class="tip-check">✓</span>
+                                        <span>Click "Submit My Sign" when ready</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Webcam Section -->
+                    <!-- Right Panel - Camera -->
                     <div class="quiz-camera-section">
                         <div class="camera-container webcam-container">
+                            <!-- Camera Header -->
                             <div class="camera-header">
-                                <h3>📹 Live Camera Feed</h3>
+                                <div class="camera-title">
+                                    <span class="camera-icon">👁️</span>
+                                    <h3>Your Camera</h3>
+                                </div>
                                 <div class="camera-status">
-                                    <div class="status-indicator"></div>
-                                    <span class="status-text">Camera Ready</span>
+                                    <div class="status-dot"></div>
+                                    <span class="status-text">Ready</span>
                                 </div>
                             </div>
 
+                            <!-- Camera Frame -->
                             <div class="webcam-frame">
                                 <video id="webcam" autoplay playsinline></video>
                                 <canvas id="canvas" style="display: none;"></canvas>
                                 
+                                <!-- Camera Overlay -->
                                 <div class="webcam-overlay">
                                     <div id="countdown" class="countdown-overlay"></div>
                                     <div class="hand-guide">
-                                        <div class="guide-outline"></div>
-                                        <div class="guide-text">Position your hand here</div>
+                                        <div class="guide-box">
+                                            <div class="guide-corners"></div>
+                                        </div>
+                                        <div class="guide-label">Position hand here</div>
                                     </div>
                                 </div>
 
-                                <div class="camera-controls">
-                                    <div class="recording-indicator" id="recording-indicator">
-                                        <div class="indicator-dot"></div>
-                                        <span>Recording...</span>
+                                <!-- Recording Indicator -->
+                                <div class="recording-badge" id="recording-indicator">
+                                    <div class="recording-dot"></div>
+                                    <span>Recording</span>
+                                </div>
+
+                                <!-- Camera Placeholder (before camera starts) -->
+                                <div class="camera-placeholder" id="camera-placeholder">
+                                    <div class="placeholder-content">
+                                        <div class="placeholder-icon">🤟</div>
+                                        <h3>Your Hand Goes Here</h3>
+                                        <p>Click "Start Practice" to begin</p>
+                                        <p class="placeholder-note">We'll use your camera to see your signs</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div id="feedback" class="feedback-panel" style="display: block; opacity: 1;">
-                                <div class="feedback-content">
-                                    <div class="feedback-icon">ℹ️</div>
-                                    <div class="feedback-text">Position your hand and get ready!</div>
+                            <!-- Feedback Area -->
+                            <div id="feedback" class="feedback-area">
+                                <div class="feedback-content info">
+                                    <div class="feedback-icon">👋</div>
+                                    <div class="feedback-message">
+                                        <strong>Let's practice sign language!</strong>
+                                        <p>Click "Start Practice" when you're ready</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Results Section -->
+                <!-- Results Section (Hidden until quiz complete) -->
                 <div class="quiz-results-section" style="display: none;">
                     <div class="results-card">
                         <div class="results-header">
-                            <div class="results-icon">🏆</div>
-                            <h2>Quiz Complete!</h2>
+                            <div class="results-trophy">🎉</div>
+                            <h2>Well Done!</h2>
+                            <p>You finished all the signs!</p>
+                        </div>
+
+                        <div class="results-score">
+                            <div class="score-circle">
+                                <div class="score-value">
+                                    <span id="score">0</span>/<span id="max-score">6</span>
+                                </div>
+                                <div class="score-label">Correct</div>
+                            </div>
                         </div>
 
                         <div class="results-stats">
-                            <div class="score-display">
-                                <div class="score-circle">
-                                    <div class="score-number">
-                                        <span id="score">0</span>/<span id="max-score">6</span>
-                                    </div>
-                                    <div class="score-percentage" id="score-percentage">0%</div>
-                                    <div class="score-label">Final Score</div>
-                                </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">✓</span>
+                                <span class="stat-value" id="accuracy">0%</span>
+                                <span class="stat-name">Got Right</span>
                             </div>
-
-                            <div class="performance-metrics">
-                                <div class="metric-item">
-                                    <span class="metric-icon">🎯</span>
-                                    <span class="metric-label">Accuracy</span>
-                                    <span class="metric-value" id="accuracy">0%</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-icon">⏱️</span>
-                                    <span class="metric-label">Time</span>
-                                    <span class="metric-value" id="total-time">0s</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-icon">🌟</span>
-                                    <span class="metric-label">Rating</span>
-                                    <span class="metric-value" id="rating">-</span>
-                                </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">⏱</span>
+                                <span class="stat-value" id="total-time">0s</span>
+                                <span class="stat-name">Time</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">⭐</span>
+                                <span class="stat-value" id="rating">-</span>
+                                <span class="stat-name">Stars</span>
                             </div>
                         </div>
 
                         <div class="results-message">
-                            <div id="result-message" class="message-text">Great job practicing!</div>
-                            <div class="message-subtitle">Keep practicing to improve your skills</div>
+                            <p id="result-message">Practice makes perfect!</p>
                         </div>
 
-                        <div class="results-actions">
+                        <div class="results-buttons">
                             <button id="restart-quiz" class="btn primary-btn">
-                                <span class="btn-icon">🔄</span>
-                                <span>Take Quiz Again</span>
+                                <span>↻</span> Practice Again
                             </button>
                             <a href="/courses" class="btn secondary-btn">
-                                <span class="btn-icon">📚</span>
-                                <span>Back to Courses</span>
-                            </a>
-                            <a href="/dashboard" class="btn secondary-btn">
-                                <span class="btn-icon">🏠</span>
-                                <span>Dashboard</span>
+                                <span>←</span> Back to Courses
                             </a>
                         </div>
                     </div>
@@ -209,7 +257,7 @@
         </section>
     </main>
 
-    <!-- Floating Feedback Message -->
+    <!-- Floating Feedback -->
     <div class="floating-feedback" id="floating-feedback"></div>
 
     <%- include('./partials/footer') %>

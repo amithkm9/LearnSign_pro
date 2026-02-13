@@ -6,11 +6,11 @@
 /* ========= HERO SECTION ========= */
 .about-hero {
     position: relative;
-    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
-    color: white;
-    padding: 8rem 0 6rem;
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
+    color: #000000;
+    padding: 10rem 0 6rem;
     overflow: hidden;
-    min-height: 80vh;
+    min-height: 70vh;
     display: flex;
     align-items: center;
 }
@@ -33,7 +33,7 @@
 .floating-shapes .shape {
     position: absolute;
     font-size: 3rem;
-    opacity: 0.1;
+    opacity: 0.15;
     animation: float 20s infinite linear;
 }
 
@@ -65,60 +65,48 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(124, 111, 219, 0.15);
     padding: 0.8rem 1.6rem;
     border-radius: 30px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     margin-bottom: 2rem;
     font-size: 1.4rem;
     font-weight: 600;
+    color: #5A4DBF;
     animation: fadeInUp 0.8s ease-out;
 }
 
 .badge-icon {
     font-size: 1.6rem;
-    animation: sparkle 2s infinite;
-}
-
-@keyframes sparkle {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.1) rotate(180deg); }
 }
 
 .hero-title {
-    font-size: 4.5rem;
+    font-size: 3.6rem;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.2;
     margin-bottom: 2rem;
     animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .gradient-text {
-    background: linear-gradient(45deg, #FFD700, #FFA500, #FF6B6B);
+    display: block;
+    background: linear-gradient(45deg, #7C6FDB, #5A4DBF, #9B8FF5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    display: block;
-    animation: gradientShift 3s ease-in-out infinite;
 }
 
 .subtitle {
     display: block;
-    font-size: 2.2rem;
-    opacity: 0.9;
+    font-size: 2rem;
     margin-top: 1rem;
-    color: white;
-}
-
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+    color: #333333;
 }
 
 .hero-description {
     font-size: 1.8rem;
-    opacity: 0.9;
+    color: #333333;
     line-height: 1.6;
     margin-bottom: 4rem;
     animation: fadeInUp 0.8s ease-out 0.4s both;
@@ -137,30 +125,30 @@
     padding: 2rem 3rem;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(124, 111, 219, 0.15);
     text-align: center;
     transition: all 0.3s ease;
     min-width: 150px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(124, 111, 219, 0.1);
 }
 
 .stat-card:hover {
     transform: scale(1.05) translateY(-5px);
     background: rgba(255, 255, 255, 1);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.2);
 }
 
 .hero-stats .stat-number {
     display: block;
     font-size: 2.5rem;
     font-weight: 800;
-    color: #333;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .hero-stats .stat-label {
     font-size: 1.2rem;
-    color: #666;
+    color: #333333;
     font-weight: 500;
 }
 
@@ -203,7 +191,7 @@
 }
 
 .section-title {
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 700;
     color: var(--text-dark);
     margin-bottom: 2rem;
@@ -584,8 +572,8 @@
 
 .values-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 3rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
     margin-top: 5rem;
 }
 
@@ -763,8 +751,8 @@
 
 /* ========= CTA SECTION ========= */
 .cta-section {
-    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
-    color: white;
+    background: linear-gradient(135deg, #C5BFF5 0%, #E8E5F8 50%, #F0EFFF 100%);
+    color: #172B4D;
     padding: 8rem 0;
     text-align: center;
     position: relative;
@@ -794,27 +782,28 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(124, 111, 219, 0.15);
     padding: 1rem 2rem;
     border-radius: 30px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(124, 111, 219, 0.2);
     margin-bottom: 2rem;
     font-size: 1.4rem;
+    color: #5A4DBF;
     font-weight: 600;
-    animation: pulse 2s infinite;
 }
 
 .cta-title {
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 700;
     margin-bottom: 2rem;
     line-height: 1.2;
+    color: #000000;
 }
 
 .cta-description {
     font-size: 1.8rem;
-    opacity: 0.9;
+    color: #333333;
     margin-bottom: 4rem;
     line-height: 1.6;
 }
@@ -844,26 +833,27 @@
 }
 
 .btn-primary {
-    background: white;
-    color: #7C6FDB;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #7C6FDB 0%, #5A4DBF 100%);
+    color: white;
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 15px 40px rgba(124, 111, 219, 0.4);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    color: #5A4DBF;
+    border: 2px solid rgba(124, 111, 219, 0.3);
     backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 1);
     transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.2);
 }
 
 .btn-icon {
@@ -883,10 +873,12 @@
     gap: 0.8rem;
     font-size: 1.4rem;
     font-weight: 500;
-    background: rgba(255, 255, 255, 0.15);
+    color: #333333;
+    background: rgba(255, 255, 255, 0.9);
     padding: 0.8rem 1.5rem;
     border-radius: 25px;
     backdrop-filter: blur(5px);
+    border: 1px solid rgba(124, 111, 219, 0.15);
 }
 
 .cta-feature .feature-icon {
@@ -895,12 +887,21 @@
 
 /* ========= RESPONSIVE DESIGN ========= */
 @media (max-width: 768px) {
+    .about-hero {
+        padding: 6rem 0 4rem;
+        min-height: auto;
+    }
+    
     .hero-title {
         font-size: 3rem;
     }
     
+    .subtitle {
+        font-size: 1.6rem;
+    }
+    
     .section-title {
-        font-size: 2.8rem;
+        font-size: 2.5rem;
     }
     
     .mission-content,
@@ -925,14 +926,18 @@
         padding-left: 0;
     }
     
+    .lead-specialties {
+        justify-content: center;
+    }
+    
     .team-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 2rem;
     }
     
     .values-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
     }
     
     .hero-stats {
@@ -978,6 +983,10 @@
     
     .cta-title {
         font-size: 2.2rem;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
     }
 }
 
