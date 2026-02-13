@@ -1266,6 +1266,17 @@ window.goToVideoLibrary = function(sign) {
 };
 
 /**
+ * Send quick message from suggestion chips (global function)
+ */
+window.sendQuickMessage = function(message) {
+    if (!elements.chatInput) return;
+    elements.chatInput.value = message;
+    updateSendButton();
+    autoResizeTextarea();
+    handleSendMessage();
+};
+
+/**
  * Utility: Get initials from name
  */
 function getInitials(name) {
