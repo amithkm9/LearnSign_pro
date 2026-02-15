@@ -46,21 +46,46 @@
             </div>
         </section>
 
-
+        <!-- Parent Summary Card - Quick Overview for Teachers/Parents -->
+        <section class="parent-summary-section">
+            <div class="container">
+                <div class="parent-summary-card" id="parent-summary-card">
+                    <div class="summary-header">
+                        <div class="summary-title">
+                            <span class="summary-icon">👨‍👩‍👧</span>
+                            <h3>Quick Summary for Parents & Teachers</h3>
+                        </div>
+                        <a href="/report" class="view-full-report-btn">
+                            <span>📄</span> View Full Report
+                        </a>
+                    </div>
+                    <div class="summary-body">
+                        <div class="summary-status good">
+                            <span class="status-emoji">👍</span>
+                            <p class="status-text">Loading progress...</p>
+                        </div>
+                        <div class="summary-insights">
+                            <h4>Key Insights</h4>
+                            <ul class="key-insights">
+                                <li>Loading learning data...</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="summary-footer">
+                        <p class="summary-tip">💡 <strong>Tip:</strong> Encourage 15-20 minutes of daily practice for best results</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Detailed Progress Section -->
         <section class="learning-progress">
             <div class="container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                     <h2>📈 Your Learning Progress</h2>
-                    <div style="display: flex; gap: 1rem;">
-                        <a href="/report" class="report-btn">
-                            📄 View Parent Report
-                        </a>
-                        <button onclick="loadDashboardData()" class="refresh-btn">
-                            🔄 Refresh Data
-                        </button>
-                    </div>
+                    <button onclick="loadDashboardData()" class="refresh-btn">
+                        🔄 Refresh Data
+                    </button>
                 </div>
                 
                 <!-- Overall Progress -->
@@ -90,71 +115,7 @@
                     </div>
                 </div>
 
-                <!-- Charts Grid -->
-                <div class="charts-grid">
-                    <!-- Weekly Activity Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3>📅 Weekly Activity</h3>
-                            <span class="chart-subtitle">Learning minutes per day</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="weeklyActivityChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Progress Distribution Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3>🎯 Progress by Category</h3>
-                            <span class="chart-subtitle">Your learning distribution</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="progressDonutChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Performance Metrics Cards -->
-                <div class="metrics-grid">
-                    <div class="metric-card purple-gradient">
-                        <div class="metric-icon">💯</div>
-                        <div class="metric-content">
-                            <span class="metric-value" id="accuracy-rate">0%</span>
-                            <span class="metric-label">Accuracy Rate</span>
-                        </div>
-                        <div class="metric-trend up">↗ +5% this week</div>
-                    </div>
-
-                    <div class="metric-card blue-gradient">
-                        <div class="metric-icon">🏆</div>
-                        <div class="metric-content">
-                            <span class="metric-value" id="achievements-earned">0</span>
-                            <span class="metric-label">Achievements</span>
-                        </div>
-                        <div class="metric-trend">🎖️ Keep learning!</div>
-                    </div>
-
-                    <div class="metric-card green-gradient">
-                        <div class="metric-icon">📊</div>
-                        <div class="metric-content">
-                            <span class="metric-value" id="total-signs">0</span>
-                            <span class="metric-label">Signs Mastered</span>
-                        </div>
-                        <div class="metric-trend up">↗ +12 this month</div>
-                    </div>
-
-                    <div class="metric-card orange-gradient">
-                        <div class="metric-icon">⚡</div>
-                        <div class="metric-content">
-                            <span class="metric-value" id="avg-session">0m</span>
-                            <span class="metric-label">Avg Session</span>
-                        </div>
-                        <div class="metric-trend">⏱️ Consistency is key</div>
-                    </div>
-                </div>
-
-                <!-- Quiz Performance -->
+                <!-- Quiz Performance (MOVED UP - Parents care about this) -->
                 <div class="quiz-performance">
                     <h3>🎯 Quiz Performance</h3>
                     <div class="quiz-stats-grid">
@@ -182,7 +143,7 @@
                     </div>
                 </div>
 
-                <!-- Learning Streak Calendar -->
+                <!-- Learning Streak Calendar (MOVED UP - Engaging visual) -->
                 <div class="streak-calendar-section">
                     <h3>🔥 Learning Streak Calendar</h3>
                     <div class="streak-info">
@@ -201,6 +162,78 @@
                     </div>
                     <div class="calendar-grid" id="streakCalendar">
                         <!-- Calendar will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Charts Grid (MOVED DOWN - Less critical for quick overview) -->
+                <div class="charts-grid">
+                    <!-- Weekly Activity Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>📅 Weekly Activity</h3>
+                            <span class="chart-subtitle">Learning minutes per day</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyActivityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Progress Distribution Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>🎯 Progress by Category</h3>
+                            <span class="chart-subtitle">Your learning distribution</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="progressDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Performance Metrics (Collapsible) -->
+                <div class="collapsible-section" id="detailed-metrics-section">
+                    <div class="collapsible-header" onclick="toggleCollapsible('detailed-metrics-section')">
+                        <h3>📊 Detailed Performance Metrics</h3>
+                        <span class="collapsible-toggle">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="metrics-grid" style="margin-top: 1.5rem;">
+                            <div class="metric-card purple-gradient" id="accuracy-card">
+                                <div class="metric-icon">💯</div>
+                                <div class="metric-content">
+                                    <span class="metric-value" id="accuracy-rate">0%</span>
+                                    <span class="metric-label">Accuracy Rate</span>
+                                </div>
+                                <div class="metric-trend up">Loading...</div>
+                            </div>
+
+                            <div class="metric-card blue-gradient" id="achievements-card">
+                                <div class="metric-icon">🏆</div>
+                                <div class="metric-content">
+                                    <span class="metric-value" id="achievements-earned">0</span>
+                                    <span class="metric-label">Achievements</span>
+                                </div>
+                                <div class="metric-trend">Loading...</div>
+                            </div>
+
+                            <div class="metric-card green-gradient" id="signs-card">
+                                <div class="metric-icon">📊</div>
+                                <div class="metric-content">
+                                    <span class="metric-value" id="total-signs">0</span>
+                                    <span class="metric-label">Signs Mastered</span>
+                                </div>
+                                <div class="metric-trend up">Loading...</div>
+                            </div>
+
+                            <div class="metric-card orange-gradient" id="session-card">
+                                <div class="metric-icon">⚡</div>
+                                <div class="metric-content">
+                                    <span class="metric-value" id="avg-session">0m</span>
+                                    <span class="metric-label">Avg Session</span>
+                                </div>
+                                <div class="metric-trend">Loading...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -327,11 +360,221 @@
                 document.getElementById('avg-quiz-score').textContent = `${data.avgQuiz || 0}%`;
                 document.getElementById('quiz-pass-rate').textContent = `${data.quizPassRate || 0}%`;
                 
+                // Update performance metrics with REAL data (not hardcoded!)
+                document.getElementById('accuracy-rate').textContent = `${data.avgQuiz || 0}%`;
+                document.getElementById('achievements-earned').textContent = data.achievementsCount || 0;
+                document.getElementById('total-signs').textContent = data.estimatedSignsLearned || 0;
+                document.getElementById('avg-session').textContent = `${data.avgSessionMinutes || 0}m`;
+                
+                // Update streak calendar stats with REAL data
+                document.getElementById('current-streak-display').textContent = data.currentStreak || 0;
+                document.getElementById('longest-streak').textContent = data.longestStreak || 0;
+                document.getElementById('total-days-active').textContent = data.totalDaysActive || 0;
+                
+                // Update metric trends based on real performance
+                updateMetricTrends(data);
+                
+                // Update charts with real data
+                if (data.weeklyActivity && weeklyChart) {
+                    weeklyChart.data.datasets[0].data = data.weeklyActivity;
+                    weeklyChart.update();
+                }
+                
+                // Store data globally for parent summary
+                window.dashboardData = data;
+                updateParentSummary(data);
+                
                 // Fetch and display recent activity
                 await loadRecentActivity(userId);
                 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        // Update metric trend labels based on actual data
+        function updateMetricTrends(data) {
+            const accuracyTrend = document.querySelector('.metric-card.purple-gradient .metric-trend');
+            const achievementsTrend = document.querySelector('.metric-card.blue-gradient .metric-trend');
+            const signsTrend = document.querySelector('.metric-card.green-gradient .metric-trend');
+            const sessionTrend = document.querySelector('.metric-card.orange-gradient .metric-trend');
+            
+            // Accuracy trend based on quiz performance
+            if (accuracyTrend) {
+                if (data.avgQuiz >= 80) {
+                    accuracyTrend.textContent = '🌟 Excellent!';
+                    accuracyTrend.className = 'metric-trend up';
+                } else if (data.avgQuiz >= 60) {
+                    accuracyTrend.textContent = '📈 Good progress';
+                    accuracyTrend.className = 'metric-trend';
+                } else {
+                    accuracyTrend.textContent = '💪 Keep practicing';
+                    accuracyTrend.className = 'metric-trend';
+                }
+            }
+            
+            // Achievements trend
+            if (achievementsTrend) {
+                const count = data.achievementsCount || 0;
+                achievementsTrend.textContent = count > 0 ? `🎖️ ${count} earned!` : '🎖️ Start earning!';
+            }
+            
+            // Signs trend
+            if (signsTrend) {
+                const signs = data.estimatedSignsLearned || 0;
+                if (signs > 30) {
+                    signsTrend.textContent = '🚀 Great collection!';
+                    signsTrend.className = 'metric-trend up';
+                } else if (signs > 0) {
+                    signsTrend.textContent = `📚 Learning: ${signs} signs`;
+                    signsTrend.className = 'metric-trend';
+                } else {
+                    signsTrend.textContent = '🌱 Start learning!';
+                    signsTrend.className = 'metric-trend';
+                }
+            }
+            
+            // Session trend
+            if (sessionTrend) {
+                const avg = data.avgSessionMinutes || 0;
+                if (avg >= 20) {
+                    sessionTrend.textContent = '⭐ Great focus!';
+                    sessionTrend.className = 'metric-trend up';
+                } else if (avg >= 10) {
+                    sessionTrend.textContent = '⏱️ Good sessions';
+                    sessionTrend.className = 'metric-trend';
+                } else {
+                    sessionTrend.textContent = '⏱️ Try longer sessions';
+                    sessionTrend.className = 'metric-trend';
+                }
+            }
+        }
+        
+        // Update parent summary card
+        function updateParentSummary(data) {
+            const summaryCard = document.getElementById('parent-summary-card');
+            if (!summaryCard) return;
+            
+            // Determine overall status
+            let status = 'good';
+            let statusEmoji = '👍';
+            let statusText = 'Great progress this week!';
+            
+            const daysPracticed = data.daysPracticedThisWeek || 0;
+            const avgQuiz = data.avgQuiz || 0;
+            const streak = data.currentStreak || 0;
+            
+            if (daysPracticed >= 5 && avgQuiz >= 70 && streak >= 3) {
+                status = 'excellent';
+                statusEmoji = '🌟';
+                statusText = 'Excellent progress! Keep it up!';
+            } else if (daysPracticed >= 3 && avgQuiz >= 50) {
+                status = 'good';
+                statusEmoji = '👍';
+                statusText = 'Good progress this week!';
+            } else if (daysPracticed >= 1) {
+                status = 'average';
+                statusEmoji = '📊';
+                statusText = 'Making steady progress';
+            } else {
+                status = 'needs-attention';
+                statusEmoji = '💪';
+                statusText = 'Encourage more practice this week';
+            }
+            
+            // Update status display
+            const statusDisplay = summaryCard.querySelector('.summary-status');
+            if (statusDisplay) {
+                statusDisplay.className = `summary-status ${status}`;
+                statusDisplay.querySelector('.status-emoji').textContent = statusEmoji;
+                statusDisplay.querySelector('.status-text').textContent = statusText;
+            }
+            
+            // Update key insights
+            const insightsList = summaryCard.querySelector('.key-insights');
+            if (insightsList) {
+                insightsList.innerHTML = `
+                    <li>Practiced ${daysPracticed} out of 7 days this week</li>
+                    <li>Quiz average: ${avgQuiz}%${avgQuiz >= 70 ? ' ✓' : ''}</li>
+                    <li>Current streak: ${streak} day${streak !== 1 ? 's' : ''}</li>
+                    <li>Total learning time: ${data.totalLearningTime || 0} minutes</li>
+                `;
+            }
+            
+            // Also update metric card status indicators
+            updateMetricStatusIndicators(data);
+        }
+        
+        // Toggle collapsible sections
+        function toggleCollapsible(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('collapsed');
+            }
+        }
+        
+        // Update metric cards with status indicator borders based on performance
+        function updateMetricStatusIndicators(data) {
+            // Accuracy/Quiz performance card
+            const accuracyCard = document.getElementById('accuracy-card');
+            if (accuracyCard) {
+                accuracyCard.classList.remove('status-excellent', 'status-good', 'status-average', 'status-needs-attention');
+                if (data.avgQuiz >= 80) {
+                    accuracyCard.classList.add('status-excellent');
+                } else if (data.avgQuiz >= 60) {
+                    accuracyCard.classList.add('status-good');
+                } else if (data.avgQuiz >= 40) {
+                    accuracyCard.classList.add('status-average');
+                } else {
+                    accuracyCard.classList.add('status-needs-attention');
+                }
+            }
+            
+            // Signs mastered card
+            const signsCard = document.getElementById('signs-card');
+            if (signsCard) {
+                signsCard.classList.remove('status-excellent', 'status-good', 'status-average', 'status-needs-attention');
+                const signs = data.estimatedSignsLearned || 0;
+                if (signs >= 50) {
+                    signsCard.classList.add('status-excellent');
+                } else if (signs >= 25) {
+                    signsCard.classList.add('status-good');
+                } else if (signs >= 10) {
+                    signsCard.classList.add('status-average');
+                } else {
+                    signsCard.classList.add('status-needs-attention');
+                }
+            }
+            
+            // Session time card
+            const sessionCard = document.getElementById('session-card');
+            if (sessionCard) {
+                sessionCard.classList.remove('status-excellent', 'status-good', 'status-average', 'status-needs-attention');
+                const avgSession = data.avgSessionMinutes || 0;
+                if (avgSession >= 20) {
+                    sessionCard.classList.add('status-excellent');
+                } else if (avgSession >= 10) {
+                    sessionCard.classList.add('status-good');
+                } else if (avgSession >= 5) {
+                    sessionCard.classList.add('status-average');
+                } else {
+                    sessionCard.classList.add('status-needs-attention');
+                }
+            }
+            
+            // Achievements card
+            const achievementsCard = document.getElementById('achievements-card');
+            if (achievementsCard) {
+                achievementsCard.classList.remove('status-excellent', 'status-good', 'status-average', 'status-needs-attention');
+                const achievements = data.achievementsCount || 0;
+                if (achievements >= 10) {
+                    achievementsCard.classList.add('status-excellent');
+                } else if (achievements >= 5) {
+                    achievementsCard.classList.add('status-good');
+                } else if (achievements >= 1) {
+                    achievementsCard.classList.add('status-average');
+                }
+                // No status-needs-attention for achievements - it's okay to have none
             }
         }
         
@@ -403,7 +646,7 @@
                         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                         datasets: [{
                             label: 'Minutes',
-                            data: [25, 35, 20, 45, 30, 15, 40],
+                            data: [0, 0, 0, 0, 0, 0, 0], // Real data loaded from API
                             backgroundColor: 'rgba(124, 111, 219, 0.8)',
                             borderColor: 'rgba(124, 111, 219, 1)',
                             borderWidth: 2,
@@ -448,7 +691,7 @@
                     data: {
                         labels: ['Alphabets', 'Numbers', 'Family', 'Feelings', 'Actions'],
                         datasets: [{
-                            data: [30, 25, 20, 15, 10],
+                            data: [0, 0, 0, 0, 0], // Real data loaded from API
                             backgroundColor: [
                                 'rgba(124, 111, 219, 0.9)',
                                 'rgba(72, 187, 120, 0.9)',
@@ -492,7 +735,7 @@
             }
         }
         
-        // Generate Streak Calendar
+        // Generate Streak Calendar - shows empty by default, real data loaded from API
         function generateStreakCalendar() {
             const calendar = document.getElementById('streakCalendar');
             if (!calendar) return;
@@ -505,12 +748,11 @@
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
                 
-                // Simulate activity (in real app, fetch from API)
-                const hasActivity = Math.random() > 0.3;
-                const level = hasActivity ? Math.floor(Math.random() * 4) + 1 : 0;
+                // Show empty calendar - real data will be loaded from API
+                const level = 0;
                 
                 html += `<div class="calendar-day level-${level}" 
-                         title="${date.toLocaleDateString()}: ${level > 0 ? level * 10 : 0} min" 
+                         title="${date.toLocaleDateString()}: No activity" 
                          data-date="${date.toISOString()}"></div>`;
             }
             
@@ -518,18 +760,9 @@
         }
         
         // Load dashboard data on page load
-        loadDashboardData();
         initializeCharts();
         generateStreakCalendar();
-        
-        // Update metric values with sample data
-        document.getElementById('accuracy-rate').textContent = '94%';
-        document.getElementById('achievements-earned').textContent = '12';
-        document.getElementById('total-signs').textContent = '47';
-        document.getElementById('avg-session').textContent = '23m';
-        document.getElementById('current-streak-display').textContent = '7';
-        document.getElementById('longest-streak').textContent = '15';
-        document.getElementById('total-days-active').textContent = '42';
+        loadDashboardData(); // Load after charts are initialized so we can update them
 
         // Add animation on scroll
         const observerOptions = {

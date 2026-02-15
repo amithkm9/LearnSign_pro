@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Load report data from API
  */
-async function loadReport() {
+async function loadReport(forceRefresh = false) {
     const loadingEl = document.getElementById('report-loading');
     const contentEl = document.getElementById('report-content');
     const errorEl = document.getElementById('report-error');
@@ -34,9 +34,18 @@ async function loadReport() {
             return;
         }
         
-        console.log('[Report] Loading report for user:', userId);
+        console.log('[Report] Loading report for user:', userId, forceRefresh ? '(forced refresh)' : '');
         
-        const response = await fetch(`/api/report/generate/${userId}`);
+        // Build URL with optional refresh
+        const url = forceRefresh 
+            ? `/api/report/generate/${userId}/refresh`
+            : `/api/report/generate/${userId}`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'X-User-Id': userId // Send auth header for security
+            }
+        });
         
         if (!response.ok) {
             const error = await response.json();
@@ -50,7 +59,7 @@ async function loadReport() {
         }
         
         ReportState.data = data.report;
-        console.log('[Report] Report loaded:', data.report);
+        console.log('[Report] Report loaded:', data.report, data.cached ? '(from cache)' : '(freshly generated)');
         
         // Render the report
         renderReport(data.report);
@@ -59,10 +68,39 @@ async function loadReport() {
         loadingEl.style.display = 'none';
         contentEl.style.display = 'block';
         
+        // Show cache indicator if cached
+        if (data.cached) {
+            showCacheIndicator();
+        }
+        
     } catch (error) {
         console.error('[Report] Error:', error);
         showError(error.message);
     }
+}
+
+/**
+ * Show cache indicator with refresh option
+ */
+function showCacheIndicator() {
+    const existingIndicator = document.getElementById('cache-indicator');
+    if (existingIndicator) return;
+    
+    const actionsEl = document.querySelector('.report-actions');
+    if (!actionsEl) return;
+    
+    const indicator = document.createElement('button');
+    indicator.id = 'cache-indicator';
+    indicator.className = 'btn-refresh';
+    indicator.innerHTML = '🔄 Refresh Report';
+    indicator.title = 'This report is cached. Click to generate a fresh report.';
+    indicator.onclick = () => {
+        indicator.innerHTML = '⏳ Refreshing...';
+        indicator.disabled = true;
+        loadReport(true);
+    };
+    
+    actionsEl.insertBefore(indicator, actionsEl.firstChild);
 }
 
 /**
@@ -392,34 +430,51 @@ function setupDownloadButton() {
     const downloadBtn = document.getElementById('download-pdf-btn');
     if (!downloadBtn) return;
     
-    downloadBtn.addEventListener('click', downloadPDF);
+    downloadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadPDF();
+    });
 }
 
 /**
- * Download report as PDF
+ * Download report as PDF using html2pdf
  */
 async function downloadPDF() {
     const downloadBtn = document.getElementById('download-pdf-btn');
+    if (!downloadBtn) return;
+    
     const originalText = downloadBtn.innerHTML;
     
     try {
         downloadBtn.innerHTML = '⏳ Generating PDF...';
         downloadBtn.disabled = true;
         
+        // Get the report content element
         const element = document.getElementById('report-content');
+        if (!element) {
+            throw new Error('Report content not found');
+        }
         
-        // Hide action buttons for PDF
+        // Hide action buttons and cache indicator for PDF
         const actions = document.querySelector('.report-actions');
+        const cacheIndicator = document.getElementById('cache-indicator');
         if (actions) actions.style.display = 'none';
+        if (cacheIndicator) cacheIndicator.style.display = 'none';
+        
+        // Get student name for filename
+        const studentName = ReportState.data?.student?.name || 'Student';
+        const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
         
         const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `LearnSign_Report_${new Date().toISOString().split('T')[0]}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
+            margin: [8, 8, 8, 8],
+            filename: `LearnSign_Report_${safeName}_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.95 },
             html2canvas: { 
                 scale: 2,
                 useCORS: true,
-                logging: false
+                logging: false,
+                allowTaint: true,
+                backgroundColor: '#ffffff'
             },
             jsPDF: { 
                 unit: 'mm', 
@@ -433,20 +488,29 @@ async function downloadPDF() {
         
         // Restore action buttons
         if (actions) actions.style.display = 'flex';
+        if (cacheIndicator) cacheIndicator.style.display = '';
         
         downloadBtn.innerHTML = '✅ Downloaded!';
+        
         setTimeout(() => {
             downloadBtn.innerHTML = originalText;
             downloadBtn.disabled = false;
-        }, 2000);
+        }, 2500);
         
     } catch (error) {
         console.error('[Report] PDF download error:', error);
         downloadBtn.innerHTML = '❌ Error';
+        
+        // Restore action buttons on error too
+        const actions = document.querySelector('.report-actions');
+        const cacheIndicator = document.getElementById('cache-indicator');
+        if (actions) actions.style.display = 'flex';
+        if (cacheIndicator) cacheIndicator.style.display = '';
+        
         setTimeout(() => {
             downloadBtn.innerHTML = originalText;
             downloadBtn.disabled = false;
-        }, 2000);
+        }, 2500);
     }
 }
 
