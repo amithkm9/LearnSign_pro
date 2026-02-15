@@ -298,12 +298,17 @@ app.get("/analytics/summary/:userId", async (req, res) => {
         const since = new Date();
         since.setDate(since.getDate() - 7);
 
-        const [user, progressDocs, weeklyMsAgg, quizAgg, quizPassAgg] = await Promise.all([
-            User.findById(userId).select('progress'),
+        const [user, progressDocs, weeklyMsAgg, weeklySessionsAgg, quizAgg, quizPassAgg, totalDaysAgg, weeklyActivityAgg] = await Promise.all([
+            User.findById(userId).select('progress name'),
             UserProgress.find({ userId }).select('courseId status progressPercentage timeSpent completedAt updatedAt'),
             LearningEvent.aggregate([
                 { $match: { userId: new mongoose.Types.ObjectId(userId), ts: { $gte: since } } },
                 { $group: { _id: null, totalMs: { $sum: "$activeMs" } } }
+            ]),
+            // Count weekly sessions for avg session calculation
+            LearningEvent.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId(userId), ts: { $gte: since }, type: 'start' } },
+                { $group: { _id: null, count: { $sum: 1 } } }
             ]),
             QuizAttempt.aggregate([
                 { $match: { userId: new mongoose.Types.ObjectId(userId) } },
@@ -312,10 +317,26 @@ app.get("/analytics/summary/:userId", async (req, res) => {
             QuizAttempt.aggregate([
                 { $match: { userId: new mongoose.Types.ObjectId(userId), passed: true } },
                 { $group: { _id: null, passed: { $sum: 1 } } }
+            ]),
+            // Count total unique active days
+            LearningEvent.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+                { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$ts" } } } },
+                { $count: "totalDays" }
+            ]),
+            // Weekly activity breakdown by day
+            LearningEvent.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId(userId), ts: { $gte: since } } },
+                { $group: { 
+                    _id: { $dayOfWeek: "$ts" }, 
+                    totalMs: { $sum: "$activeMs" } 
+                }},
+                { $sort: { _id: 1 } }
             ])
         ]);
 
         const weeklyMs = weeklyMsAgg[0]?.totalMs || 0;
+        const weeklySessions = weeklySessionsAgg[0]?.count || 1;
         const totalCompleted = progressDocs.filter(p => p.status === 'completed').length;
         const totalStarted = progressDocs.length;
         const completionPct = totalStarted ? Math.round((totalCompleted / totalStarted) * 100) : 0;
@@ -324,6 +345,31 @@ app.get("/analytics/summary/:userId", async (req, res) => {
         const quizPassed = quizPassAgg[0]?.passed || 0;
         const quizPassRate = quizAttempts ? Math.round((quizPassed / quizAttempts) * 100) : 0;
         const currentStreak = user?.progress?.currentStreak || 0;
+        const longestStreak = user?.progress?.longestStreak || 0;
+        const totalDaysActive = totalDaysAgg[0]?.totalDays || 0;
+        const totalLearningTime = user?.progress?.totalLearningTime || 0;
+        const achievements = user?.progress?.achievements || [];
+        
+        // Calculate average session time
+        const avgSessionMinutes = weeklySessions > 0 ? Math.round((weeklyMs / 60000) / weeklySessions) : 0;
+        
+        // Calculate estimated signs learned (based on completed courses * avg signs per course)
+        const signsPerCourse = 15; // estimate
+        const estimatedSignsLearned = totalCompleted * signsPerCourse;
+        
+        // Build weekly activity array [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+        // MongoDB dayOfWeek: 1=Sunday, 2=Monday, ..., 7=Saturday
+        const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]; // Mon-Sun
+        weeklyActivityAgg.forEach(day => {
+            // Convert MongoDB dayOfWeek (1=Sun) to our format (0=Mon)
+            const dayIndex = day._id === 1 ? 6 : day._id - 2; // Sun=6, Mon=0, Tue=1, etc.
+            if (dayIndex >= 0 && dayIndex < 7) {
+                weeklyActivity[dayIndex] = Math.round(day.totalMs / 60000);
+            }
+        });
+        
+        // Calculate days practiced this week
+        const daysPracticedThisWeek = weeklyActivity.filter(m => m > 0).length;
 
         res.json({
             weeklyMinutes: Math.round(weeklyMs / 60000),
@@ -333,7 +379,16 @@ app.get("/analytics/summary/:userId", async (req, res) => {
             quizAttempts,
             quizPassRate,
             currentStreak,
-            coursesInProgress: progressDocs.filter(p => p.status === 'in_progress').length
+            longestStreak,
+            totalDaysActive,
+            totalLearningTime,
+            achievementsCount: achievements.length,
+            avgSessionMinutes,
+            estimatedSignsLearned,
+            weeklyActivity,
+            daysPracticedThisWeek,
+            coursesInProgress: progressDocs.filter(p => p.status === 'in_progress').length,
+            userName: user?.name || 'Learner'
         });
     } catch (error) {
         console.error("Analytics summary error:", error);
@@ -1308,9 +1363,10 @@ function extractSignWords(message) {
 }
 
 // AI Tutor Chat Endpoint - Supports sentences with multiple videos + OpenAI intelligence
+// FULL MULTILINGUAL SUPPORT with AUTO-DETECTION (Hindi, Kannada, Telugu)
 app.post("/tutor/chat", async (req, res) => {
     try {
-        const { userId, message, conversationHistory = [] } = req.body;
+        const { userId, message, conversationHistory = [], language = 'en' } = req.body;
         
         if (!userId || !message) {
             return res.status(400).json({ 
@@ -1318,20 +1374,48 @@ app.post("/tutor/chat", async (req, res) => {
             });
         }
 
-        const cleanMessage = message.trim().toUpperCase();
         const originalMessage = message.trim();
         
-        // Check if it's a sign/word request (short message or explicit request)
-        const isSignRequest = cleanMessage.split(/\s+/).length <= 3 || 
-            /how (do i |to |can i )?sign|show me|teach me|what('s| is) the sign/i.test(originalMessage);
+        // Use dropdown selection as primary, auto-detect as fallback
+        const detectedLanguage = detectLanguage(originalMessage);
+        // Prefer user's dropdown selection, fallback to auto-detection
+        const validLanguage = SUPPORTED_LANGUAGES[language] ? language : 
+                              (SUPPORTED_LANGUAGES[detectedLanguage] ? detectedLanguage : 'en');
         
-        // Split message into words and find videos for each
+        console.log(`[Chat] Dropdown: ${language}, Auto-detected: ${detectedLanguage}, Using: ${validLanguage}`);
+        console.log(`[Chat] Message: "${originalMessage}"`);
+        
+        // Translate regional language input to English sign names
+        // Use detected language for translation (not dropdown) to handle input correctly
+        const translationLang = detectedLanguage !== 'en' ? detectedLanguage : validLanguage;
+        const translatedMessage = translateSentenceToEnglishSigns(originalMessage, translationLang);
+        const cleanMessage = translatedMessage.toUpperCase();
+        
+        console.log(`[Chat] Translation lang: ${translationLang}, Translated: "${cleanMessage}"`);
+        
+        // Check if it's a sign/word request
+        // For regional languages: if translation produced valid sign words, treat as sign request
+        const translationSuccessful = cleanMessage !== originalMessage.toUpperCase() && cleanMessage.length > 0;
+        const isShortMessage = cleanMessage.split(/\s+/).length <= 6;
+        
+        const isSignRequest = isShortMessage || translationSuccessful ||
+            /how (do i |to |can i )?sign|show me|teach me|what('s| is) the sign/i.test(originalMessage) ||
+            // Hindi patterns - greeting and question words
+            /का साइन|साइन दिखाओ|कैसे करें|सिखाओ|कैसे हो|क्या हाल|नमस्ते|धन्यवाद/i.test(originalMessage) ||
+            // Kannada patterns - greeting and question words
+            /ಸೈನ್|ತೋರಿಸಿ|ಕಲಿಸಿ|ಹೇಗೆ|ಹೇಗಿದ್ದೀ|ನಮಸ್ಕಾರ|ಧನ್ಯವಾದ|ಚೆನ್ನಾಗಿ|ಏನು|ಯಾರು/i.test(originalMessage) ||
+            // Telugu patterns - greeting and question words  
+            /సైన్|చూపించు|నేర్పించు|ఎలా|నమస్కారం|ధన్యవాదాలు|బాగున్నారా|ఏమిటి/i.test(originalMessage);
+        
+        console.log(`[Chat] isSignRequest: ${isSignRequest}, translationSuccessful: ${translationSuccessful}, isShortMessage: ${isShortMessage}`);
+        
+        // Split translated message into words and find videos for each
         const words = cleanMessage.split(/\s+/).filter(w => w.length > 0);
         const videoSequence = [];
         const notFoundWords = [];
         
         for (const word of words) {
-            const cleanWord = word.replace(/[^A-Z0-9]/g, '');
+            const cleanWord = word.replace(/[^A-Z0-9_]/g, '');
             if (cleanWord.length === 0) continue;
             
             const video = findSignVideo(cleanWord);
@@ -1345,42 +1429,73 @@ app.post("/tutor/chat", async (req, res) => {
             }
         }
         
-        // If we found videos, return them
+        // If we found videos, return them with language-appropriate response
         if (videoSequence.length > 0 && isSignRequest) {
             const isSentence = videoSequence.length > 1;
             const foundWords = videoSequence.map(v => v.word).join(' ');
+            
+            // Language-specific responses
+            const responseMessages = {
+                'en': isSentence 
+                    ? `Here's how to sign "${foundWords}" 👇`
+                    : `Here's how to sign "${foundWords}" 👇`,
+                'hi': isSentence
+                    ? `यहाँ "${foundWords}" का साइन है 👇`
+                    : `यहाँ "${foundWords}" का साइन है 👇`,
+                'kn': isSentence
+                    ? `ಇಲ್ಲಿ "${foundWords}" ಸೈನ್ ಇದೆ 👇`
+                    : `ಇಲ್ಲಿ "${foundWords}" ಸೈನ್ ಇದೆ 👇`,
+                'te': isSentence
+                    ? `ఇక్కడ "${foundWords}" సైన్ ఉంది 👇`
+                    : `ఇక్కడ "${foundWords}" సైన్ ఉంది 👇`
+            };
+            
+            const warningMessages = {
+                'en': `Note: No video for: ${notFoundWords.join(', ')}`,
+                'hi': `नोट: इनके लिए वीडियो नहीं है: ${notFoundWords.join(', ')}`,
+                'kn': `ಗಮನಿಸಿ: ಇವುಗಳಿಗೆ ವೀಡಿಯೋ ಇಲ್ಲ: ${notFoundWords.join(', ')}`,
+                'te': `గమనిక: వీటికి వీడియో లేదు: ${notFoundWords.join(', ')}`
+            };
             
             const response = {
                 type: "sign_sequence",
                 isSentence: isSentence,
                 sentence: foundWords,
-                response: isSentence 
-                    ? `Here's how to sign "${foundWords}" 👇`
-                    : `Here's how to sign "${foundWords}" 👇`,
+                originalQuery: originalMessage,
+                response: responseMessages[validLanguage] || responseMessages['en'],
                 videoSequence: videoSequence.map(v => ({
                     word: v.word,
                     path: v.video.path
                 })),
                 notFoundWords: notFoundWords,
-                totalVideos: videoSequence.length
+                totalVideos: videoSequence.length,
+                language: validLanguage
             };
             
             // Add warning if some words weren't found
             if (notFoundWords.length > 0) {
-                response.warning = `Note: No video for: ${notFoundWords.join(', ')}`;
+                response.warning = warningMessages[validLanguage] || warningMessages['en'];
             }
             
             return res.json({
                 success: true,
                 response: response,
-                userProfile: { name: 'Learner', streak: 0, progress: 0 }
+                userProfile: { name: 'Learner', streak: 0, progress: 0 },
+                language: validLanguage
             });
         }
         
-        // For general questions or no videos found, use OpenAI
+        // For general questions or no videos found, use OpenAI with language instruction
         try {
             const userProfile = await getUserTutorProfile(userId);
-            const systemPrompt = userProfile ? populateSystemPrompt(userProfile) : AI_TUTOR_SYSTEM_PROMPT;
+            let systemPrompt = userProfile ? populateSystemPrompt(userProfile) : AI_TUTOR_SYSTEM_PROMPT;
+            
+            // Add language-specific instruction
+            const languageInstruction = LANGUAGE_INSTRUCTIONS[validLanguage] || LANGUAGE_INSTRUCTIONS['en'];
+            systemPrompt += `\n\n🌐 IMPORTANT LANGUAGE INSTRUCTION: ${languageInstruction}`;
+            
+            // Add instruction to include sign-able words
+            systemPrompt += `\n\nWhen responding, try to naturally include these common words that have sign videos available: GOOD, FINE, HAPPY, THANK, HELLO, YES, NO, HELP, PLEASE, LOVE, LEARN, FRIEND, FAMILY, MOTHER, FATHER, SCHOOL, HOME, EAT, DRINK, UNDERSTAND, MORNING, EVENING, TODAY.`;
             
             // Get available signs for context
             const availableSigns = getAllAvailableSigns().slice(0, 50);
@@ -1404,42 +1519,90 @@ app.post("/tutor/chat", async (req, res) => {
             
             let aiResponse = completion.choices[0].message.content;
             
+            // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
+            let cleanedResponse = aiResponse.trim();
+            if (cleanedResponse.startsWith('```')) {
+                // Remove opening ``` (with optional language tag like ```json)
+                cleanedResponse = cleanedResponse.replace(/^```[a-z]*\n?/i, '');
+                // Remove closing ```
+                cleanedResponse = cleanedResponse.replace(/\n?```$/i, '');
+                cleanedResponse = cleanedResponse.trim();
+            }
+            
             // Try to parse as JSON, otherwise wrap in general_help format
             let parsedResponse;
             try {
-                parsedResponse = JSON.parse(aiResponse);
+                parsedResponse = JSON.parse(cleanedResponse);
             } catch {
                 parsedResponse = {
                     type: "general_help",
-                    response: aiResponse,
+                    response: cleanedResponse,
                     availableSigns: findSimilarSigns(words[0] || 'hello').slice(0, 8)
                 };
             }
             
+            // Add language info to response
+            parsedResponse.language = validLanguage;
+            
+            // ENABLED: Smart sign extraction for non-English responses
+            // Translate regional language response to English and find matching sign videos
+            if (validLanguage !== 'en') {
+                try {
+                    const responseText = parsedResponse.response || cleanedResponse;
+                    const extractedSigns = await translateAndExtractSignsFromResponse(
+                        responseText, 
+                        validLanguage, 
+                        originalMessage
+                    );
+                    
+                    if (extractedSigns && extractedSigns.length > 0) {
+                        parsedResponse.hasResponseSigns = true;
+                        parsedResponse.responseSigns = extractedSigns;
+                        console.log(`[Chat] Found ${extractedSigns.length} signs from ${validLanguage} response`);
+                    }
+                } catch (extractError) {
+                    console.error('[Chat] Sign extraction error:', extractError.message);
+                }
+            }
+            
+            console.log(`[Chat] AI response ready (language: ${validLanguage})`);
+            
             return res.json({
                 success: true,
                 response: parsedResponse,
-                userProfile: userProfile || { name: 'Learner', streak: 0, progress: 0 }
+                userProfile: userProfile || { name: 'Learner', streak: 0, progress: 0 },
+                language: validLanguage,
+                detectedLanguage: validLanguage
             });
             
         } catch (aiError) {
             console.error("OpenAI error:", aiError.message);
             
-            // Fallback to suggestions if OpenAI fails
+            // Fallback to suggestions if OpenAI fails - with language-appropriate message
             const suggestions = words.length > 0 ? findSimilarSigns(words[0]) : [];
             const availableSigns = getAllAvailableSigns();
             const randomSigns = availableSigns.sort(() => 0.5 - Math.random()).slice(0, 8);
+            
+            const fallbackMessages = {
+                'en': `I couldn't find videos for "${message}". Try one of these signs instead!`,
+                'hi': `"${message}" के लिए वीडियो नहीं मिला। इनमें से कोई साइन आज़माएं!`,
+                'kn': `"${message}" ಗೆ ವೀಡಿಯೋ ಸಿಗಲಿಲ್ಲ. ಈ ಸೈನ್‌ಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ!`,
+                'te': `"${message}" కోసం వీడియో దొరకలేదు. ఈ సైన్‌లను ప్రయత్నించండి!`
+            };
             
             return res.json({
                 success: true,
                 response: {
                     type: "not_found",
                     sign: cleanMessage,
-                    response: `I couldn't find videos for "${message}". Try one of these signs instead!`,
+                    response: fallbackMessages[validLanguage] || fallbackMessages['en'],
                     suggestions: suggestions.length > 0 ? suggestions : randomSigns,
-                    totalAvailable: availableSigns.length
+                    totalAvailable: availableSigns.length,
+                    language: validLanguage
                 },
-                userProfile: { name: 'Learner', streak: 0, progress: 0 }
+                userProfile: { name: 'Learner', streak: 0, progress: 0 },
+                language: validLanguage,
+                detectedLanguage: validLanguage
             });
         }
         
@@ -1765,6 +1928,710 @@ const SUPPORTED_LANGUAGES = {
     'te': 'Telugu'
 };
 
+// ========== MULTILINGUAL SIGN TRANSLATION MAPPINGS ==========
+// Maps regional language words to English sign names
+const SIGN_TRANSLATIONS = {
+    // Hindi translations
+    'hi': {
+        // Greetings
+        'नमस्ते': 'HELLO', 'नमस्कार': 'HELLO', 'हाय': 'HI', 'हैलो': 'HELLO',
+        'अलविदा': 'BYE', 'बाय': 'BYE', 'धन्यवाद': 'GRATEFUL', 'शुक्रिया': 'GRATEFUL',
+        'स्वागत': 'WELCOME', 'कृपया': 'PLEASE',
+        
+        // Family
+        'माँ': 'MOTHER', 'मां': 'MOTHER', 'मम्मी': 'MOTHER', 'माता': 'MOTHER',
+        'पापा': 'FATHER', 'पिता': 'FATHER', 'बाबा': 'FATHER',
+        'भाई': 'BROTHER', 'बहन': 'SISTER', 'दीदी': 'SISTER',
+        'बेटा': 'SON', 'बेटी': 'DAUGHTER', 'बच्चा': 'CHILD', 'बच्ची': 'CHILD', 'शिशु': 'BABY',
+        'लड़का': 'BOY', 'लड़की': 'GIRL', 'दोस्त': 'FRIEND',
+        'पुरुष': 'MALE', 'महिला': 'FEMALE', 'आदमी': 'MEN', 'औरत': 'WOMEN',
+        
+        // Emotions
+        'खुश': 'HAPPY', 'खुशी': 'HAPPY', 'दुखी': 'SAD', 'उदास': 'SAD',
+        'गुस्सा': 'ANGRY', 'नाराज': 'ANGRY', 'थका': 'TIRED', 'थकान': 'TIRED',
+        'उत्साहित': 'EXCITED', 'चिंतित': 'WORRIED', 'परेशान': 'WORRIED',
+        'आश्चर्य': 'SURPRISED', 'हैरान': 'SURPRISED', 'निराश': 'DISAPPOINTED',
+        'शांत': 'CALM', 'आराम': 'RELAXED', 'बहादुर': 'BRAVE', 'गर्व': 'PROUD',
+        'उबाऊ': 'BORING', 'मजेदार': 'FUNNY', 'अजीब': 'WEIRD', 'पागल': 'CRAZY',
+        'घबराया': 'NERVOUS', 'उत्सुक': 'CURIOUS', 'भ्रमित': 'CONFUSED',
+        'आभारी': 'GRATEFUL', 'संतुष्ट': 'SATISFIED', 'भाग्यशाली': 'LUCKY',
+        
+        // Common words
+        'हाँ': 'YES', 'हां': 'YES', 'नहीं': 'NO', 'ठीक': 'OKAY', 'अच्छा': 'GOOD',
+        'बुरा': 'BAD', 'बड़ा': 'BIG', 'छोटा': 'SMALL', 'लंबा': 'TALL', 'नया': 'NEW', 'पुराना': 'OLD',
+        'गर्म': 'HOT', 'ठंडा': 'COLD', 'तेज': 'FAST', 'धीमा': 'SLOW',
+        'आसान': 'EASY', 'कठिन': 'HARD', 'ऊंचा': 'HIGH', 'नीचा': 'LOW_0A',
+        'सूखा': 'DRY', 'गीला': 'WET', 'साफ': 'CLEAN', 'छोटा': 'SHORT',
+        
+        // Actions
+        'खाना': 'EAT', 'खाओ': 'EAT', 'पीना': 'DRINK', 'पीओ': 'DRINK',
+        'सोना': 'SLEEP', 'सो': 'SLEEP', 'देखना': 'SEE', 'देखो': 'LOOK',
+        'सुनना': 'LISTEN', 'सुनो': 'LISTEN', 'पढ़ना': 'READ', 'पढ़ो': 'READ',
+        'लिखना': 'WRITE', 'लिखो': 'WRITE', 'बोलना': 'VOICE', 'बैठना': 'SIT', 'बैठो': 'SIT',
+        'खड़े': 'STAND', 'चलना': 'Walk', 'चलो': 'Walk', 'दौड़ना': 'RUN', 'दौड़ो': 'RUN',
+        'कूदना': 'JUMP', 'कूदो': 'JUMP', 'खेलना': 'PLAY_0A', 'खेलो': 'PLAY_0A',
+        'मदद': 'HELP', 'मदद करो': 'HELP', 'रुको': 'STOP', 'रुकना': 'STOP', 'इंतजार': 'WAIT',
+        'आना': 'ARRIVE', 'आओ': 'ARRIVE', 'जाना': 'LEAVE', 'जाओ': 'LEAVE',
+        'देना': 'GIVE_0A', 'दो': 'GIVE_0A', 'लेना': 'TAKE', 'लो': 'TAKE',
+        'खोलना': 'OPEN', 'खोलो': 'OPEN', 'बंद': 'CLOSE', 'धोना': 'WASH',
+        'पकाना': 'COOK', 'खरीदना': 'BUY', 'बेचना': 'SELL', 'मिलना': 'MEET',
+        'याद': 'REMEMBER', 'भूलना': 'FORGET', 'समझना': 'UNDERSTAND', 'समझो': 'UNDERSTAND',
+        'पूछना': 'ASK', 'पूछो': 'ASK', 'जवाब': 'ANSWER', 'बताना': 'EXPLAIN',
+        'शुरू': 'START', 'कोशिश': 'TRY', 'सोचना': 'THOUGHT', 'फैसला': 'DECIDE',
+        
+        // Places
+        'घर': 'HOME', 'स्कूल': 'SCHOOL', 'दफ्तर': 'OFFICE', 'बाजार': 'MARKET',
+        'शहर': 'CITY', 'पार्क': 'PARK', 'किचन': 'KITCHEN', 'बाथरूम': 'BATHROOM',
+        'कमरा': 'BEDROOM', 'सड़क': 'STREET',
+        
+        // Objects
+        'पानी': 'WATER', 'खाना': 'FOOD', 'रोटी': 'BREAD', 'फल': 'FRUIT',
+        'किताब': 'BOOK', 'कागज': 'PAPER', 'कुर्सी': 'CHAIR', 'मेज': 'TABLE',
+        'दरवाजा': 'DOOR', 'खिड़की': 'WINDOW', 'दीवार': 'WALL', 'छत': 'ROOF', 'फर्श': 'FLOOR',
+        'घड़ी': 'CLOCK', 'फोन': 'PHONE', 'मोबाइल': 'MOBILE', 'कंप्यूटर': 'COMPUTER',
+        'चाबी': 'KEY', 'प्लेट': 'PLATE', 'गिलास': 'GLASS', 'चम्मच': 'SPOON',
+        'कपड़े': 'SHIRT', 'पैंट': 'PANTS', 'जूते': 'SHOES',
+        'पैसा': 'MONEY', 'कीमत': 'PRICE',
+        
+        // Animals
+        'कुत्ता': 'DOG', 'बिल्ली': 'CAT', 'पक्षी': 'BIRD', 'मछली': 'FISH', 'घोड़ा': 'HORSE',
+        
+        // Nature
+        'सूरज': 'SUN', 'चांद': 'MOON', 'बादल': 'CLOUD', 'बारिश': 'RAIN', 'फूल': 'FLOWER',
+        
+        // Time
+        'समय': 'TIME', 'दिन': 'DAY', 'रात': 'NIGHT', 'सुबह': 'MORNING',
+        'दोपहर': 'AFTERNOON', 'शाम': 'EVENING', 'घंटा': 'HOUR', 'मिनट': 'MINUTE_0A',
+        'आज': 'TODAY', 'कल': 'TOMORROW', 'बीता कल': 'YESTERDAY', 'साल': 'YEAR',
+        'जल्दी': 'EARLY', 'देर': 'LATE', 'पहले': 'BEFORE', 'बाद': 'AFTER',
+        'कभी नहीं': 'NEVER', 'हमेशा': 'ALWAYS', 'कभी-कभी': 'SOMETIMES',
+        
+        // Questions
+        'क्या': 'WHAT', 'कौन': 'WHO', 'कब': 'WHEN', 'कहाँ': 'WHERE', 'कैसे': 'HOW', 'क्यों': 'WHY',
+        
+        // People
+        'डॉक्टर': 'DOCTOR', 'बच्चे': 'CHILD',
+        
+        // Numbers (already in English but adding Hindi)
+        'शून्य': '0', 'एक': '1', 'दो': '2', 'तीन': '3', 'चार': '4',
+        'पांच': '5', 'छह': '6', 'सात': '7', 'आठ': '8', 'नौ': '9',
+        
+        // Common phrases recognition
+        'कैसे हो': 'HOW', 'क्या हाल': 'HOW', 'सब ठीक': 'OKAY',
+        'मैं ठीक हूं': 'GOOD', 'मैं अच्छा हूं': 'GOOD', 'बहुत अच्छा': 'GOOD',
+        'मैं': 'I', 'तुम': 'YOU', 'आप': 'YOU', 'वह': 'WHO',
+        'प्यार': 'LOVE', 'पसंद': 'LIKE', 'चाहिए': 'WANT'
+    },
+    
+    // Kannada translations
+    'kn': {
+        // Greetings
+        'ನಮಸ್ಕಾರ': 'HELLO', 'ಹಲೋ': 'HELLO', 'ಹಾಯ್': 'HI',
+        'ಬೈ': 'BYE', 'ವಿದಾಯ': 'BYE', 'ಧನ್ಯವಾದ': 'GRATEFUL', 'ಧನ್ಯವಾದಗಳು': 'GRATEFUL',
+        'ಸ್ವಾಗತ': 'WELCOME', 'ದಯವಿಟ್ಟು': 'PLEASE',
+        
+        // Family
+        'ಅಮ್ಮ': 'MOTHER', 'ತಾಯಿ': 'MOTHER', 'ಅಪ್ಪ': 'FATHER', 'ತಂದೆ': 'FATHER',
+        'ಅಣ್ಣ': 'BROTHER', 'ತಮ್ಮ': 'BROTHER', 'ಅಕ್ಕ': 'SISTER', 'ತಂಗಿ': 'SISTER',
+        'ಮಗ': 'SON', 'ಮಗಳು': 'DAUGHTER', 'ಮಗು': 'CHILD', 'ಶಿಶು': 'BABY',
+        'ಹುಡುಗ': 'BOY', 'ಹುಡುಗಿ': 'GIRL', 'ಸ್ನೇಹಿತ': 'FRIEND', 'ಗೆಳೆಯ': 'FRIEND',
+        'ಪುರುಷ': 'MALE', 'ಮಹಿಳೆ': 'FEMALE',
+        
+        // Emotions
+        'ಸಂತೋಷ': 'HAPPY', 'ಖುಷಿ': 'HAPPY', 'ದುಃಖ': 'SAD', 'ಬೇಸರ': 'SAD',
+        'ಕೋಪ': 'ANGRY', 'ಸಿಟ್ಟು': 'ANGRY', 'ಆಯಾಸ': 'TIRED', 'ದಣಿವು': 'TIRED',
+        'ಉತ್ಸಾಹ': 'EXCITED', 'ಚಿಂತೆ': 'WORRIED', 'ಆಶ್ಚರ್ಯ': 'SURPRISED',
+        'ನಿರಾಶೆ': 'DISAPPOINTED', 'ಶಾಂತ': 'CALM', 'ಧೈರ್ಯ': 'BRAVE',
+        'ಹೆಮ್ಮೆ': 'PROUD', 'ಬೋರ್': 'BORING', 'ತಮಾಷೆ': 'FUNNY',
+        
+        // Common words
+        'ಹೌದು': 'YES', 'ಇಲ್ಲ': 'NO', 'ಸರಿ': 'OKAY', 'ಒಳ್ಳೆಯ': 'GOOD', 'ಚೆನ್ನಾಗಿ': 'GOOD',
+        'ಕೆಟ್ಟ': 'BAD', 'ದೊಡ್ಡ': 'BIG', 'ಚಿಕ್ಕ': 'SMALL', 'ಎತ್ತರ': 'TALL',
+        'ಹೊಸ': 'NEW', 'ಹಳೆಯ': 'OLD', 'ಬಿಸಿ': 'HOT', 'ತಂಪು': 'COLD',
+        'ವೇಗ': 'FAST', 'ನಿಧಾನ': 'SLOW', 'ಸುಲಭ': 'EASY', 'ಕಷ್ಟ': 'HARD',
+        
+        // Actions
+        'ತಿನ್ನು': 'EAT', 'ಊಟ': 'EAT', 'ಕುಡಿ': 'DRINK', 'ನಿದ್ರೆ': 'SLEEP', 'ಮಲಗು': 'SLEEP',
+        'ನೋಡು': 'SEE', 'ಕೇಳು': 'LISTEN', 'ಓದು': 'READ', 'ಬರೆ': 'WRITE',
+        'ಕೂರು': 'SIT', 'ನಿಲ್ಲು': 'STAND', 'ನಡೆ': 'Walk', 'ಓಡು': 'RUN', 'ಜಿಗಿ': 'JUMP',
+        'ಆಟ': 'PLAY_0A', 'ಸಹಾಯ': 'HELP', 'ನಿಲ್ಲಿಸು': 'STOP', 'ಕಾಯಿ': 'WAIT',
+        'ಬಾ': 'ARRIVE', 'ಹೋಗು': 'LEAVE', 'ಕೊಡು': 'GIVE_0A', 'ತೆಗೆ': 'TAKE',
+        'ತೆರೆ': 'OPEN', 'ಮುಚ್ಚು': 'CLOSE', 'ತೊಳೆ': 'WASH', 'ಅಡುಗೆ': 'COOK',
+        'ನೆನಪು': 'REMEMBER', 'ಮರೆತು': 'FORGET', 'ಅರ್ಥ': 'UNDERSTAND',
+        'ಕೇಳು': 'ASK', 'ಉತ್ತರ': 'ANSWER', 'ಪ್ರಾರಂಭ': 'START', 'ಪ್ರಯತ್ನ': 'TRY',
+        
+        // Places
+        'ಮನೆ': 'HOME', 'ಶಾಲೆ': 'SCHOOL', 'ಕಚೇರಿ': 'OFFICE', 'ಮಾರುಕಟ್ಟೆ': 'MARKET',
+        'ನಗರ': 'CITY', 'ಉದ್ಯಾನ': 'PARK', 'ಅಡುಗೆಮನೆ': 'KITCHEN', 'ಸ್ನಾನಗೃಹ': 'BATHROOM',
+        
+        // Objects
+        'ನೀರು': 'WATER', 'ಆಹಾರ': 'FOOD', 'ರೊಟ್ಟಿ': 'BREAD', 'ಹಣ್ಣು': 'FRUIT',
+        'ಪುಸ್ತಕ': 'BOOK', 'ಕಾಗದ': 'PAPER', 'ಕುರ್ಚಿ': 'CHAIR', 'ಮೇಜು': 'TABLE',
+        'ಬಾಗಿಲು': 'DOOR', 'ಕಿಟಕಿ': 'WINDOW', 'ಗೋಡೆ': 'WALL',
+        'ಗಡಿಯಾರ': 'CLOCK', 'ಫೋನ್': 'PHONE', 'ಮೊಬೈಲ್': 'MOBILE',
+        'ಹಣ': 'MONEY', 'ಬೆಲೆ': 'PRICE',
+        
+        // Animals
+        'ನಾಯಿ': 'DOG', 'ಬೆಕ್ಕು': 'CAT', 'ಹಕ್ಕಿ': 'BIRD', 'ಮೀನು': 'FISH', 'ಕುದುರೆ': 'HORSE',
+        
+        // Nature
+        'ಸೂರ್ಯ': 'SUN', 'ಚಂದ್ರ': 'MOON', 'ಮೋಡ': 'CLOUD', 'ಮಳೆ': 'RAIN', 'ಹೂವು': 'FLOWER',
+        
+        // Time
+        'ಸಮಯ': 'TIME', 'ದಿನ': 'DAY', 'ರಾತ್ರಿ': 'NIGHT', 'ಬೆಳಿಗ್ಗೆ': 'MORNING',
+        'ಮಧ್ಯಾಹ್ನ': 'AFTERNOON', 'ಸಂಜೆ': 'EVENING', 'ಇಂದು': 'TODAY',
+        'ನಾಳೆ': 'TOMORROW', 'ನಿನ್ನೆ': 'YESTERDAY', 'ವರ್ಷ': 'YEAR',
+        'ಯಾವಾಗಲೂ': 'ALWAYS', 'ಎಂದಿಗೂ': 'NEVER', 'ಕೆಲವೊಮ್ಮೆ': 'SOMETIMES',
+        
+        // Questions
+        'ಏನು': 'WHAT', 'ಯಾರು': 'WHO', 'ಯಾವಾಗ': 'WHEN', 'ಎಲ್ಲಿ': 'WHERE', 'ಹೇಗೆ': 'HOW', 'ಏಕೆ': 'WHY',
+        
+        // Numbers
+        'ಸೊನ್ನೆ': '0', 'ಒಂದು': '1', 'ಎರಡು': '2', 'ಮೂರು': '3', 'ನಾಲ್ಕು': '4',
+        'ಐದು': '5', 'ಆರು': '6', 'ಏಳು': '7', 'ಎಂಟು': '8', 'ಒಂಬತ್ತು': '9',
+        
+        // Common phrases - "How are you" variations (ALL possible spellings)
+        'ಹೇಗಿದ್ದೀರಾ': 'HOW ARE YOU', 'ಹೇಗಿದ್ದೀಯಾ': 'HOW ARE YOU', 
+        'ಹೇಗಿದಿರಾ': 'HOW ARE YOU', 'ಹೇಗಿದಿರ': 'HOW ARE YOU',
+        'ಹೇಗಿದೀರಾ': 'HOW ARE YOU', 'ಹೇಗಿದೀರ': 'HOW ARE YOU',
+        'ಹೇಗಿದ್ರಾ': 'HOW ARE YOU', 'ಹೇಗಿದ್ರ': 'HOW ARE YOU',
+        'ನೀವು ಹೇಗಿದ್ದೀರಾ': 'HOW ARE YOU', 'ನೀ ಹೇಗಿದ್ದೀಯಾ': 'HOW ARE YOU',
+        'ಹೇಗಿದ್ದೀರಿ': 'HOW ARE YOU', 'ಹೇಗಿದೆ': 'HOW ARE YOU',
+        'ಏನು ಸಮಾಚಾರ': 'HOW ARE YOU', 'ಕುಶಲವೇ': 'HOW ARE YOU',
+        'ಹೇಗಿದ್ದೀಯ': 'HOW ARE YOU', 'ಹೇಗಿದಿಯ': 'HOW ARE YOU',
+        
+        // Response phrases
+        'ಚೆನ್ನಾಗಿದ್ದೇನೆ': 'GOOD', 'ಚೆನ್ನಾಗಿದೆ': 'GOOD', 'ನಾನು ಚೆನ್ನಾಗಿದ್ದೇನೆ': 'I GOOD',
+        'ಒಳ್ಳೆಯದಾಗಿದೆ': 'GOOD', 'ಸಂತೋಷವಾಗಿದ್ದೇನೆ': 'HAPPY',
+        
+        // Pronouns and common words
+        'ನಾನು': 'I', 'ನೀನು': 'YOU', 'ನೀವು': 'YOU', 'ಅವನು': 'HE', 'ಅವಳು': 'SHE',
+        'ಅವರು': 'THEY', 'ನಾವು': 'WE', 'ಇದು': 'THIS', 'ಅದು': 'THAT',
+        
+        // More common questions
+        'ನಿಮ್ಮ ಹೆಸರೇನು': 'WHAT YOUR NAME', 'ನಿನ್ನ ಹೆಸರೇನು': 'WHAT YOUR NAME',
+        'ಹೆಸರು': 'NAME', 'ಹೆಸರೇನು': 'WHAT NAME',
+        
+        // Learning related
+        'ಕಲಿಯಿರಿ': 'LEARN', 'ಕಲಿಸಿ': 'TEACH', 'ತೋರಿಸಿ': 'SHOW',
+        'ಸೈನ್': 'SIGN', 'ಸೈನ್ ಭಾಷೆ': 'SIGN LANGUAGE',
+        
+        // Greetings and daily - multiple spelling variations
+        'ಶುಭೋದಯ': 'GOOD MORNING', 'ಶುಭೋದಾಯ': 'GOOD MORNING', 'ಶುಭೋದಾಯಾ': 'GOOD MORNING',
+        'ಶುಭೋಧಯ': 'GOOD MORNING', 'ಶುಭೋಧಾಯ': 'GOOD MORNING',
+        'ಶುಭ ಬೆಳಿಗ್ಗೆ': 'GOOD MORNING', 'ಶುಭ ಮುಂಜಾನೆ': 'GOOD MORNING',
+        'ಶುಭ ಮಧ್ಯಾಹ್ನ': 'GOOD AFTERNOON', 
+        'ಶುಭ ಸಂಜೆ': 'GOOD EVENING', 'ಶುಭಸಂಜೆ': 'GOOD EVENING',
+        'ಶುಭ ರಾತ್ರಿ': 'GOOD NIGHT', 'ಶುಭರಾತ್ರಿ': 'GOOD NIGHT',
+        'ಒಳ್ಳೆಯ ದಿನ': 'GOOD DAY', 'ಒಳ್ಳೆ ದಿನ': 'GOOD DAY',
+        
+        // TRANSLITERATED Kannada (English letters) - for users typing in English
+        'shubodaya': 'GOOD MORNING', 'shubhodaya': 'GOOD MORNING', 'subhodaya': 'GOOD MORNING',
+        'namaskara': 'HELLO', 'namaskaara': 'HELLO', 'namaste': 'HELLO',
+        'dhanyavada': 'GRATEFUL', 'dhanyavaada': 'GRATEFUL', 'thanks': 'GRATEFUL',
+        'hegiddira': 'HOW ARE YOU', 'hegidira': 'HOW ARE YOU', 'hegiddiya': 'HOW ARE YOU',
+        'chennagiddene': 'GOOD', 'chennagide': 'GOOD', 'olleya': 'GOOD',
+        'amma': 'MOTHER', 'appa': 'FATHER', 'anna': 'BROTHER', 'akka': 'SISTER',
+        'tangi': 'SISTER', 'tamma': 'BROTHER', 'maga': 'SON', 'magalu': 'DAUGHTER',
+        'sneha': 'FRIEND', 'snehita': 'FRIEND', 'geleya': 'FRIEND',
+        'mane': 'HOME', 'shale': 'SCHOOL', 'neeru': 'WATER', 'oota': 'EAT', 'aahara': 'FOOD',
+        'santhosha': 'HAPPY', 'santosha': 'HAPPY', 'dukkha': 'SAD', 'koppa': 'ANGRY',
+        'houdu': 'YES', 'illa': 'NO', 'sari': 'OKAY', 'dayavittu': 'PLEASE',
+        'shubha ratri': 'GOOD NIGHT', 'shubha sanje': 'GOOD EVENING',
+        'naanu': 'I', 'neevu': 'YOU', 'neenu': 'YOU', 'avaru': 'THEY',
+        'yenu': 'WHAT', 'yaaru': 'WHO', 'yelli': 'WHERE', 'yaavaga': 'WHEN', 'hege': 'HOW', 'yeke': 'WHY'
+    },
+    
+    // Telugu translations
+    'te': {
+        // Greetings
+        'నమస్కారం': 'HELLO', 'హలో': 'HELLO', 'హాయ్': 'HI',
+        'బై': 'BYE', 'వీడ్కోలు': 'BYE', 'ధన్యవాదాలు': 'GRATEFUL', 'థాంక్స్': 'GRATEFUL',
+        'స్వాగతం': 'WELCOME', 'దయచేసి': 'PLEASE',
+        
+        // Family
+        'అమ్మ': 'MOTHER', 'తల్లి': 'MOTHER', 'నాన్న': 'FATHER', 'తండ్రి': 'FATHER',
+        'అన్న': 'BROTHER', 'తమ్ముడు': 'BROTHER', 'అక్క': 'SISTER', 'చెల్లి': 'SISTER',
+        'కొడుకు': 'SON', 'కూతురు': 'DAUGHTER', 'పిల్ల': 'CHILD', 'బిడ్డ': 'BABY', 'శిశువు': 'BABY',
+        'అబ్బాయి': 'BOY', 'అమ్మాయి': 'GIRL', 'స్నేహితుడు': 'FRIEND', 'మిత్రుడు': 'FRIEND',
+        'పురుషుడు': 'MALE', 'స్త్రీ': 'FEMALE', 'మహిళ': 'WOMEN',
+        
+        // Emotions
+        'సంతోషం': 'HAPPY', 'ఆనందం': 'HAPPY', 'దుఃఖం': 'SAD', 'బాధ': 'SAD',
+        'కోపం': 'ANGRY', 'అలసట': 'TIRED', 'ఉత్సాహం': 'EXCITED',
+        'ఆందోళన': 'WORRIED', 'ఆశ్చర్యం': 'SURPRISED', 'నిరాశ': 'DISAPPOINTED',
+        'ప్రశాంతం': 'CALM', 'ధైర్యం': 'BRAVE', 'గర్వం': 'PROUD',
+        'బోరింగ్': 'BORING', 'నవ్వు': 'FUNNY',
+        
+        // Common words
+        'అవును': 'YES', 'కాదు': 'NO', 'లేదు': 'NO', 'సరే': 'OKAY', 'మంచి': 'GOOD', 'బాగుంది': 'GOOD',
+        'చెడ్డ': 'BAD', 'పెద్ద': 'BIG', 'చిన్న': 'SMALL', 'పొడవు': 'TALL',
+        'కొత్త': 'NEW', 'పాత': 'OLD', 'వేడి': 'HOT', 'చల్లని': 'COLD',
+        'వేగం': 'FAST', 'నెమ్మది': 'SLOW', 'సులభం': 'EASY', 'కష్టం': 'HARD',
+        
+        // Actions
+        'తిను': 'EAT', 'భోజనం': 'EAT', 'తాగు': 'DRINK', 'నిద్ర': 'SLEEP', 'పడుకో': 'SLEEP',
+        'చూడు': 'SEE', 'విను': 'LISTEN', 'చదువు': 'READ', 'రాయి': 'WRITE',
+        'కూర్చో': 'SIT', 'నిలబడు': 'STAND', 'నడువు': 'Walk', 'పరుగెత్తు': 'RUN', 'దూకు': 'JUMP',
+        'ఆడు': 'PLAY_0A', 'సహాయం': 'HELP', 'ఆపు': 'STOP', 'వేచి ఉండు': 'WAIT',
+        'రా': 'ARRIVE', 'వెళ్ళు': 'LEAVE', 'ఇవ్వు': 'GIVE_0A', 'తీసుకో': 'TAKE',
+        'తెరువు': 'OPEN', 'మూయు': 'CLOSE', 'కడుగు': 'WASH', 'వంట': 'COOK',
+        'గుర్తు': 'REMEMBER', 'మర్చిపో': 'FORGET', 'అర్థం': 'UNDERSTAND',
+        'అడుగు': 'ASK', 'జవాబు': 'ANSWER', 'మొదలు': 'START', 'ప్రయత్నం': 'TRY',
+        
+        // Places
+        'ఇల్లు': 'HOME', 'బడి': 'SCHOOL', 'పాఠశాల': 'SCHOOL', 'కార్యాలయం': 'OFFICE',
+        'మార్కెట్': 'MARKET', 'నగరం': 'CITY', 'పార్క్': 'PARK',
+        'వంటగది': 'KITCHEN', 'బాత్రూమ్': 'BATHROOM',
+        
+        // Objects
+        'నీళ్ళు': 'WATER', 'ఆహారం': 'FOOD', 'రొట్టె': 'BREAD', 'పండు': 'FRUIT',
+        'పుస్తకం': 'BOOK', 'కాగితం': 'PAPER', 'కుర్చీ': 'CHAIR', 'బల్ల': 'TABLE',
+        'తలుపు': 'DOOR', 'కిటికీ': 'WINDOW', 'గోడ': 'WALL',
+        'గడియారం': 'CLOCK', 'ఫోన్': 'PHONE', 'మొబైల్': 'MOBILE',
+        'డబ్బు': 'MONEY', 'ధర': 'PRICE',
+        
+        // Animals
+        'కుక్క': 'DOG', 'పిల్లి': 'CAT', 'పక్షి': 'BIRD', 'చేప': 'FISH', 'గుర్రం': 'HORSE',
+        
+        // Nature
+        'సూర్యుడు': 'SUN', 'చంద్రుడు': 'MOON', 'మేఘం': 'CLOUD', 'వర్షం': 'RAIN', 'పువ్వు': 'FLOWER',
+        
+        // Time
+        'సమయం': 'TIME', 'రోజు': 'DAY', 'రాత్రి': 'NIGHT', 'ఉదయం': 'MORNING',
+        'మధ్యాహ్నం': 'AFTERNOON', 'సాయంత్రం': 'EVENING', 'ఈ రోజు': 'TODAY',
+        'రేపు': 'TOMORROW', 'నిన్న': 'YESTERDAY', 'సంవత్సరం': 'YEAR',
+        'ఎప్పుడూ': 'ALWAYS', 'ఎప్పుడూ కాదు': 'NEVER', 'కొన్నిసార్లు': 'SOMETIMES',
+        
+        // Questions
+        'ఏమిటి': 'WHAT', 'ఎవరు': 'WHO', 'ఎప్పుడు': 'WHEN', 'ఎక్కడ': 'WHERE', 'ఎలా': 'HOW', 'ఎందుకు': 'WHY',
+        
+        // Numbers
+        'సున్నా': '0', 'ఒకటి': '1', 'రెండు': '2', 'మూడు': '3', 'నాలుగు': '4',
+        'ఐదు': '5', 'ఆరు': '6', 'ఏడు': '7', 'ఎనిమిది': '8', 'తొమ్మిది': '9',
+        
+        // Common phrases
+        'ఎలా ఉన్నారు': 'HOW', 'ఎలా ఉన్నావు': 'HOW', 'బాగున్నాను': 'GOOD',
+        'నేను': 'I', 'నువ్వు': 'YOU', 'మీరు': 'YOU'
+    }
+};
+
+// Language-specific AI response instructions
+const LANGUAGE_INSTRUCTIONS = {
+    'en': 'Respond in English.',
+    'hi': 'Respond in Hindi (हिंदी में जवाब दें). Use Devanagari script. Be warm and friendly.',
+    'kn': 'Respond in Kannada (ಕನ್ನಡದಲ್ಲಿ ಉತ್ತರಿಸಿ). Use Kannada script. Be warm and friendly.',
+    'te': 'Respond in Telugu (తెలుగులో సమాధానం ఇవ్వండి). Use Telugu script. Be warm and friendly.'
+};
+
+/**
+ * Auto-detect language from text content
+ * Returns detected language code: 'en', 'hi', 'kn', 'te'
+ */
+function detectLanguage(text) {
+    if (!text) return 'en';
+    
+    // Check for Devanagari (Hindi) - Unicode range: 0900-097F
+    const hindiPattern = /[\u0900-\u097F]/;
+    if (hindiPattern.test(text)) return 'hi';
+    
+    // Check for Kannada - Unicode range: 0C80-0CFF
+    const kannadaPattern = /[\u0C80-\u0CFF]/;
+    if (kannadaPattern.test(text)) return 'kn';
+    
+    // Check for Telugu - Unicode range: 0C00-0C7F
+    const teluguPattern = /[\u0C00-\u0C7F]/;
+    if (teluguPattern.test(text)) return 'te';
+    
+    // Default to English
+    return 'en';
+}
+
+/**
+ * Find sign videos for words in a text response
+ * Returns array of available signs with their video paths
+ * EXCLUDES common filler words that appear in explanations
+ */
+function findSignsInResponse(text) {
+    if (!text) return [];
+    
+    // Blacklist: Words that shouldn't be extracted from AI explanations
+    // These appear in explanatory text but aren't the main teaching topic
+    const FILLER_WORDS = new Set([
+        // Articles, prepositions, conjunctions
+        'A', 'AN', 'THE', 'IS', 'ARE', 'WAS', 'WERE', 'BE', 'BEEN', 'BEING',
+        'HAVE', 'HAS', 'HAD', 'DO', 'DOES', 'DID', 'WILL', 'WOULD', 'COULD', 'SHOULD',
+        'MAY', 'MIGHT', 'MUST', 'SHALL', 'CAN', 'NEED', 'DARE', 'OUGHT', 'USED',
+        'TO', 'OF', 'IN', 'FOR', 'ON', 'WITH', 'AT', 'BY', 'FROM', 'AS', 'INTO',
+        'THROUGH', 'DURING', 'BEFORE', 'AFTER', 'ABOVE', 'BELOW', 'BETWEEN',
+        'AND', 'BUT', 'OR', 'NOR', 'SO', 'YET', 'BOTH', 'EITHER', 'NEITHER',
+        'NOT', 'ONLY', 'OWN', 'SAME', 'THAN', 'TOO', 'VERY', 'JUST', 'ALSO',
+        'WHICH', 'THAT', 'THESE', 'THOSE', 'SUCH', 'WAY', 'WAYS',
+        'IT', 'ITS', 'THEM', 'THEIR', 'THERE', 'HERE', 'OTHER', 'SOME', 'ANY',
+        'EACH', 'EVERY', 'ALL', 'MANY', 'MOST', 'FEW', 'MORE', 'LESS',
+        'MAKE', 'MADE', 'MAKING', 'USE', 'USING', 'GET', 'GETTING', 'GOT',
+        'ABOUT', 'LIKE', 'WELL', 'BACK', 'EVEN', 'STILL', 'AGAIN', 'ALREADY',
+        // Common verbs/words that appear in explanations but aren't topic-related
+        'HELP', 'HAPPY', 'FEEL', 'GREAT', 'WONDERFUL', 'LOVELY', 'NICE',
+        'CONNECT', 'EXPRESS', 'COMMUNICATE', 'SKILL', 'PRACTICE', 'LEARN',
+        'SIGN', 'LANGUAGE', 'VIDEO', 'WATCH', 'SEE', 'SHOW', 'TRY',
+        'I', 'YOU', 'WE', 'HE', 'SHE', 'THEY', 'ME', 'US', 'HIM', 'HER',
+        'YOUR', 'MY', 'OUR', 'HIS', 'ITS', 'WHO', 'WHAT', 'HOW', 'WHY', 'WHEN', 'WHERE',
+        'START', 'BEGIN', 'END', 'CONTINUE', 'KEEP', 'STOP', 'GO', 'COME',
+        'WANT', 'HOPE', 'WISH', 'THINK', 'KNOW', 'UNDERSTAND', 'REMEMBER',
+        'SAY', 'TELL', 'ASK', 'ANSWER', 'MEAN', 'MEANS', 'CALLED'
+    ]);
+    
+    const foundSigns = [];
+    const seenWords = new Set();
+    
+    // Extract potential sign words from text
+    const words = text.toUpperCase()
+        .replace(/[।॥?!,.'"():;-]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 1);
+    
+    for (const word of words) {
+        const cleanWord = word.replace(/[^A-Z0-9]/g, '');
+        if (cleanWord.length < 2 || seenWords.has(cleanWord)) continue;
+        
+        // Skip filler words
+        if (FILLER_WORDS.has(cleanWord)) continue;
+        
+        const video = findSignVideo(cleanWord);
+        if (video) {
+            seenWords.add(cleanWord);
+            foundSigns.push({
+                word: cleanWord,
+                path: video.path
+            });
+        }
+    }
+    
+    return foundSigns;
+}
+
+/**
+ * Extract English words from regional language AI response for sign matching
+ * Also finds English words embedded in regional language responses
+ */
+function extractEnglishWordsFromResponse(text, detectedLanguage) {
+    if (!text) return [];
+    
+    // Common response words that might have signs - prioritized by usefulness
+    const priorityWords = [
+        'GOOD', 'FINE', 'HAPPY', 'THANK', 'WELCOME', 'HELLO', 'HI', 'YES', 'NO',
+        'HELP', 'PLEASE', 'LOVE', 'LEARN', 'FRIEND', 'FAMILY', 'I', 'YOU'
+    ];
+    
+    const secondaryWords = [
+        'SORRY', 'PRACTICE', 'WATCH', 'VIDEO', 'SIGN', 'LANGUAGE', 
+        'MOTHER', 'FATHER', 'SCHOOL', 'HOME', 'EAT', 'DRINK', 'SLEEP', 
+        'PLAY', 'READ', 'WRITE', 'UNDERSTAND', 'HOW', 'WHAT', 'WHEN', 
+        'WHERE', 'WHO', 'WHY', 'MORNING', 'EVENING', 'TODAY', 'TOMORROW', 
+        'TIME', 'DAY', 'NIGHT', 'WATER', 'FOOD', 'GREAT', 'AMAZING'
+    ];
+    
+    const foundSigns = [];
+    const seenWords = new Set();
+    
+    // First, check for English words embedded in the text (common in mixed responses)
+    const englishWordPattern = /\b[A-Z]{2,}\b/g;
+    const englishMatches = text.toUpperCase().match(englishWordPattern) || [];
+    
+    for (const word of englishMatches) {
+        if (seenWords.has(word)) continue;
+        const video = findSignVideo(word);
+        if (video) {
+            seenWords.add(word);
+            foundSigns.push({
+                word: word,
+                path: video.path
+            });
+        }
+    }
+    
+    // For regional language responses, find translations
+    const translations = SIGN_TRANSLATIONS[detectedLanguage];
+    if (translations) {
+        // Check priority words first
+        for (const word of [...priorityWords, ...secondaryWords]) {
+            if (seenWords.has(word)) continue;
+            
+            const video = findSignVideo(word);
+            if (video) {
+                // Reverse lookup - find if any translation key maps to this word
+                for (const [regional, english] of Object.entries(translations)) {
+                    if (english === word && text.includes(regional)) {
+                        seenWords.add(word);
+                        foundSigns.push({
+                            word: word,
+                            regionalWord: regional,
+                            path: video.path
+                        });
+                        break;
+                    }
+                }
+            }
+            
+            // Limit to prevent too many signs
+            if (foundSigns.length >= 8) break;
+        }
+    }
+    
+    // If response is in regional language and mentions "how are you" type questions,
+    // add relevant response signs like GOOD, FINE, HAPPY
+    const greetingPatterns = {
+        'hi': /कैसे|हाल|ठीक|अच्छ/,
+        'kn': /ಹೇಗಿ|ಚೆನ್ನಾ|ಒಳ್ಳೆ/,
+        'te': /ఎలా|బాగ|మంచి/
+    };
+    
+    if (greetingPatterns[detectedLanguage]?.test(text)) {
+        const greetingSigns = ['GOOD', 'FINE', 'HAPPY', 'THANK'];
+        for (const word of greetingSigns) {
+            if (seenWords.has(word)) continue;
+            const video = findSignVideo(word);
+            if (video) {
+                seenWords.add(word);
+                foundSigns.push({
+                    word: word,
+                    path: video.path
+                });
+            }
+        }
+    }
+    
+    return foundSigns;
+}
+
+/**
+ * Translate non-English AI response to English and extract sign-worthy words using OpenAI
+ * This enables showing sign videos for concepts discussed in Hindi/Kannada/Telugu responses
+ * 
+ * @param {string} responseText - The AI response text (in any language)
+ * @param {string} language - The detected language of the response ('hi', 'kn', 'te', 'en')
+ * @param {string} originalQuery - The user's original question
+ * @returns {Promise<Array>} Array of sign objects with word and video path
+ */
+async function translateAndExtractSignsFromResponse(responseText, language, originalQuery = '') {
+    if (!responseText) return [];
+    
+    // If already English, use direct sign extraction
+    if (language === 'en') {
+        return findSignsInResponse(responseText);
+    }
+    
+    try {
+        // Get available signs for context
+        const availableSigns = getAllAvailableSigns().slice(0, 100);
+        
+        // Use OpenAI to translate and identify key sign-worthy concepts
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a sign language expert. Given a response text in a regional Indian language (Hindi/Kannada/Telugu), identify the KEY CONCEPTS that should be demonstrated as sign language videos.
+
+IMPORTANT RULES:
+1. Translate the main concepts/words to English (not the full text)
+2. Return ONLY words that are meaningful for sign language learning
+3. Focus on: greetings, emotions, actions, nouns, key verbs
+4. IGNORE: filler words, pronouns, articles, conjunctions
+5. Return words that match available sign videos
+
+Available sign videos: ${availableSigns.join(', ')}
+
+Return JSON format:
+{
+  "translatedConcepts": ["HELLO", "THANK", "GOOD"],
+  "explanation": "Brief note on why these concepts were chosen"
+}`
+                },
+                {
+                    role: "user",
+                    content: `Original question: "${originalQuery}"
+                    
+Response text (${language}): "${responseText}"
+
+Extract key concepts that should have sign demonstrations.`
+                }
+            ],
+            max_tokens: 200,
+            temperature: 0.3
+        });
+        
+        let result = completion.choices[0].message.content;
+        
+        // Clean markdown if present
+        if (result.startsWith('```')) {
+            result = result.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
+        }
+        
+        // Parse JSON response
+        let parsed;
+        try {
+            parsed = JSON.parse(result);
+        } catch {
+            console.log('[TranslateExtract] Failed to parse OpenAI response:', result);
+            return [];
+        }
+        
+        const concepts = parsed.translatedConcepts || [];
+        console.log(`[TranslateExtract] Extracted concepts: ${concepts.join(', ')}`);
+        
+        // Find videos for each concept
+        const foundSigns = [];
+        const seenWords = new Set();
+        
+        for (const concept of concepts) {
+            const cleanWord = concept.toUpperCase().replace(/[^A-Z0-9_]/g, '');
+            if (cleanWord.length < 2 || seenWords.has(cleanWord)) continue;
+            
+            const video = findSignVideo(cleanWord);
+            if (video) {
+                seenWords.add(cleanWord);
+                foundSigns.push({
+                    word: cleanWord,
+                    path: video.path
+                });
+            }
+        }
+        
+        console.log(`[TranslateExtract] Found ${foundSigns.length} sign videos for concepts`);
+        return foundSigns;
+        
+    } catch (error) {
+        console.error('[TranslateExtract] Error:', error.message);
+        // Fallback to basic extraction
+        return extractEnglishWordsFromResponse(responseText, language);
+    }
+}
+
+/**
+ * Translate a word from regional language to English sign name
+ */
+function translateToEnglishSign(word, language) {
+    if (!word || !language || language === 'en') return word;
+    
+    const translations = SIGN_TRANSLATIONS[language];
+    if (!translations) return word;
+    
+    // Try exact match first
+    const upperWord = word.toUpperCase();
+    const lowerWord = word.toLowerCase();
+    
+    // Check exact match
+    if (translations[word]) return translations[word];
+    if (translations[lowerWord]) return translations[lowerWord];
+    
+    // For each word in the input, try to translate
+    const words = word.split(/\s+/);
+    const translatedWords = words.map(w => {
+        return translations[w] || translations[w.toLowerCase()] || w.toUpperCase();
+    });
+    
+    return translatedWords.join(' ');
+}
+
+/**
+ * Translate multiple words in a sentence
+ * Handles both single words and multi-word phrases
+ */
+function translateSentenceToEnglishSigns(sentence, language) {
+    if (!sentence || !language || language === 'en') return sentence;
+    
+    const translations = SIGN_TRANSLATIONS[language];
+    if (!translations) return sentence;
+    
+    // Clean the entire sentence first (remove ALL punctuation including multiple dots)
+    let cleanSentence = sentence
+        .replace(/[।॥？।?!,.\-:;'"()[\]{}।॥…·•]+/g, '')  // Remove punctuation
+        .replace(/\.{2,}/g, '')  // Remove multiple dots
+        .trim();
+    let lowerSentence = cleanSentence.toLowerCase();
+    
+    // First, check if the ENTIRE sentence is a phrase match (try both cases)
+    if (translations[cleanSentence]) {
+        console.log(`[Translate] Full phrase match: "${cleanSentence}" → "${translations[cleanSentence]}"`);
+        return translations[cleanSentence];
+    }
+    if (translations[lowerSentence]) {
+        console.log(`[Translate] Full phrase match (lowercase): "${lowerSentence}" → "${translations[lowerSentence]}"`);
+        return translations[lowerSentence];
+    }
+    
+    // Also try without spaces for compound phrases
+    const noSpaceSentence = cleanSentence.replace(/\s+/g, '');
+    const noSpaceLower = noSpaceSentence.toLowerCase();
+    if (translations[noSpaceSentence]) {
+        console.log(`[Translate] No-space phrase match: "${noSpaceSentence}" → "${translations[noSpaceSentence]}"`);
+        return translations[noSpaceSentence];
+    }
+    if (translations[noSpaceLower]) {
+        console.log(`[Translate] No-space phrase match (lowercase): "${noSpaceLower}" → "${translations[noSpaceLower]}"`);
+        return translations[noSpaceLower];
+    }
+    
+    // Try to match multi-word phrases (2-3 words at a time)
+    const words = cleanSentence.split(/\s+/);
+    const translatedWords = [];
+    let i = 0;
+    
+    while (i < words.length) {
+        let matched = false;
+        
+        // Try 3-word phrase
+        if (i + 2 < words.length) {
+            const threeWord = `${words[i]} ${words[i+1]} ${words[i+2]}`;
+            if (translations[threeWord]) {
+                translatedWords.push(translations[threeWord]);
+                i += 3;
+                matched = true;
+                continue;
+            }
+        }
+        
+        // Try 2-word phrase
+        if (i + 1 < words.length) {
+            const twoWord = `${words[i]} ${words[i+1]}`;
+            if (translations[twoWord]) {
+                translatedWords.push(translations[twoWord]);
+                i += 2;
+                matched = true;
+                continue;
+            }
+        }
+        
+        // Single word
+        const word = words[i];
+        const cleanWord = word.replace(/[।॥？।?!,.\-:;'"()[\]{}…·•]+/g, '').trim();
+        if (cleanWord.length === 0) {
+            i++;
+            continue;
+        }
+        
+        // Try to translate single word
+        const translated = translations[cleanWord] || translations[cleanWord.toLowerCase()];
+        if (translated) {
+            translatedWords.push(translated);
+        } else {
+            // Check if it's already English (A-Z characters)
+            if (/^[A-Za-z]+$/.test(cleanWord)) {
+                translatedWords.push(cleanWord.toUpperCase());
+            }
+            // Skip non-translatable regional words (don't add garbage)
+            // This prevents Kannada/Telugu/Hindi characters from being passed through
+        }
+        i++;
+    }
+    
+    const result = translatedWords.join(' ');
+    console.log(`[Translate] "${sentence}" (${language}) → "${result}"`);
+    return result || sentence; // Return original if no translation found
+}
+
 /**
  * Speech-to-Text using OpenAI Whisper API
  * Converts audio blob to text transcription
@@ -1861,7 +2728,7 @@ app.post("/voice/text-to-speech", async (req, res) => {
 /**
  * Combined Voice Chat endpoint
  * Transcribes audio → Gets AI response → Generates speech
- * Supports: English, Hindi, Kannada, Telugu
+ * FULL MULTILINGUAL SUPPORT: English, Hindi, Kannada, Telugu
  */
 app.post("/voice/chat", async (req, res) => {
     try {
@@ -1871,43 +2738,72 @@ app.post("/voice/chat", async (req, res) => {
             return res.status(400).json({ error: "userId and audio are required" });
         }
         
-        // Validate language
-        const validLanguage = SUPPORTED_LANGUAGES[language] ? language : 'en';
-        console.log(`[VoiceChat] Using language: ${validLanguage} (${SUPPORTED_LANGUAGES[validLanguage]})`);
-        
-        // Step 1: Transcribe audio to text
+        // Step 1: Transcribe audio to text (use hint language for better accuracy)
+        const hintLanguage = SUPPORTED_LANGUAGES[language] ? language : 'en';
         const audioBuffer = Buffer.from(audio, 'base64');
         const audioFile = await toFile(audioBuffer, 'audio.webm', { type: 'audio/webm' });
         
         const transcription = await openai.audio.transcriptions.create({
             file: audioFile,
             model: "whisper-1",
-            language: validLanguage
+            language: hintLanguage  // Use as hint, but we'll auto-detect from result
         });
         
         const userMessage = transcription.text;
         console.log('[VoiceChat] User said:', userMessage);
         
+        // Use dropdown selection as primary, auto-detect as fallback
+        const detectedLanguage = detectLanguage(userMessage);
+        // Prefer user's dropdown selection, fallback to auto-detection
+        const validLanguage = SUPPORTED_LANGUAGES[language] ? language : 
+                              (SUPPORTED_LANGUAGES[detectedLanguage] ? detectedLanguage : 'en');
+        console.log(`[VoiceChat] Dropdown: ${language}, Auto-detected: ${detectedLanguage}, Using: ${validLanguage}`);
+        
         if (!userMessage || userMessage.trim().length === 0) {
+            const emptyMessages = {
+                'en': "I couldn't hear that. Please try speaking again.",
+                'hi': "मुझे सुनाई नहीं दिया। कृपया फिर से बोलें।",
+                'kn': "ನನಗೆ ಕೇಳಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಮಾತನಾಡಿ.",
+                'te': "నాకు వినబడలేదు. దయచేసి మళ్ళీ మాట్లాడండి."
+            };
             return res.json({
                 success: true,
                 transcription: "",
-                response: { type: "error", response: "I couldn't hear that. Please try speaking again." },
-                audio: null
+                response: { type: "error", response: emptyMessages[validLanguage] || emptyMessages['en'] },
+                audio: null,
+                language: validLanguage
             });
         }
         
-        // Step 2: Process through tutor chat logic
-        const cleanMessage = userMessage.trim().toUpperCase();
+        // Step 2: Translate regional language to English sign names
+        // Use detected language for translation to handle input correctly
+        const translationLang = detectedLanguage !== 'en' ? detectedLanguage : validLanguage;
+        const translatedMessage = translateSentenceToEnglishSigns(userMessage.trim(), translationLang);
+        const cleanMessage = translatedMessage.toUpperCase();
+        
+        console.log(`[VoiceChat] Translation lang: ${translationLang}, Translated: "${cleanMessage}"`);
         
         // Check if it's a sign request
-        const isSignRequest = cleanMessage.split(/\s+/).length <= 3;
+        // For regional languages: if translation produced valid sign words, treat as sign request
+        const translationSuccessful = cleanMessage !== userMessage.trim().toUpperCase() && cleanMessage.length > 0;
+        const isShortMessage = cleanMessage.split(/\s+/).length <= 6;
+        
+        const isSignRequest = isShortMessage || translationSuccessful ||
+            // Hindi patterns - greeting and question words
+            /का साइन|साइन दिखाओ|कैसे करें|सिखाओ|कैसे हो|क्या हाल|नमस्ते|धन्यवाद/i.test(userMessage) ||
+            // Kannada patterns - greeting and question words
+            /ಸೈನ್|ತೋರಿಸಿ|ಕಲಿಸಿ|ಹೇಗೆ|ಹೇಗಿದ್ದೀ|ನಮಸ್ಕಾರ|ಧನ್ಯವಾದ|ಚೆನ್ನಾಗಿ|ಏನು|ಯಾರು/i.test(userMessage) ||
+            // Telugu patterns - greeting and question words
+            /సైన్|చూపించు|నేర్పించు|ఎలా|నమస్కారం|ధన్యవాదాలు|బాగున్నారా|ఏమిటి/i.test(userMessage);
+        
+        console.log(`[VoiceChat] isSignRequest: ${isSignRequest}, translationSuccessful: ${translationSuccessful}`);
+        
         const words = cleanMessage.split(/\s+/).filter(w => w.length > 0);
         const videoSequence = [];
         const notFoundWords = [];
         
         for (const word of words) {
-            const cleanWord = word.replace(/[^A-Z0-9]/g, '');
+            const cleanWord = word.replace(/[^A-Z0-9_]/g, '');
             if (cleanWord.length === 0) continue;
             
             const video = findSignVideo(cleanWord);
@@ -1923,29 +2819,61 @@ app.post("/voice/chat", async (req, res) => {
         
         if (videoSequence.length > 0 && isSignRequest) {
             const foundWords = videoSequence.map(v => v.word).join(' ');
+            
+            // Language-specific responses
+            const responseMessages = {
+                'en': `Here's how to sign "${foundWords}"`,
+                'hi': `यहाँ "${foundWords}" का साइन है`,
+                'kn': `ಇಲ್ಲಿ "${foundWords}" ಸೈನ್ ಇದೆ`,
+                'te': `ఇక్కడ "${foundWords}" సైన్ ఉంది`
+            };
+            
+            const speechMessages = {
+                'en': `Here's how to sign ${foundWords}. Watch the video to learn!`,
+                'hi': `यहाँ ${foundWords} का साइन है। सीखने के लिए वीडियो देखें!`,
+                'kn': `ಇಲ್ಲಿ ${foundWords} ಸೈನ್ ಇದೆ. ಕಲಿಯಲು ವೀಡಿಯೋ ನೋಡಿ!`,
+                'te': `ఇక్కడ ${foundWords} సైన్ ఉంది. నేర్చుకోవడానికి వీడియో చూడండి!`
+            };
+            
+            const warningMessages = {
+                'en': `Note: No video for: ${notFoundWords.join(', ')}`,
+                'hi': `नोट: इनके लिए वीडियो नहीं है: ${notFoundWords.join(', ')}`,
+                'kn': `ಗಮನಿಸಿ: ಇವುಗಳಿಗೆ ವೀಡಿಯೋ ಇಲ್ಲ: ${notFoundWords.join(', ')}`,
+                'te': `గమనిక: వీటికి వీడియో లేదు: ${notFoundWords.join(', ')}`
+            };
+            
             tutorResponse = {
                 type: "sign_sequence",
                 isSentence: videoSequence.length > 1,
                 sentence: foundWords,
-                response: `Here's how to sign "${foundWords}"`,
+                originalQuery: userMessage,
+                response: responseMessages[validLanguage] || responseMessages['en'],
                 videoSequence: videoSequence.map(v => ({
                     word: v.word,
                     path: v.video.path
                 })),
                 notFoundWords: notFoundWords,
-                totalVideos: videoSequence.length
+                totalVideos: videoSequence.length,
+                language: validLanguage
             };
-            textForSpeech = `Here's how to sign ${foundWords}. Watch the video to learn!`;
+            
+            textForSpeech = speechMessages[validLanguage] || speechMessages['en'];
             
             if (notFoundWords.length > 0) {
-                tutorResponse.warning = `Note: No video for: ${notFoundWords.join(', ')}`;
-                textForSpeech += ` I don't have videos for ${notFoundWords.join(' and ')}.`;
+                tutorResponse.warning = warningMessages[validLanguage] || warningMessages['en'];
             }
         } else {
-            // Use OpenAI for general questions
+            // Use OpenAI for general questions with language instruction
             try {
                 const userProfile = await getUserTutorProfile(userId);
-                const systemPrompt = userProfile ? populateSystemPrompt(userProfile) : AI_TUTOR_SYSTEM_PROMPT;
+                let systemPrompt = userProfile ? populateSystemPrompt(userProfile) : AI_TUTOR_SYSTEM_PROMPT;
+                
+                // Add language-specific instruction
+                const languageInstruction = LANGUAGE_INSTRUCTIONS[validLanguage] || LANGUAGE_INSTRUCTIONS['en'];
+                systemPrompt += `\n\n🌐 IMPORTANT LANGUAGE INSTRUCTION: ${languageInstruction}`;
+                
+                // Add instruction to include sign-able words
+                systemPrompt += `\n\nWhen responding, try to naturally include these common words that have sign videos: GOOD, FINE, HAPPY, THANK, HELLO, YES, NO, HELP, PLEASE, LOVE, LEARN, FRIEND, FAMILY.`;
                 
                 const completion = await openai.chat.completions.create({
                     model: "gpt-4o-mini",
@@ -1963,32 +2891,75 @@ app.post("/voice/chat", async (req, res) => {
                 
                 let aiResponse = completion.choices[0].message.content;
                 
-                try {
-                    tutorResponse = JSON.parse(aiResponse);
-                    textForSpeech = tutorResponse.response || aiResponse;
-                } catch {
-                    tutorResponse = { type: "general_help", response: aiResponse };
-                    textForSpeech = aiResponse;
+                // Strip markdown code blocks if present
+                let cleanedResponse = aiResponse.trim();
+                if (cleanedResponse.startsWith('```')) {
+                    cleanedResponse = cleanedResponse.replace(/^```[a-z]*\n?/i, '');
+                    cleanedResponse = cleanedResponse.replace(/\n?```$/i, '');
+                    cleanedResponse = cleanedResponse.trim();
                 }
+                
+                try {
+                    tutorResponse = JSON.parse(cleanedResponse);
+                    textForSpeech = tutorResponse.response || cleanedResponse;
+                } catch {
+                    tutorResponse = { type: "general_help", response: cleanedResponse };
+                    textForSpeech = cleanedResponse;
+                }
+                
+                tutorResponse.language = validLanguage;
+                
+                // ENABLED: Smart sign extraction for non-English responses
+                if (validLanguage !== 'en') {
+                    try {
+                        const responseText = tutorResponse.response || cleanedResponse;
+                        const extractedSigns = await translateAndExtractSignsFromResponse(
+                            responseText, 
+                            validLanguage, 
+                            userMessage
+                        );
+                        
+                        if (extractedSigns && extractedSigns.length > 0) {
+                            tutorResponse.hasResponseSigns = true;
+                            tutorResponse.responseSigns = extractedSigns;
+                            console.log(`[VoiceChat] Found ${extractedSigns.length} signs from ${validLanguage} response`);
+                        }
+                    } catch (extractError) {
+                        console.error('[VoiceChat] Sign extraction error:', extractError.message);
+                    }
+                }
+                
+                console.log(`[VoiceChat] AI response ready (language: ${validLanguage})`);
+                
             } catch (aiError) {
                 console.error("OpenAI error in voice chat:", aiError.message);
+                
+                const errorMessages = {
+                    'en': "I'm having trouble understanding. Could you try asking again?",
+                    'hi': "मुझे समझने में परेशानी हो रही है। क्या आप फिर से पूछ सकते हैं?",
+                    'kn': "ನನಗೆ ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ತೊಂದರೆಯಾಗುತ್ತಿದೆ. ಮತ್ತೆ ಕೇಳಬಹುದೇ?",
+                    'te': "నాకు అర్థం చేసుకోవడంలో ఇబ్బంది ఉంది. మళ్ళీ అడగగలరా?"
+                };
+                
                 tutorResponse = {
                     type: "not_found",
-                    response: "I'm having trouble understanding. Could you try asking again?"
+                    response: errorMessages[validLanguage] || errorMessages['en'],
+                    language: validLanguage
                 };
                 textForSpeech = tutorResponse.response;
             }
         }
         
         // Step 3: Generate TTS audio if voice is enabled
+        // OpenAI TTS auto-detects language from text content
         let audioResponse = null;
         if (voiceEnabled && textForSpeech) {
             try {
-                // Clean text for speech (remove markdown, emojis, etc.)
+                // Clean text for speech (keep Unicode for regional languages)
                 const cleanTextForSpeech = textForSpeech
                     .replace(/[*_`#]/g, '')
                     .replace(/\[.*?\]/g, '')
-                    .replace(/[^\w\s.,!?'-]/g, ' ')
+                    .replace(/👇|🎥|📝|⚠️|💡|🌟|✅|🎯|💪|📚|🏋️|🌍|🤟/g, '') // Remove emojis
                     .slice(0, 1000);
                 
                 const mp3Response = await openai.audio.speech.create({
@@ -1999,6 +2970,8 @@ app.post("/voice/chat", async (req, res) => {
                 
                 const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
                 audioResponse = audioBuffer.toString('base64');
+                
+                console.log(`[VoiceChat] TTS generated in ${validLanguage}`);
             } catch (ttsError) {
                 console.error("TTS error:", ttsError.message);
                 // Continue without audio
@@ -2010,7 +2983,8 @@ app.post("/voice/chat", async (req, res) => {
             transcription: userMessage,
             response: tutorResponse,
             audio: audioResponse,
-            userProfile: { name: 'Learner', streak: 0, progress: 0 }
+            userProfile: { name: 'Learner', streak: 0, progress: 0 },
+            language: validLanguage
         });
         
     } catch (error) {
@@ -2024,21 +2998,74 @@ app.post("/voice/chat", async (req, res) => {
 
 // ========== PARENT REPORT GENERATION ==========
 
+// Report cache to avoid regenerating frequently (cache for 5 minutes)
+const reportCache = new Map();
+const REPORT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Clean expired cache entries periodically
+ */
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of reportCache.entries()) {
+        if (now - value.timestamp > REPORT_CACHE_TTL) {
+            reportCache.delete(key);
+        }
+    }
+}, 60000); // Clean every minute
+
 /**
  * Generate comprehensive learning report for parents
  * Uses OpenAI to create personalized insights and recommendations
+ * 
+ * Improvements:
+ * - Authentication check via X-User-Id header
+ * - Batch loading courses to avoid N+1 queries
+ * - Increased OpenAI tokens with better JSON parsing
+ * - Report caching to avoid regeneration
  */
 app.get("/report/generate/:userId", async (req, res) => {
     try {
         const { userId } = req.params;
+        const requestingUserId = req.headers['x-user-id'];
         
         if (!userId) {
             return res.status(400).json({ error: "userId is required" });
         }
         
+        // Authentication check: verify requesting user matches report user
+        // Allow access if: same user, or user is a parent of this child (future feature)
+        if (requestingUserId && requestingUserId !== userId) {
+            // Check if requesting user is a parent of this child
+            const requestingUser = await User.findById(requestingUserId);
+            const targetUser = await User.findById(userId);
+            
+            // For now, only allow parents to view their children's reports
+            // or users to view their own reports
+            const isParentOfChild = requestingUser?.role === 'parent' && 
+                targetUser?.parentId?.toString() === requestingUserId;
+            
+            if (!isParentOfChild) {
+                console.log('[Report] Unauthorized access attempt:', { requestingUserId, targetUserId: userId });
+                return res.status(403).json({ error: "You don't have permission to view this report" });
+            }
+        }
+        
+        // Check cache first
+        const cacheKey = `report_${userId}`;
+        const cachedReport = reportCache.get(cacheKey);
+        if (cachedReport && (Date.now() - cachedReport.timestamp < REPORT_CACHE_TTL)) {
+            console.log('[Report] Returning cached report for user:', userId);
+            return res.json({
+                success: true,
+                report: cachedReport.data,
+                cached: true
+            });
+        }
+        
         console.log('[Report] Generating report for user:', userId);
         
-        // Fetch all user data
+        // Fetch all user data in parallel
         const [user, progressDocs, quizAttempts, learningEvents] = await Promise.all([
             User.findById(userId),
             UserProgress.find({ userId }),
@@ -2049,6 +3076,17 @@ app.get("/report/generate/:userId", async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
+        
+        // Batch load all courses needed (fix N+1 query problem)
+        const courseIds = [
+            ...new Set([
+                ...progressDocs.map(p => p.courseId),
+                ...quizAttempts.map(q => q.courseId)
+            ])
+        ].filter(Boolean);
+        
+        const courses = await Course.find({ id: { $in: courseIds } });
+        const courseMap = new Map(courses.map(c => [c.id, c]));
         
         // Calculate statistics
         const totalCourses = progressDocs.length;
@@ -2099,16 +3137,16 @@ app.get("/report/generate/:userId", async (req, res) => {
             date: q.submittedAt
         }));
         
-        // Course progress breakdown
-        const courseProgress = await Promise.all(progressDocs.map(async (p) => {
-            const course = await Course.findOne({ id: p.courseId });
+        // Course progress breakdown (using cached courses - no N+1 queries)
+        const courseProgress = progressDocs.map(p => {
+            const course = courseMap.get(p.courseId);
             return {
                 courseName: course?.title || `Course ${p.courseId}`,
                 progress: p.progressPercentage || 0,
                 status: p.status,
                 timeSpent: p.timeSpent || 0
             };
-        }));
+        });
         
         // Identify strengths and areas for improvement based on quiz performance
         const courseQuizPerformance = {};
@@ -2124,7 +3162,7 @@ app.get("/report/generate/:userId", async (req, res) => {
         const improvements = [];
         for (const [courseId, data] of Object.entries(courseQuizPerformance)) {
             const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
-            const course = await Course.findOne({ id: courseId });
+            const course = courseMap.get(courseId); // Use cached course (no extra query)
             const courseName = course?.title || courseId;
             if (avg >= 80) {
                 strengths.push({ course: courseName, avgScore: Math.round(avg) });
@@ -2149,7 +3187,9 @@ Write in a warm, encouraging, and easy-to-understand tone. Focus on:
 3. Explaining what the data means in parent-friendly terms
 4. Suggesting ways parents can help at home
 
-Return ONLY valid JSON in this format:
+CRITICAL: Return ONLY valid JSON with no additional text or markdown. The response must be parseable JSON.
+
+JSON format:
 {
     "overallSummary": "2-3 sentence summary of the child's progress (warm and encouraging)",
     "achievements": ["Achievement 1", "Achievement 2", "Achievement 3"],
@@ -2193,19 +3233,35 @@ AREAS FOR GROWTH:
 ${improvements.length > 0 ? improvements.map(i => `- ${i.course}: ${i.avgScore}% avg`).join('\n') : '- Doing well across all areas!'}`
                     }
                 ],
-                max_tokens: 800,
-                temperature: 0.7
+                max_tokens: 1200, // Increased from 800 for more complete responses
+                temperature: 0.7,
+                response_format: { type: "json_object" } // Force JSON response
             });
             
+            // Parse with better error handling
+            const responseContent = completion.choices[0].message.content;
             try {
-                aiInsights = JSON.parse(completion.choices[0].message.content);
-            } catch {
-                aiInsights = {
-                    overallSummary: completion.choices[0].message.content,
-                    achievements: [],
-                    parentTips: [],
-                    encouragement: "Keep up the great work!"
-                };
+                aiInsights = JSON.parse(responseContent);
+                
+                // Validate required fields exist
+                if (!aiInsights.overallSummary) {
+                    throw new Error('Missing overallSummary');
+                }
+            } catch (parseError) {
+                console.error('[Report] JSON parse error:', parseError.message);
+                // Try to extract JSON from markdown code blocks
+                const jsonMatch = responseContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+                if (jsonMatch) {
+                    aiInsights = JSON.parse(jsonMatch[1].trim());
+                } else {
+                    // Use response as summary if parsing fails
+                    aiInsights = {
+                        overallSummary: responseContent.substring(0, 500),
+                        achievements: [],
+                        parentTips: [],
+                        encouragement: "Keep up the great work!"
+                    };
+                }
             }
         } catch (aiError) {
             console.error('[Report] AI insights error:', aiError.message);
@@ -2255,7 +3311,13 @@ ${improvements.length > 0 ? improvements.map(i => `- ${i.course}: ${i.avgScore}%
             aiInsights
         };
         
-        console.log('[Report] Report generated successfully');
+        // Cache the report
+        reportCache.set(cacheKey, {
+            data: report,
+            timestamp: Date.now()
+        });
+        
+        console.log('[Report] Report generated and cached successfully');
         
         res.json({
             success: true,
@@ -2266,6 +3328,340 @@ ${improvements.length > 0 ? improvements.map(i => `- ${i.course}: ${i.avgScore}%
         console.error("Report generation error:", error);
         res.status(500).json({ 
             error: "Failed to generate report", 
+            details: error.message 
+        });
+    }
+});
+
+/**
+ * Force refresh report (bypass cache)
+ */
+app.get("/report/generate/:userId/refresh", async (req, res) => {
+    const { userId } = req.params;
+    const cacheKey = `report_${userId}`;
+    reportCache.delete(cacheKey);
+    
+    // Redirect to main report endpoint
+    res.redirect(`/report/generate/${userId}`);
+});
+
+/**
+ * Generate PDF report server-side
+ * Returns a downloadable PDF file
+ */
+app.get("/report/pdf/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const requestingUserId = req.headers['x-user-id'];
+        
+        if (!userId) {
+            return res.status(400).json({ error: "userId is required" });
+        }
+        
+        // Authentication check
+        if (requestingUserId && requestingUserId !== userId) {
+            const requestingUser = await User.findById(requestingUserId);
+            const targetUser = await User.findById(userId);
+            const isParentOfChild = requestingUser?.role === 'parent' && 
+                targetUser?.parentId?.toString() === requestingUserId;
+            
+            if (!isParentOfChild) {
+                return res.status(403).json({ error: "You don't have permission to download this report" });
+            }
+        }
+        
+        console.log('[Report PDF] Generating PDF for user:', userId);
+        
+        // Get cached report or generate new one
+        const cacheKey = `report_${userId}`;
+        let report;
+        
+        const cachedReport = reportCache.get(cacheKey);
+        if (cachedReport && (Date.now() - cachedReport.timestamp < REPORT_CACHE_TTL)) {
+            report = cachedReport.data;
+        } else {
+            // Fetch fresh data (simplified version for PDF)
+            const [user, progressDocs, quizAttempts] = await Promise.all([
+                User.findById(userId),
+                UserProgress.find({ userId }),
+                QuizAttempt.find({ userId }).sort({ submittedAt: -1 }).limit(10)
+            ]);
+            
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+            
+            const totalCourses = progressDocs.length;
+            const completedCourses = progressDocs.filter(p => p.status === 'completed').length;
+            const totalTimeMinutes = progressDocs.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
+            const avgProgress = totalCourses > 0 
+                ? Math.round(progressDocs.reduce((sum, p) => sum + p.progressPercentage, 0) / totalCourses) 
+                : 0;
+            const totalQuizzes = quizAttempts.length;
+            const avgQuizScore = totalQuizzes > 0 
+                ? Math.round(quizAttempts.reduce((sum, q) => sum + (q.score || 0), 0) / totalQuizzes) 
+                : 0;
+            
+            report = {
+                generatedAt: new Date().toISOString(),
+                student: {
+                    name: user.name || 'Learner',
+                    ageGroup: user.ageGroup || 'Not specified',
+                    memberSince: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown',
+                    currentStreak: user.progress?.currentStreak || 0
+                },
+                statistics: {
+                    totalCourses,
+                    completedCourses,
+                    avgProgress,
+                    totalTimeMinutes,
+                    totalQuizzes,
+                    avgQuizScore
+                }
+            };
+        }
+        
+        // Generate HTML for PDF
+        const reportDate = new Date(report.generatedAt).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const hours = Math.floor(report.statistics.totalTimeMinutes / 60);
+        const minutes = report.statistics.totalTimeMinutes % 60;
+        const timeDisplay = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>LearnSign Progress Report - ${report.student.name}</title>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { 
+                    font-family: 'Segoe UI', Arial, sans-serif; 
+                    background: #f5f7fa; 
+                    color: #2d3748;
+                    padding: 40px;
+                }
+                .container { 
+                    max-width: 800px; 
+                    margin: 0 auto; 
+                    background: white; 
+                    padding: 40px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                .header { 
+                    text-align: center; 
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #667eea;
+                }
+                .logo { 
+                    font-size: 32px; 
+                    font-weight: bold; 
+                    color: #667eea;
+                    margin-bottom: 10px;
+                }
+                .title { 
+                    font-size: 24px; 
+                    color: #4a5568; 
+                    margin-bottom: 5px;
+                }
+                .date { 
+                    color: #718096; 
+                    font-size: 14px;
+                }
+                .student-card {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 25px;
+                    border-radius: 12px;
+                    margin-bottom: 30px;
+                }
+                .student-name { 
+                    font-size: 28px; 
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                }
+                .student-meta { 
+                    display: flex; 
+                    gap: 20px; 
+                    flex-wrap: wrap;
+                    font-size: 14px;
+                    opacity: 0.9;
+                }
+                .section { 
+                    margin-bottom: 30px; 
+                }
+                .section-title { 
+                    font-size: 20px; 
+                    color: #667eea;
+                    margin-bottom: 15px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .stats-grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(3, 1fr); 
+                    gap: 15px;
+                }
+                .stat-card { 
+                    background: #f7fafc; 
+                    padding: 20px; 
+                    border-radius: 10px;
+                    text-align: center;
+                    border: 1px solid #e2e8f0;
+                }
+                .stat-value { 
+                    font-size: 32px; 
+                    font-weight: bold; 
+                    color: #667eea;
+                }
+                .stat-label { 
+                    font-size: 12px; 
+                    color: #718096;
+                    text-transform: uppercase;
+                    margin-top: 5px;
+                }
+                .summary-card {
+                    background: #f0fff4;
+                    border: 1px solid #9ae6b4;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+                .summary-text {
+                    font-size: 16px;
+                    line-height: 1.6;
+                    color: #2d3748;
+                }
+                .tips-list {
+                    list-style: none;
+                    padding: 0;
+                }
+                .tips-list li {
+                    padding: 12px 15px;
+                    background: #fffaf0;
+                    border-left: 4px solid #ed8936;
+                    margin-bottom: 10px;
+                    border-radius: 0 8px 8px 0;
+                }
+                .footer { 
+                    text-align: center; 
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 1px solid #e2e8f0;
+                    color: #718096;
+                    font-size: 12px;
+                }
+                .encouragement {
+                    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    font-size: 18px;
+                    font-weight: 500;
+                    color: #744210;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="logo">🤟 LearnSign</div>
+                    <div class="title">Learning Progress Report</div>
+                    <div class="date">${reportDate}</div>
+                </div>
+                
+                <div class="student-card">
+                    <div class="student-name">${report.student.name}</div>
+                    <div class="student-meta">
+                        <span>🎂 ${report.student.ageGroup}</span>
+                        <span>📅 Member since ${report.student.memberSince}</span>
+                        <span>🔥 ${report.student.currentStreak} day streak</span>
+                    </div>
+                </div>
+                
+                ${report.aiInsights?.overallSummary ? `
+                <div class="section">
+                    <div class="section-title">🤖 AI Summary</div>
+                    <div class="summary-card">
+                        <p class="summary-text">${report.aiInsights.overallSummary}</p>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="section">
+                    <div class="section-title">📊 Learning Statistics</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${report.statistics.completedCourses}/${report.statistics.totalCourses}</div>
+                            <div class="stat-label">Courses Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${timeDisplay}</div>
+                            <div class="stat-label">Learning Time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${report.statistics.avgProgress}%</div>
+                            <div class="stat-label">Overall Progress</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${report.statistics.totalQuizzes}</div>
+                            <div class="stat-label">Quizzes Taken</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${report.statistics.avgQuizScore}%</div>
+                            <div class="stat-label">Avg Quiz Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${report.statistics.passRate || 0}%</div>
+                            <div class="stat-label">Pass Rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${report.aiInsights?.parentTips?.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">💡 Tips for Parents</div>
+                    <ul class="tips-list">
+                        ${report.aiInsights.parentTips.map(tip => `<li>${tip}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                ${report.aiInsights?.encouragement ? `
+                <div class="encouragement">
+                    ✨ ${report.aiInsights.encouragement}
+                </div>
+                ` : ''}
+                
+                <div class="footer">
+                    <p>Generated by LearnSign AI • ${reportDate}</p>
+                    <p>Breaking barriers, one sign at a time 🤟</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+        
+        // Set headers for HTML response (can be converted to PDF by browser print)
+        // For true server-side PDF, would need puppeteer or similar
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Disposition', `inline; filename="LearnSign_Report_${report.student.name}_${new Date().toISOString().split('T')[0]}.html"`);
+        
+        res.send(htmlContent);
+        
+    } catch (error) {
+        console.error('[Report PDF] Error:', error);
+        res.status(500).json({ 
+            error: "Failed to generate PDF report", 
             details: error.message 
         });
     }

@@ -650,14 +650,67 @@ app.post("/api/voice/chat", async (req, res) => {
 app.get("/api/report/generate/:userId", async (req, res) => {
     try {
         const { userId } = req.params;
+        const requestingUserId = req.headers['x-user-id'];
+        
         const response = await axios.get(`${API_URL}/report/generate/${userId}`, {
-            timeout: 60000 // 60 second timeout for AI report generation
+            timeout: 60000, // 60 second timeout for AI report generation
+            headers: {
+                'X-User-Id': requestingUserId || userId
+            }
         });
         res.json(response.data);
     } catch (error) {
         console.error("Report generation error:", error.message);
         res.status(error.response?.status || 500).json({
             error: error.response?.data?.error || "Failed to generate report",
+            details: error.message
+        });
+    }
+});
+
+// Force refresh report (bypass cache)
+app.get("/api/report/generate/:userId/refresh", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const requestingUserId = req.headers['x-user-id'];
+        
+        const response = await axios.get(`${API_URL}/report/generate/${userId}/refresh`, {
+            timeout: 60000,
+            headers: {
+                'X-User-Id': requestingUserId || userId
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error("Report refresh error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to refresh report",
+            details: error.message
+        });
+    }
+});
+
+// Generate PDF report (server-side)
+app.get("/api/report/pdf/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const requestingUserId = req.headers['x-user-id'];
+        
+        const response = await axios.get(`${API_URL}/report/pdf/${userId}`, {
+            timeout: 30000,
+            headers: {
+                'X-User-Id': requestingUserId || userId
+            },
+            responseType: 'text' // Get HTML response
+        });
+        
+        // Forward the HTML content
+        res.setHeader('Content-Type', 'text/html');
+        res.send(response.data);
+    } catch (error) {
+        console.error("Report PDF error:", error.message);
+        res.status(error.response?.status || 500).json({
+            error: error.response?.data?.error || "Failed to generate PDF report",
             details: error.message
         });
     }

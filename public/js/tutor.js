@@ -63,7 +63,47 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthentication();
     setupEventListeners();
     autoResizeTextarea();
+    preloadBrowserVoices();
 });
+
+/**
+ * Preload browser TTS voices for Indian languages
+ * Voices are loaded asynchronously, so we need to trigger loading early
+ */
+function preloadBrowserVoices() {
+    if (!('speechSynthesis' in window)) {
+        console.log('[Voice] Browser does not support Web Speech API');
+        return;
+    }
+    
+    // Trigger voice loading
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Chrome loads voices asynchronously, listen for the event
+    if (voices.length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            const loadedVoices = window.speechSynthesis.getVoices();
+            const indianVoices = loadedVoices.filter(v => 
+                v.lang.includes('-IN') || 
+                v.lang.startsWith('hi') || 
+                v.lang.startsWith('kn') || 
+                v.lang.startsWith('te')
+            );
+            console.log(`[Voice] Loaded ${loadedVoices.length} voices, ${indianVoices.length} Indian voices available`);
+            if (indianVoices.length > 0) {
+                console.log('[Voice] Indian voices:', indianVoices.map(v => `${v.name} (${v.lang})`).join(', '));
+            }
+        };
+    } else {
+        const indianVoices = voices.filter(v => 
+            v.lang.includes('-IN') || 
+            v.lang.startsWith('hi') || 
+            v.lang.startsWith('kn') || 
+            v.lang.startsWith('te')
+        );
+        console.log(`[Voice] ${voices.length} voices loaded, ${indianVoices.length} Indian voices available`);
+    }
+}
 
 /**
  * Initialize DOM element references
@@ -210,7 +250,7 @@ function setupVoiceEventListeners() {
         elements.speakerToggle.addEventListener('click', toggleVoiceOutput);
     }
     
-    // Language selector
+    // Language selector - now updates placeholder and hints
     if (elements.languageSelect) {
         elements.languageSelect.addEventListener('change', (e) => {
             VoiceState.selectedLanguage = e.target.value;
@@ -218,7 +258,38 @@ function setupVoiceEventListeners() {
             showVoiceStatus(`🌐 Language: ${lang.native} (${lang.name})`, 'info');
             setTimeout(hideVoiceStatus, 2000);
             console.log('[Voice] Language changed to:', e.target.value, lang.name);
+            
+            // Update placeholder text based on language
+            updatePlaceholderForLanguage(e.target.value);
         });
+    }
+}
+
+/**
+ * Update input placeholder based on selected language
+ */
+function updatePlaceholderForLanguage(language) {
+    const placeholders = {
+        'en': 'Type or speak any word... hello, mother, love, happy...',
+        'hi': 'कोई भी शब्द टाइप करें... नमस्ते, माँ, प्यार, खुश...',
+        'kn': 'ಯಾವುದೇ ಪದವನ್ನು ಟೈಪ್ ಮಾಡಿ... ನಮಸ್ಕಾರ, ಅಮ್ಮ, ಪ್ರೀತಿ, ಸಂತೋಷ...',
+        'te': 'ఏదైనా పదం టైప్ చేయండి... నమస్కారం, అమ్మ, ప్రేమ, సంతోషం...'
+    };
+    
+    const hints = {
+        'en': '354 signs available • Type or click mic to speak',
+        'hi': '354 साइन उपलब्ध • टाइप करें या माइक पर क्लिक करें',
+        'kn': '354 ಸೈನ್‌ಗಳು ಲಭ್ಯವಿದೆ • ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಕ್ ಕ್ಲಿಕ್ ಮಾಡಿ',
+        'te': '354 సైన్‌లు అందుబాటులో ఉన్నాయి • టైప్ చేయండి లేదా మైక్ క్లిక్ చేయండి'
+    };
+    
+    if (elements.chatInput) {
+        elements.chatInput.placeholder = placeholders[language] || placeholders['en'];
+    }
+    
+    const hintText = document.querySelector('.hint-text');
+    if (hintText) {
+        hintText.textContent = hints[language] || hints['en'];
     }
 }
 
@@ -259,6 +330,7 @@ function updateSendButton() {
 
 /**
  * Handle sending a message
+ * Now with full multilingual support - passes selected language to API
  */
 async function handleSendMessage() {
     const message = elements.chatInput.value.trim();
@@ -289,10 +361,14 @@ async function handleSendMessage() {
     // Show typing indicator
     showTypingIndicator();
     
-    // Send to API
+    // Send to API with selected language
     try {
         TutorState.isLoading = true;
         updateSendButton();
+        
+        // Get currently selected language from dropdown
+        const selectedLanguage = VoiceState.selectedLanguage || 'en';
+        console.log('[Chat] Sending with language:', selectedLanguage);
         
         const response = await fetch('/api/tutor/chat', {
             method: 'POST',
@@ -302,7 +378,8 @@ async function handleSendMessage() {
             body: JSON.stringify({
                 userId: TutorState.userId,
                 message: message,
-                conversationHistory: TutorState.conversationHistory.slice(-10)
+                conversationHistory: TutorState.conversationHistory.slice(-10),
+                language: selectedLanguage  // Pass selected language to API
             })
         });
         
@@ -469,6 +546,16 @@ function formatTutorResponse(response) {
         case 'support':
             html += formatSupport(response);
             break;
+    }
+    
+    // For any response type (except sign_sequence which already has videos),
+    // add response signs if available
+    if (response.type !== 'sign_sequence' && response.type !== 'sign_instruction' && 
+        response.hasResponseSigns && response.responseSigns && response.responseSigns.length > 0) {
+        // Only add if not already added by formatGeneralHelp
+        if (response.type !== 'general_help') {
+            html += formatResponseSigns(response.responseSigns);
+        }
     }
     
     return html;
@@ -957,6 +1044,11 @@ window.jumpToVideo = function(sequenceId, index) {
 function formatGeneralHelp(response) {
     let html = '';
     
+    // RESPONSE SIGNS - Show video signs that appear in the AI response
+    if (response.hasResponseSigns && response.responseSigns && response.responseSigns.length > 0) {
+        html += formatResponseSigns(response.responseSigns);
+    }
+    
     // Key points
     if (response.keyPoints && response.keyPoints.length > 0) {
         html += `
@@ -1006,6 +1098,77 @@ function formatGeneralHelp(response) {
     if (response.encouragement) {
         html += `<p><em>💪 ${escapeHtml(response.encouragement)}</em></p>`;
     }
+    
+    return html;
+}
+
+/**
+ * Format response signs as a video sequence
+ * Shows signs that appear in the AI's response text
+ */
+function formatResponseSigns(responseSigns) {
+    if (!responseSigns || responseSigns.length === 0) return '';
+    
+    const sequenceId = Date.now();
+    
+    // Store sequence data for initialization
+    window.pendingSequences = window.pendingSequences || [];
+    window.pendingSequences.push({
+        sequenceId: sequenceId,
+        videos: responseSigns.map(s => ({ word: s.word, path: s.path }))
+    });
+    
+    // Get language-specific label
+    const labels = {
+        'en': 'Signs in this response',
+        'hi': 'इस जवाब में साइन',
+        'kn': 'ಈ ಉತ್ತರದಲ್ಲಿ ಸೈನ್',
+        'te': 'ఈ సమాధానంలో సైన్'
+    };
+    const currentLang = VoiceState.selectedLanguage || 'en';
+    const label = labels[currentLang] || labels['en'];
+    
+    let html = `
+        <div class="response-signs-section" style="margin: 1.5rem 0; padding: 1rem; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; border: 1px solid #0ea5e9;">
+            <div class="response-signs-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <span style="font-size: 1.5rem;">🤟</span>
+                <span style="font-weight: 600; color: #0369a1;">${label}:</span>
+            </div>
+            
+            <div class="sentence-display" id="sentence-display-${sequenceId}" style="margin-bottom: 1rem;">
+                ${responseSigns.map((item, index) => 
+                    `<span class="word-indicator ${index === 0 ? 'playing' : ''}" data-index="${index}" onclick="jumpToVideo(${sequenceId}, ${index})" style="cursor: pointer; padding: 0.25rem 0.75rem; margin: 0.25rem; border-radius: 20px; background: ${index === 0 ? '#0ea5e9' : '#e2e8f0'}; color: ${index === 0 ? 'white' : '#334155'}; font-weight: 500; transition: all 0.3s;">${escapeHtml(item.word)}</span>`
+                ).join('<span style="color: #94a3b8;">→</span>')}
+            </div>
+            
+            <div class="sign-video-container" id="video-container-${sequenceId}" data-sequence-id="${sequenceId}">
+                <div class="video-header">
+                    <span class="video-icon">🎥</span>
+                    <span class="video-title" id="video-title-${sequenceId}">Playing: ${escapeHtml(responseSigns[0].word)}</span>
+                    <span class="video-counter" id="video-counter-${sequenceId}">1/${responseSigns.length}</span>
+                </div>
+                <div class="video-wrapper">
+                    <video 
+                        class="sign-video" 
+                        id="sequence-video-${sequenceId}"
+                        autoplay 
+                        muted
+                        playsinline
+                        src="${escapeHtml(responseSigns[0].path)}"
+                        style="max-height: 200px;"
+                    ></video>
+                </div>
+                <div class="video-progress-bar">
+                    <div class="video-progress-fill" id="progress-${sequenceId}" style="width: ${100 / responseSigns.length}%"></div>
+                </div>
+                <div class="video-controls">
+                    <button class="video-control-btn" onclick="restartSequence(${sequenceId})">🔄 Restart</button>
+                    <button class="video-control-btn" onclick="togglePause(${sequenceId})">⏸️ Pause</button>
+                    <button class="video-control-btn" onclick="toggleSlowMotion(this)">🐢 Slow</button>
+                </div>
+            </div>
+        </div>
+    `;
     
     return html;
 }
@@ -1511,9 +1674,17 @@ async function processVoiceRecording() {
                     });
                 }
                 
-                // Play TTS audio if available and voice is enabled
-                if (data.audio && VoiceState.voiceEnabled) {
-                    playTTSAudio(data.audio);
+                // Play TTS audio if voice is enabled
+                if (VoiceState.voiceEnabled && data.response?.response) {
+                    const responseLang = data.language || VoiceState.selectedLanguage || 'en';
+                    
+                    // Use Browser TTS for Indian languages (better pronunciation)
+                    if (['hi', 'kn', 'te'].includes(responseLang)) {
+                        speakWithBrowserTTS(data.response.response, responseLang);
+                    } else if (data.audio) {
+                        // Use OpenAI TTS audio for English
+                        playTTSAudio(data.audio);
+                    }
                 }
                 
             } catch (error) {
@@ -1692,19 +1863,38 @@ function hideVoiceStatus() {
 
 /**
  * Request TTS for existing text response (for text chat)
+ * Uses Browser Web Speech API for Indian languages (Hindi, Kannada, Telugu)
+ * Uses OpenAI TTS for English (better quality)
  */
 async function speakResponse(text) {
     if (!VoiceState.voiceEnabled || !text) return;
     
     try {
+        // Clean text for speech (remove emojis that TTS can't handle well)
+        const cleanText = text
+            .replace(/👇|🎥|📝|⚠️|💡|🌟|✅|🎯|💪|📚|🏋️|🌍|🤟|👋|😊/g, '')
+            .trim();
+        
+        if (!cleanText) return;
+        
+        const currentLang = VoiceState.selectedLanguage || 'en';
+        
+        // Use Browser Web Speech API for Indian languages (better support)
+        if (['hi', 'kn', 'te'].includes(currentLang)) {
+            speakWithBrowserTTS(cleanText, currentLang);
+            return;
+        }
+        
+        // Use OpenAI TTS for English (better quality)
         const response = await fetch('/api/voice/text-to-speech', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                text: text,
-                voice: 'nova'
+                text: cleanText,
+                voice: 'nova',
+                language: currentLang
             })
         });
         
@@ -1717,5 +1907,77 @@ async function speakResponse(text) {
     } catch (error) {
         console.error('[Voice] TTS request error:', error);
     }
+}
+
+/**
+ * Speak text using Browser's Web Speech API
+ * Better support for Indian languages (Hindi, Kannada, Telugu)
+ */
+function speakWithBrowserTTS(text, language) {
+    if (!('speechSynthesis' in window)) {
+        console.warn('[Voice] Browser does not support Web Speech API');
+        return;
+    }
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Map language codes to BCP 47 locale codes
+    const langMap = {
+        'hi': 'hi-IN',  // Hindi (India)
+        'kn': 'kn-IN',  // Kannada (India)
+        'te': 'te-IN'   // Telugu (India)
+    };
+    
+    utterance.lang = langMap[language] || 'en-US';
+    utterance.rate = 0.9;  // Slightly slower for clarity
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    // Try to find a voice for the specific language
+    const voices = window.speechSynthesis.getVoices();
+    const targetLang = langMap[language];
+    
+    // Find best matching voice
+    let selectedVoice = voices.find(v => v.lang === targetLang);
+    if (!selectedVoice) {
+        // Try partial match (e.g., 'hi' matches 'hi-IN')
+        selectedVoice = voices.find(v => v.lang.startsWith(language));
+    }
+    if (!selectedVoice) {
+        // Try any Indian voice
+        selectedVoice = voices.find(v => v.lang.includes('-IN'));
+    }
+    
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        console.log(`[Voice] Using browser voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+    } else {
+        console.log(`[Voice] No specific voice found for ${targetLang}, using default`);
+    }
+    
+    // Update speaker button state
+    if (elements.speakerToggle) {
+        elements.speakerToggle.classList.add('playing');
+    }
+    
+    utterance.onend = () => {
+        if (elements.speakerToggle) {
+            elements.speakerToggle.classList.remove('playing');
+        }
+        console.log('[Voice] Browser TTS finished');
+    };
+    
+    utterance.onerror = (event) => {
+        if (elements.speakerToggle) {
+            elements.speakerToggle.classList.remove('playing');
+        }
+        console.error('[Voice] Browser TTS error:', event.error);
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    console.log(`[Voice] Speaking in ${targetLang} using Browser TTS`);
 }
 
