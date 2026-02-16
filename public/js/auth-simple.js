@@ -21,6 +21,7 @@ function initializeHeader() {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
+    const translatorNav = document.getElementById('translator-nav-item');
     
     console.log('Initializing header - loginBtn:', !!loginBtn, 'userDropdown:', !!userDropdown);
     
@@ -28,8 +29,9 @@ function initializeHeader() {
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (userDropdown) userDropdown.style.display = 'none';
     
-    // Hide dashboard nav by default (will be shown when user logs in)
+    // Hide dashboard and translator nav by default (will be shown when user logs in)
     if (dashboardNav) dashboardNav.style.display = 'none';
+    if (translatorNav) translatorNav.style.display = 'none';
     
     // Setup dropdown toggle functionality
     setupDropdownToggle();
@@ -237,6 +239,7 @@ function updateHeaderForLoggedInUser(user) {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
+    const translatorNav = document.getElementById('translator-nav-item');
     
     console.log('Updating header for user:', user.name);
     
@@ -244,8 +247,9 @@ function updateHeaderForLoggedInUser(user) {
     if (loginBtn) loginBtn.classList.add('hidden');
     if (userDropdown) userDropdown.style.display = 'block';
     
-    // Show dashboard nav item when logged in
+    // Show dashboard and translator nav items when logged in
     if (dashboardNav) dashboardNav.style.display = 'block';
+    if (translatorNav) translatorNav.style.display = 'block';
     
     // Update user info in dropdown
     const userName = document.getElementById('user-name');
@@ -266,13 +270,15 @@ function updateHeaderForLoggedOutUser() {
     const loginBtn = document.getElementById('login-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const dashboardNav = document.getElementById('dashboard-nav-item');
+    const translatorNav = document.getElementById('translator-nav-item');
     
     // Show sign in button and hide user dropdown
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (userDropdown) userDropdown.style.display = 'none';
     
-    // Hide dashboard nav item when logged out
+    // Hide dashboard and translator nav items when logged out
     if (dashboardNav) dashboardNav.style.display = 'none';
+    if (translatorNav) translatorNav.style.display = 'none';
 }
 
 function showMessage(message, type) {

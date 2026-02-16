@@ -36,8 +36,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="/" id="logo-link">
-                    <img src="/assets/imgs/image.png" alt="LearnSign Logo" class="logo-image" style="height: 50px; width: auto;">
-                    <span class="logo-text">LearnSign</span>
+                    <img src="/assets/imgs/learnsign-logo.png" alt="LearnSign Logo" class="logo-image">
                 </a>
             </div>
 
@@ -46,11 +45,13 @@
                     <li class="nav-item"><a href="/" class="nav-link" id="nav-home">Home</a></li>
                     <li class="nav-item"><a href="/packages" class="nav-link" id="nav-packages">Packages</a></li>
                     <li class="nav-item"><a href="/tutor" class="nav-link" id="nav-tutor">AI Tutor</a></li>
-                    <li class="nav-item"><a href="/translate" class="nav-link" id="nav-translator">Translator</a></li>
                     <li class="nav-item"><a href="/about" class="nav-link" id="nav-about">About</a></li>
                     <li class="nav-item"><a href="/community" class="nav-link" id="nav-community">Community</a></li>
                     <li class="nav-item dashboard-nav" id="dashboard-nav-item" style="display: none;">
                         <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item dashboard-nav" id="translator-nav-item" style="display: none;">
+                        <a href="/translate" class="nav-link" id="nav-translator">Translator</a>
                     </li>
                 </ul>
             </nav>
@@ -80,14 +81,6 @@
                         <a href="/dashboard" class="dropdown-item">
                             <span class="dropdown-icon">📊</span>
                             Dashboard
-                        </a>
-                        <a href="/profile" class="dropdown-item">
-                            <span class="dropdown-icon">👤</span>
-                            Profile Settings
-                        </a>
-                        <a href="/achievements" class="dropdown-item">
-                            <span class="dropdown-icon">🏆</span>
-                            Achievements
                         </a>
                         <div class="dropdown-divider"></div>
                         <button class="dropdown-item logout-btn" onclick="window.handleLogout()">

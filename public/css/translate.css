@@ -6,17 +6,20 @@
 :root {
     --primary-color: #7C6FDB;
     --primary-dark: #5A4DBF;
-    --secondary-color: #FF9F4A;
+    --primary-light: #9B8FF5;
+    --secondary-color: #B8ACFF;
+    --lavender-bg: #F8F7FF;
+    --lavender-light: #E8E5F8;
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
     --text-dark: #1f2937;
     --text-light: #6b7280;
-    --bg-light: #f9fafb;
+    --bg-light: #F8F7FF;
     --bg-white: #ffffff;
-    --border-color: #e5e7eb;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --border-color: rgba(124, 111, 219, 0.15);
+    --shadow: 0 4px 6px -1px rgba(124, 111, 219, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(124, 111, 219, 0.15);
 }
 
 /* ==========================================
@@ -155,7 +158,7 @@
    ========================================== */
 .translator-main {
     padding: 60px 0;
-    background: var(--bg-light);
+    background: linear-gradient(180deg, var(--lavender-bg) 0%, var(--lavender-light) 100%);
     min-height: calc(100vh - 300px);
 }
 
@@ -193,10 +196,11 @@
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
     border-color: var(--primary-color);
+    background: var(--lavender-bg);
 }
 
 .mode-tab.active {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: white;
     border-color: var(--primary-color);
     box-shadow: 0 10px 25px rgba(124, 111, 219, 0.3);
@@ -272,6 +276,7 @@
     padding: 30px;
     box-shadow: var(--shadow-lg);
     height: 100%;
+    border: 2px solid var(--border-color);
 }
 
 .input-card h3, .video-card h3 {
@@ -316,7 +321,7 @@
 }
 
 .example-btn {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: white;
     border: none;
     padding: 10px 16px;
@@ -330,6 +335,7 @@
 .example-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(124, 111, 219, 0.3);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
 
 .text-controls {
@@ -364,7 +370,7 @@
 }
 
 .primary-btn {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(124, 111, 219, 0.3);
 }
@@ -372,6 +378,7 @@
 .primary-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(124, 111, 219, 0.4);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
 
 .success-btn {
@@ -521,10 +528,11 @@
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    border: 2px solid var(--border-color);
 }
 
 .camera-header, .results-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: white;
     padding: 20px 25px;
     display: flex;
@@ -653,7 +661,7 @@
 
 .camera-controls {
     padding: 25px;
-    background: var(--bg-light);
+    background: var(--lavender-light);
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
@@ -723,7 +731,7 @@
 }
 
 .result-card {
-    background: var(--bg-light);
+    background: var(--lavender-light);
     border-radius: 15px;
     padding: 20px;
     display: flex;
@@ -802,7 +810,7 @@
 
 .action-buttons {
     padding: 20px 25px;
-    background: var(--bg-light);
+    background: var(--lavender-light);
     display: flex;
     gap: 10px;
 }
@@ -846,7 +854,7 @@
 }
 
 .history-item {
-    background: var(--bg-light);
+    background: var(--lavender-light);
     padding: 15px;
     border-radius: 12px;
     display: flex;
@@ -859,6 +867,7 @@
 .history-item:hover {
     transform: translateX(5px);
     box-shadow: var(--shadow);
+    background: white;
 }
 
 .history-content {
@@ -911,6 +920,7 @@
     border-radius: 20px;
     padding: 40px;
     box-shadow: var(--shadow-lg);
+    border: 2px solid var(--border-color);
 }
 
 .tips-card h2 {
@@ -928,18 +938,20 @@
 }
 
 .tip-item {
-    background: var(--bg-light);
+    background: var(--lavender-light);
     padding: 25px;
     border-radius: 15px;
     text-align: center;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .tip-item:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: white;
+    border-color: var(--primary-color);
 }
 
 .tip-icon {

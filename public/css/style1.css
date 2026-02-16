@@ -25,7 +25,7 @@
     --radius-lg: 12px;
     --font-primary: 'Poppins', sans-serif;
     --font-secondary: 'Nunito', sans-serif;
-    --header-height: 80px;
+    --header-height: 120px;
   }
   
   * {
@@ -212,6 +212,17 @@
     text-decoration: none;
   }
   
+  .logo-image {
+    height: 160px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+  
+  .logo a:hover .logo-image {
+    transform: scale(1.02);
+  }
+  
   .logo-icon {
     display: flex;
     align-items: center;
@@ -251,7 +262,7 @@
     color: var(--text-medium);
     font-weight: 600;
     transition: color 0.3s ease;
-    font-size: 1.6rem;
+    font-size: 1.85rem;
     padding: 0.8rem 0;
     position: relative;
   }
@@ -514,43 +525,48 @@
   .user-dropdown-toggle {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    background: none;
-    border: none;
+    gap: 1rem;
+    background: linear-gradient(135deg, #F8F7FF 0%, #E8E5F8 100%);
+    border: 2px solid rgba(124, 111, 219, 0.2);
     cursor: pointer;
-    padding: 0.8rem 1.2rem;
-    border-radius: 25px;
+    padding: 0.6rem 1.4rem 0.6rem 0.6rem;
+    border-radius: 50px;
     transition: all 0.3s ease;
     color: var(--text-dark);
+    box-shadow: 0 2px 8px rgba(124, 111, 219, 0.1);
   }
 
   .user-dropdown-toggle:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #E8E5F8 0%, #D8D5F0 100%);
+    border-color: rgba(124, 111, 219, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 111, 219, 0.2);
   }
 
   .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #7C6FDB 0%, #9B8FF5 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.4rem;
+    box-shadow: 0 2px 8px rgba(124, 111, 219, 0.3);
   }
 
   .user-name {
     font-size: 1.4rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #2d3748;
   }
 
   .dropdown-arrow {
-    font-size: 1rem;
-    color: var(--text-light);
+    font-size: 0.9rem;
+    color: #7C6FDB;
     transition: transform 0.3s ease;
+    margin-left: 0.2rem;
   }
 
   .user-dropdown.active .dropdown-arrow {
@@ -561,10 +577,10 @@
     position: absolute;
     top: 100%;
     right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #F8F7FF 0%, #E8E5F8 100%);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(124, 111, 219, 0.2);
+    border: 2px solid rgba(124, 111, 219, 0.15);
     min-width: 280px;
     z-index: 1000;
     opacity: 0;
@@ -582,7 +598,9 @@
 
   .dropdown-header {
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid rgba(124, 111, 219, 0.15);
+    background: rgba(124, 111, 219, 0.08);
+    border-radius: 14px 14px 0 0;
   }
 
   .user-info {
@@ -619,15 +637,17 @@
   }
 
   .dropdown-item:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(124, 111, 219, 0.12);
+    color: #7C6FDB;
   }
 
   .dropdown-item.logout-btn {
-    color: var(--danger-color);
+    color: #e74c3c;
   }
 
   .dropdown-item.logout-btn:hover {
-    background: rgba(220, 53, 69, 0.1);
+    background: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
   }
 
   .dropdown-icon {
@@ -635,8 +655,8 @@
   }
 
   .dropdown-divider {
-    height: 1px;
-    background: rgba(0, 0, 0, 0.1);
+    height: 2px;
+    background: rgba(124, 111, 219, 0.12);
     margin: 0.5rem 0;
   }
 
@@ -1718,6 +1738,10 @@
     width: 100%;
   }
   
+  .logo-image {
+    height: 100px;
+  }
+  
   .header-actions {
     margin-right: 1rem;
   }
@@ -1768,6 +1792,10 @@
 @media (max-width: 480px) {
   html {
     font-size: 50%; /* 8px */
+  }
+  
+  .logo-image {
+    height: 80px;
   }
   
   .logo-text {
