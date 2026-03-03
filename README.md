@@ -51,6 +51,9 @@ To bridge communication gaps and empower deaf and hard-of-hearing children throu
 Create an inclusive world where every child can communicate effectively through sign language, breaking down barriers and fostering understanding.
 
 ---
+## Demo video 
+
+https://github.com/amithkm9/LearnSign_pro/blob/main/docs/LearnSign_demo%20(1).mp4
 
 ## ✨ Features
 
