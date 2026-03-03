@@ -53,7 +53,9 @@ Create an inclusive world where every child can communicate effectively through 
 ---
 ## Demo video 
 
-https://github.com/amithkm9/LearnSign_pro/blob/main/docs/LearnSign_demo%20(1).mp4
+<video controls width="700">
+  <source src="docs/LearnSign_demo (1).mp4" type="video/mp4">
+</video>
 
 ## ✨ Features
 
